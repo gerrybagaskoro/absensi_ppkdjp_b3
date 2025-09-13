@@ -1,5 +1,6 @@
 import 'package:absensi_ppkdjp_b3/views/auth/login_peserta.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/register_peserta.dart';
+import 'package:absensi_ppkdjp_b3/views/dashboard_peserta.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPeserta(),
         '/register': (context) => const RegisterPeserta(),
-        // '/dashboard': (context) => const DashboardPage(), // Nanti ditambahkan
+        '/dashboard': (context) => const DashboardPeserta(),
       },
     );
   }

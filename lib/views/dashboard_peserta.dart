@@ -1,20 +1,22 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DashboardPeserta extends StatefulWidget {
-  const DashboardPeserta({Key? key}) : super(key: key);
+  const DashboardPeserta({super.key});
 
   @override
-  _DashboardPesertaState createState() => _DashboardPesertaState();
+  State<DashboardPeserta> createState() => _DashboardPesertaState();
 }
 
 class _DashboardPesertaState extends State<DashboardPeserta> {
-  String _userName = "Gerry";
-  DateTime _currentDate = DateTime.now();
+  final String _userName = "Gerry";
+  final DateTime _currentDate = DateTime.now();
   String _statusAbsen = "Belum Absen";
   String _jamMasuk = "--:--";
   String _jamPulang = "--:--";
-  
+
   // Data statistik dummy
   final Map<String, int> _stats = {
     'Hadir': 20,
@@ -28,7 +30,10 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Dashboard Absensi'),
+        title: const Text(
+          'Dashboard Absensi',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue[700],
         elevation: 0,
         actions: [
@@ -54,19 +59,19 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
             // Header dengan nama dan tanggal
             _buildHeaderSection(),
             const SizedBox(height: 24),
-            
+
             // Card Status Absensi Hari Ini
             _buildTodayStatusCard(),
             const SizedBox(height: 24),
-            
+
             // Tombol Absensi
             _buildAbsensiButtons(),
             const SizedBox(height: 24),
-            
+
             // Statistik Absensi
             _buildStatsSection(),
             const SizedBox(height: 24),
-            
+
             // Quick Actions
             _buildQuickActions(),
           ],
@@ -81,10 +86,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
       children: [
         Text(
           'Selamat Datang,',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
         const SizedBox(height: 4),
         Text(
@@ -98,10 +100,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
         const SizedBox(height: 8),
         Text(
           DateFormat('EEEE, dd MMMM yyyy').format(_currentDate),
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
       ],
     );
@@ -109,7 +108,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
 
   Widget _buildTodayStatusCard() {
     Color statusColor;
-    
+
     switch (_statusAbsen) {
       case "Hadir":
         statusColor = Colors.green;
@@ -123,7 +122,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
       default:
         statusColor = Colors.blue;
     }
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -133,10 +132,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           children: [
             const Text(
               'Status Hari Ini',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             Container(
@@ -172,20 +168,11 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
   Widget _buildTimeInfo(String label, String time) {
     return Column(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
         const SizedBox(height: 4),
         Text(
           time,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -219,25 +206,25 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     );
   }
 
-  Widget _buildAbsenButton(String text, IconData icon, Color color, VoidCallback onPressed) {
+  Widget _buildAbsenButton(
+    String text,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: Colors.white),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 14),
-          ),
+          Text(text, style: const TextStyle(fontSize: 14, color: Colors.white)),
         ],
       ),
     );
@@ -249,10 +236,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
       children: [
         const Text(
           'Statistik Absensi',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -296,10 +280,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 Text(
                   value.toString(),
@@ -323,10 +304,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
       children: [
         const Text(
           'Aksi Cepat',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Row(
@@ -355,13 +333,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           child: Icon(icon, color: color, size: 30),
         ),
         const SizedBox(height: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
       ],
     );
   }
@@ -371,23 +343,23 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     setState(() {
       _statusAbsen = "Hadir";
       _jamMasuk = DateFormat('HH:mm').format(DateTime.now());
-      
+
       // Simulasi update statistik
       _stats['Hadir'] = _stats['Hadir']! + 1;
     });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Absen masuk berhasil!')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Absen masuk berhasil!')));
   }
 
   void _simulateAbsenPulang() {
     setState(() {
       _jamPulang = DateFormat('HH:mm').format(DateTime.now());
     });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Absen pulang berhasil!')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Absen pulang berhasil!')));
   }
 }

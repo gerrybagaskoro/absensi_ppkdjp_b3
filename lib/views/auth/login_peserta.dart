@@ -28,7 +28,7 @@ class _LoginPesertaState extends State<LoginPeserta> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Login berhasil!')));
-
+        Navigator.pushReplacementNamed(context, '/dashboard');
         // Navigasi ke dashboard (akan diimplementasi nanti)
         // Navigator.pushReplacementNamed(context, '/dashboard');
       });
