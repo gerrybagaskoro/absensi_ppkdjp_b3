@@ -2,6 +2,7 @@
 
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
+import 'package:absensi_ppkdjp_b3/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -25,6 +26,11 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     'Alpha': 0,
   };
 
+  // Controller untuk form izin
+  final _formKey = GlobalKey<FormState>();
+  final _namaController = TextEditingController();
+  final _alasanController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,15 +45,11 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {
-              // Navigate to profile page
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              // Logout function
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -56,28 +58,22 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header dengan nama dan tanggal
             HeaderSection(),
             const SizedBox(height: 24),
 
-            // Card Lokasi (Google Maps placeholder)
             LocationCard(),
             const SizedBox(height: 24),
 
-            // Card Status Absensi Hari Ini
             _buildTodayStatusCard(),
             const SizedBox(height: 24),
 
-            // Tombol Absensi
             _buildAbsensiButtons(),
             const SizedBox(height: 24),
 
-            // Statistik Absensi
             _buildStatsSection(),
             const SizedBox(height: 24),
 
-            // Quick Actions
-            // _buildQuickActions(),
+            _buildIzinForm(), // ⬅️ Tambahan form izin
           ],
         ),
       ),
@@ -287,45 +283,81 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     );
   }
 
-  // Widget _buildQuickActions() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Aksi Cepat',
-  //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //       ),
-  //       const SizedBox(height: 16),
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           _buildActionButton('Riwayat', Icons.history, Colors.purple),
-  //           _buildActionButton('Izin', Icons.event_note, Colors.orange),
-  //           _buildActionButton('Profil', Icons.person, Colors.orange),
-  //           _buildActionButton('Lokasi', Icons.location_on, Colors.green),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
+  Widget _buildIzinForm() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Form Izin",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
 
-  // Widget _buildActionButton(String text, IconData icon, Color color) {
-  //   return Column(
-  //     children: [
-  //       Container(
-  //         width: 60,
-  //         height: 60,
-  //         decoration: BoxDecoration(
-  //           color: color.withOpacity(0.1),
-  //           borderRadius: BorderRadius.circular(12),
-  //         ),
-  //         child: Icon(icon, color: color, size: 30),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
-  //     ],
-  //   );
-  // }
+              CustomTextFormField(
+                label: "Nama Lengkap",
+                hint: "Masukkan nama Anda",
+                icon: Icons.person,
+                controller: _namaController,
+                validator: (value) =>
+                    value!.isEmpty ? "Nama tidak boleh kosong" : null,
+              ),
+              const SizedBox(height: 16),
+
+              CustomTextFormField(
+                label: "Alasan Izin",
+                hint: "Tuliskan alasan izin...",
+                icon: Icons.note,
+                controller: _alasanController,
+                validator: (value) =>
+                    value!.isEmpty ? "Alasan tidak boleh kosong" : null,
+              ),
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  label: const Text(
+                    "Kirim Izin",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[700],
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Izin dikirim oleh ${_namaController.text}",
+                          ),
+                        ),
+                      );
+                      _stats['Izin'] = _stats['Izin']! + 1;
+                      setState(() {});
+                      _namaController.clear();
+                      _alasanController.clear();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   // Simulasi fungsi absen
   void _simulateAbsenMasuk() {
@@ -333,7 +365,6 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
       _statusAbsen = "Hadir";
       _jamMasuk = DateFormat('HH:mm').format(DateTime.now());
 
-      // Simulasi update statistik
       _stats['Hadir'] = _stats['Hadir']! + 1;
     });
 

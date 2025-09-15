@@ -28,7 +28,7 @@ class _LoginPesertaState extends State<LoginPeserta> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Login berhasil!')));
-        context.pushReplacementNamed('/dashboard');
+        context.pushNamedAndRemoveAll('/dashboard');
       });
     }
   }
@@ -60,8 +60,8 @@ class _LoginPesertaState extends State<LoginPeserta> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      AppLogo(width: 240, height: 240),
-                      // const SizedBox(height: 20),
+                      const AppLogo(width: 240, height: 240),
+                      const SizedBox(height: 20),
                       Text(
                         'Masuk untuk Presensi',
                         style: Theme.of(context).textTheme.headlineSmall
@@ -79,12 +79,19 @@ class _LoginPesertaState extends State<LoginPeserta> {
                         decoration: InputDecoration(
                           labelText: 'Surel',
                           labelStyle: const TextStyle(color: Colors.black87),
-                          prefixIcon: const Icon(Icons.email),
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Colors.orange,
+                          ),
                           filled: true,
-                          // fillColor: Colors.orange[50],
+                          fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16.0,
+                            horizontal: 16.0,
                           ),
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -105,12 +112,17 @@ class _LoginPesertaState extends State<LoginPeserta> {
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Kata sandi',
-                          prefixIcon: const Icon(Icons.lock),
+                          labelStyle: const TextStyle(color: Colors.black87),
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Colors.orange,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility
                                   : Icons.visibility_off,
+                              color: Colors.grey,
                             ),
                             onPressed: () {
                               setState(
@@ -119,10 +131,14 @@ class _LoginPesertaState extends State<LoginPeserta> {
                             },
                           ),
                           filled: true,
-                          // fillColor: Colors.grey[100],
+                          fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16.0,
+                            horizontal: 16.0,
                           ),
                         ),
                         obscureText: _obscurePassword,
@@ -148,6 +164,7 @@ class _LoginPesertaState extends State<LoginPeserta> {
                                 onPressed: _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange[700],
+                                  foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12.0),
                                   ),
@@ -157,7 +174,7 @@ class _LoginPesertaState extends State<LoginPeserta> {
                                   'Masuk',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -169,9 +186,12 @@ class _LoginPesertaState extends State<LoginPeserta> {
                         onPressed: () {
                           context.pushNamed('/register');
                         },
-                        child: const Text(
+                        child: Text(
                           'Belum punya akun? Daftar di sini',
-                          style: TextStyle(color: Colors.orange),
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
 
@@ -186,9 +206,12 @@ class _LoginPesertaState extends State<LoginPeserta> {
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           'Lupa Password?',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
