@@ -2,6 +2,7 @@
 
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class LoginPeserta extends StatefulWidget {
@@ -181,17 +182,31 @@ class _LoginPesertaState extends State<LoginPeserta> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Link daftar
-                      TextButton(
-                        onPressed: () {
-                          context.pushNamed('/register');
-                        },
-                        child: Text(
-                          'Belum punya akun? Daftar di sini',
-                          style: TextStyle(
-                            color: Colors.orange[700],
-                            fontWeight: FontWeight.w500,
+                      // Link daftar (pakai Text.rich)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Belum punya akun? ',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w400,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Daftar di sini',
+                                style: TextStyle(
+                                  color: Colors.orange[700],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.pushNamed('/register');
+                                  },
+                              ),
+                            ],
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
 
