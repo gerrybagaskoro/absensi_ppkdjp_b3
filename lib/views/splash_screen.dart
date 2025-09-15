@@ -2,10 +2,10 @@
 
 import 'dart:async';
 
+import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
+import 'package:absensi_ppkdjp_b3/views/auth/login_peserta.dart';
 import 'package:flutter/material.dart';
-
-import 'dashboard_peserta.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,10 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Simulasi delay splash 3 detik
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardPeserta()),
-      );
+      context.push(LoginPeserta());
     });
   }
 
@@ -46,8 +43,8 @@ class _SplashScreenState extends State<SplashScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          "© 2025 Presensi Kita",
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+          "© 2025 Gerry Bagaskoro Putro",
+          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Absensi PPKD',
       theme: ThemeData(primarySwatch: Colors.orange),
-      initialRoute: '/login',
+      initialRoute: '/splash',
       routes: {
         '/login': (context) => const LoginPeserta(),
         '/splash': (context) => const SplashScreen(),
