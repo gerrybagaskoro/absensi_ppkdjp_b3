@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
 import 'package:flutter/material.dart';
 
 class LoginPeserta extends StatefulWidget {
@@ -59,19 +60,15 @@ class _LoginPesertaState extends State<LoginPeserta> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo avatar bulat
-                      CircleAvatar(
-                        radius: 45,
-                        backgroundColor: Colors.orange[100],
-                        child: const FlutterLogo(size: 60),
-                      ),
-                      const SizedBox(height: 20),
+                      AppLogo(width: 240, height: 240),
+                      // const SizedBox(height: 20),
                       Text(
-                        'Presensi Kita',
+                        'Masuk untuk Presensi',
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange[800],
+                              fontSize: 18,
                             ),
                       ),
                       const SizedBox(height: 30),
@@ -81,9 +78,10 @@ class _LoginPesertaState extends State<LoginPeserta> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Surel',
+                          labelStyle: const TextStyle(color: Colors.black87),
                           prefixIcon: const Icon(Icons.email),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          // fillColor: Colors.orange[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
@@ -121,7 +119,7 @@ class _LoginPesertaState extends State<LoginPeserta> {
                             },
                           ),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          // fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
