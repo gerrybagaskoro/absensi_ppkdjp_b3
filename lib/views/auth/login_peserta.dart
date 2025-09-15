@@ -182,52 +182,61 @@ class _LoginPesertaState extends State<LoginPeserta> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Link daftar (pakai Text.rich)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text.rich(
-                          TextSpan(
-                            text: 'Belum punya akun? ',
-                            style: TextStyle(
-                              color: Colors.grey[800],
-                              fontWeight: FontWeight.w400,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Daftar di sini',
-                                style: TextStyle(
-                                  color: Colors.orange[700],
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    context.pushNamed('/register');
-                                  },
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-
-                      // Link lupa password
-                      TextButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Fitur lupa password akan diimplementasi',
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Lupa Password?',
+                      // Link daftar (Text.rich)
+                      Text.rich(
+                        TextSpan(
+                          text: 'Belum punya akun? ',
                           style: TextStyle(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.w400,
                           ),
+                          children: [
+                            TextSpan(
+                              text: 'Daftar di sini',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  context.pushNamed('/register');
+                                },
+                            ),
+                          ],
                         ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Link lupa password (Text.rich)
+                      Text.rich(
+                        TextSpan(
+                          text: 'Lupa kata sandi? ',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.w400,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Reset di sini',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Fitur lupa password akan diimplementasi',
+                                      ),
+                                    ),
+                                  );
+                                },
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
