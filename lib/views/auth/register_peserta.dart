@@ -14,6 +14,8 @@ class RegisterPeserta extends StatefulWidget {
 
 class _RegisterPesertaState extends State<RegisterPeserta> {
   final _formKey = GlobalKey<FormState>();
+
+  // Controllers
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _trainingController = TextEditingController();
@@ -26,25 +28,22 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
   bool _obscureConfirmPassword = true;
   File? _avatarFile;
 
+  // Pick image
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      setState(() {
-        _avatarFile = File(pickedFile.path);
-      });
+      setState(() => _avatarFile = File(pickedFile.path));
     }
   }
 
+  // Register action
   void _register() {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password dan konfirmasi password tidak sama'),
-          ),
+          const SnackBar(content: Text('Password dan konfirmasi tidak sama')),
         );
         return;
       }
@@ -55,7 +54,10 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
         setState(() => _isLoading = false);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+          const SnackBar(
+            content: Text('Registrasi berhasil! Silakan login.'),
+            backgroundColor: Colors.green,
+          ),
         );
 
         Navigator.pop(context);
@@ -63,15 +65,20 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
     }
   }
 
+  // Input style
   InputDecoration _inputStyle(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon),
+      prefixIcon: Icon(icon, color: Colors.orange[700]),
       filled: true,
       fillColor: Colors.grey[100],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
         borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: Colors.orange.shade700, width: 1.5),
       ),
     );
   }
@@ -95,7 +102,8 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              elevation: 8,
+              elevation: 10,
+              shadowColor: Colors.black26,
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Form(
@@ -103,21 +111,23 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Judul
                       Text(
                         'Daftar Presensi Kita',
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.orange[800],
                             ),
                       ),
                       const SizedBox(height: 24),
+
                       // Avatar Upload
                       Stack(
                         children: [
                           CircleAvatar(
-                            radius: 60,
+                            radius: 55,
                             backgroundColor: Colors.grey[300],
                             backgroundImage: _avatarFile != null
                                 ? FileImage(_avatarFile!)
@@ -158,46 +168,54 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
 
                       const SizedBox(height: 30),
 
-                      // Form Fields
+                      // Nama
                       TextFormField(
                         controller: _nameController,
                         decoration: _inputStyle('Nama Lengkap', Icons.person),
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Nama tidak boleh kosong'
+                            ? 'Nama wajib diisi'
                             : null,
                       ),
                       const SizedBox(height: 16),
+
+                      // Email
                       TextFormField(
                         controller: _emailController,
                         decoration: _inputStyle('Surel', Icons.email),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Surel tidak boleh kosong';
+                            return 'Surel wajib diisi';
                           }
-                          if (!value.contains('@')) {
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                             return 'Format surel tidak valid';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
+
+                      // Training
                       TextFormField(
                         controller: _trainingController,
                         decoration: _inputStyle('Training', Icons.school),
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Training tidak boleh kosong'
+                            ? 'Training wajib diisi'
                             : null,
                       ),
                       const SizedBox(height: 16),
+
+                      // Batch
                       TextFormField(
                         controller: _batchController,
                         decoration: _inputStyle('Batch', Icons.group),
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Batch tidak boleh kosong'
+                            ? 'Batch wajib diisi'
                             : null,
                       ),
                       const SizedBox(height: 16),
+
+                      // Password
                       TextFormField(
                         controller: _passwordController,
                         decoration: _inputStyle('Kata sandi', Icons.lock)
@@ -207,31 +225,32 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
                                   _obscurePassword
                                       ? Icons.visibility
                                       : Icons.visibility_off,
+                                  color: Colors.orange[700],
                                 ),
-                                onPressed: () {
-                                  setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  );
-                                },
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
                               ),
                             ),
                         obscureText: _obscurePassword,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Kata sandi tidak boleh kosong';
+                            return 'Kata sandi wajib diisi';
                           }
                           if (value.length < 6) {
-                            return 'Kata sandi minimal 6 karakter';
+                            return 'Minimal 6 karakter';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
+
+                      // Confirm Password
                       TextFormField(
                         controller: _confirmPasswordController,
                         decoration:
                             _inputStyle(
-                              'Konfirmasi Kata sandi',
+                              'Konfirmasi sandi',
                               Icons.lock_outline,
                             ).copyWith(
                               suffixIcon: IconButton(
@@ -239,21 +258,21 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
                                   _obscureConfirmPassword
                                       ? Icons.visibility
                                       : Icons.visibility_off,
+                                  color: Colors.orange[700],
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureConfirmPassword =
-                                        !_obscureConfirmPassword;
-                                  });
-                                },
+                                onPressed: () => setState(
+                                  () => _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
+                                ),
                               ),
                             ),
                         obscureText: _obscureConfirmPassword,
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Konfirmasi password tidak boleh kosong'
+                            ? 'Konfirmasi wajib diisi'
                             : null,
                       ),
-                      const SizedBox(height: 24),
+
+                      const SizedBox(height: 28),
 
                       // Tombol daftar
                       SizedBox(
@@ -268,7 +287,7 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12.0),
                                   ),
-                                  elevation: 4,
+                                  elevation: 3,
                                 ),
                                 child: const Text(
                                   'Daftar',
@@ -279,15 +298,18 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
                                 ),
                               ),
                       ),
+
                       const SizedBox(height: 16),
 
+                      // Link ke login
                       TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                         child: const Text(
                           'Sudah punya akun? Login di sini',
-                          style: TextStyle(color: Colors.orange),
+                          style: TextStyle(
+                            color: Colors.orange,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
                     ],
@@ -301,6 +323,7 @@ class _RegisterPesertaState extends State<RegisterPeserta> {
     );
   }
 
+  // Dispose controllers
   @override
   void dispose() {
     _nameController.dispose();
