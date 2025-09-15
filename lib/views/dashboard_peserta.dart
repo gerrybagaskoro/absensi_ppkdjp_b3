@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
+import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,8 +13,6 @@ class DashboardPeserta extends StatefulWidget {
 }
 
 class _DashboardPesertaState extends State<DashboardPeserta> {
-  final String _userName = "Gerry Bagaskoro Putro";
-  final DateTime _currentDate = DateTime.now();
   String _statusAbsen = "Belum Absen";
   String _jamMasuk = "--:--";
   String _jamPulang = "--:--";
@@ -57,7 +57,11 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header dengan nama dan tanggal
-            _buildHeaderSection(),
+            HeaderSection(),
+            const SizedBox(height: 24),
+
+            // Card Lokasi (Google Maps placeholder)
+            LocationCard(),
             const SizedBox(height: 24),
 
             // Card Status Absensi Hari Ini
@@ -88,32 +92,6 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeaderSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Selamat Datang,',
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          _userName,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          DateFormat('EEEE, dd MMMM yyyy').format(_currentDate),
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-        ),
-      ],
     );
   }
 
