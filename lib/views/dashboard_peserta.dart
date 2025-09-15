@@ -11,7 +11,7 @@ class DashboardPeserta extends StatefulWidget {
 }
 
 class _DashboardPesertaState extends State<DashboardPeserta> {
-  final String _userName = "Gerry";
+  final String _userName = "Gerry Bagaskoro Putro";
   final DateTime _currentDate = DateTime.now();
   String _statusAbsen = "Belum Absen";
   String _jamMasuk = "--:--";
@@ -34,17 +34,17 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           'Dashboard Absensi',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.blue[700],
+        backgroundColor: Colors.orange[700],
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
               // Navigate to profile page
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               // Logout function
             },
@@ -73,8 +73,19 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
             const SizedBox(height: 24),
 
             // Quick Actions
-            _buildQuickActions(),
+            // _buildQuickActions(),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.orange[700],
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Text(
+            '© 2025 Presensi Kita. All rights reserved.',
+            style: TextStyle(color: Colors.grey[200], fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
@@ -120,7 +131,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
         statusColor = Colors.grey;
         break;
       default:
-        statusColor = Colors.blue;
+        statusColor = Colors.orange;
     }
 
     return Card(
@@ -185,7 +196,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           child: _buildAbsenButton(
             'Absen Masuk',
             Icons.login,
-            Colors.blue[700]!,
+            Colors.orange[700]!,
             () {
               _simulateAbsenMasuk();
             },
@@ -243,12 +254,12 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 2.5,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 2,
           children: [
             _buildStatCard('Hadir', _stats['Hadir']!, Colors.green),
-            _buildStatCard('Izin', _stats['Izin']!, Colors.blue),
+            _buildStatCard('Izin', _stats['Izin']!, Colors.orange),
             _buildStatCard('Telat', _stats['Telat']!, Colors.orange),
             _buildStatCard('Alpha', _stats['Alpha']!, Colors.red),
           ],
@@ -298,45 +309,45 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     );
   }
 
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Aksi Cepat',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildActionButton('Riwayat', Icons.history, Colors.purple),
-            _buildActionButton('Izin', Icons.event_note, Colors.orange),
-            _buildActionButton('Profil', Icons.person, Colors.blue),
-            _buildActionButton('Lokasi', Icons.location_on, Colors.green),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _buildQuickActions() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         'Aksi Cepat',
+  //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //       ),
+  //       const SizedBox(height: 16),
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           _buildActionButton('Riwayat', Icons.history, Colors.purple),
+  //           _buildActionButton('Izin', Icons.event_note, Colors.orange),
+  //           _buildActionButton('Profil', Icons.person, Colors.orange),
+  //           _buildActionButton('Lokasi', Icons.location_on, Colors.green),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildActionButton(String text, IconData icon, Color color) {
-    return Column(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: color, size: 30),
-        ),
-        const SizedBox(height: 8),
-        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
-      ],
-    );
-  }
+  // Widget _buildActionButton(String text, IconData icon, Color color) {
+  //   return Column(
+  //     children: [
+  //       Container(
+  //         width: 60,
+  //         height: 60,
+  //         decoration: BoxDecoration(
+  //           color: color.withOpacity(0.1),
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         child: Icon(icon, color: color, size: 30),
+  //       ),
+  //       const SizedBox(height: 8),
+  //       Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+  //     ],
+  //   );
+  // }
 
   // Simulasi fungsi absen
   void _simulateAbsenMasuk() {
