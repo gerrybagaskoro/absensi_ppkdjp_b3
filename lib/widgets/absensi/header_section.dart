@@ -17,7 +17,7 @@ class _HeaderSectionState extends State<HeaderSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Selamat Datang,',
+          'Selamat Datang Kembali,',
           style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
         const SizedBox(height: 4),

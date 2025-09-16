@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:absensi_ppkdjp_b3/views/absensi/history_absensi.dart';
+import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
-import 'package:absensi_ppkdjp_b3/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,11 +15,13 @@ class DashboardPeserta extends StatefulWidget {
 }
 
 class _DashboardPesertaState extends State<DashboardPeserta> {
+  int _selectedIndex = 0;
+
+  final String _userName = "Gerry Bagaskoro Putro";
   String _statusAbsen = "Belum Absen";
   String _jamMasuk = "--:--";
   String _jamPulang = "--:--";
 
-  // Data statistik dummy
   final Map<String, int> _stats = {
     'Hadir': 20,
     'Izin': 2,
@@ -26,67 +29,89 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     'Alpha': 0,
   };
 
-  // Controller untuk form izin
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _alasanController = TextEditingController();
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      _buildDashboardPage(),
+      RiwayatPresensiPage(),
+      // const Center(child: Text("Riwayat Presensi (Coming Soon)")),
+      const Center(child: Text("Kehadiran / Presensi (Coming Soon)")),
+      const Center(child: Text("Daftar Izin (Coming Soon)")),
+      // const Center(child: Text("Profil (Coming Soon)")),
+      ProfilePresensi(),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text(
-          'Dashboard Absensi',
+          'Presensi Kita',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: Colors.orange[700],
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.settings, color: Colors.white),
+          //   onPressed: () {},
+          // ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {},
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HeaderSection(),
-            const SizedBox(height: 24),
-
-            LocationCard(),
-            const SizedBox(height: 24),
-
-            _buildTodayStatusCard(),
-            const SizedBox(height: 24),
-
-            _buildAbsensiButtons(),
-            const SizedBox(height: 24),
-
-            _buildStatsSection(),
-            const SizedBox(height: 24),
-
-            _buildIzinForm(), // ⬅️ Tambahan form izin
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.orange[700],
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Text(
-            '© 2025 Presensi Kita. All rights reserved.',
-            style: TextStyle(color: Colors.grey[200], fontSize: 14),
-            textAlign: TextAlign.center,
+      body: pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.orange[700],
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "Riwayat"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_circle),
+            label: "Kehadiran",
           ),
-        ),
+          BottomNavigationBarItem(icon: Icon(Icons.note), label: "Izin"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+        ],
+      ),
+    );
+  }
+
+  /// === PAGE DASHBOARD ===
+  Widget _buildDashboardPage() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HeaderSection(),
+          const SizedBox(height: 24),
+          LocationCard(),
+          const SizedBox(height: 24),
+          _buildTodayStatusCard(),
+          const SizedBox(height: 24),
+          _buildAbsensiButtons(),
+          const SizedBox(height: 24),
+          _buildStatsSection(),
+          const SizedBox(height: 24),
+          // _buildIzinForm(),
+        ],
       ),
     );
   }
@@ -219,9 +244,9 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Statistik Absensi',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          'Statistik Presensi $_userName',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -283,88 +308,84 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     );
   }
 
-  Widget _buildIzinForm() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Form Izin",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
+  // Widget _buildIzinForm() {
+  //   return Card(
+  //     elevation: 2,
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Form(
+  //         key: _formKey,
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             const Text(
+  //               "Form Izin",
+  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //             ),
+  //             const SizedBox(height: 16),
+  //             CustomTextFormField(
+  //               label: "Nama Lengkap",
+  //               hint: "Masukkan nama Anda",
+  //               icon: Icons.person,
+  //               controller: _namaController,
+  //               validator: (value) =>
+  //                   value!.isEmpty ? "Nama tidak boleh kosong" : null,
+  //             ),
+  //             const SizedBox(height: 16),
+  //             CustomTextFormField(
+  //               label: "Alasan Izin",
+  //               hint: "Tuliskan alasan izin...",
+  //               icon: Icons.note,
+  //               controller: _alasanController,
+  //               validator: (value) =>
+  //                   value!.isEmpty ? "Alasan tidak boleh kosong" : null,
+  //             ),
+  //             const SizedBox(height: 24),
+  //             SizedBox(
+  //               width: double.infinity,
+  //               child: ElevatedButton.icon(
+  //                 icon: const Icon(Icons.send, color: Colors.white),
+  //                 label: const Text(
+  //                   "Kirim Izin",
+  //                   style: TextStyle(color: Colors.white),
+  //                 ),
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Colors.orange[700],
+  //                   padding: const EdgeInsets.symmetric(vertical: 16),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(12),
+  //                   ),
+  //                 ),
+  //                 onPressed: () {
+  //                   if (_formKey.currentState!.validate()) {
+  //                     ScaffoldMessenger.of(context).showSnackBar(
+  //                       SnackBar(
+  //                         content: Text(
+  //                           "Izin dikirim oleh ${_namaController.text}",
+  //                         ),
+  //                       ),
+  //                     );
+  //                     _stats['Izin'] = _stats['Izin']! + 1;
+  //                     setState(() {});
+  //                     _namaController.clear();
+  //                     _alasanController.clear();
+  //                   }
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-              CustomTextFormField(
-                label: "Nama Lengkap",
-                hint: "Masukkan nama Anda",
-                icon: Icons.person,
-                controller: _namaController,
-                validator: (value) =>
-                    value!.isEmpty ? "Nama tidak boleh kosong" : null,
-              ),
-              const SizedBox(height: 16),
-
-              CustomTextFormField(
-                label: "Alasan Izin",
-                hint: "Tuliskan alasan izin...",
-                icon: Icons.note,
-                controller: _alasanController,
-                validator: (value) =>
-                    value!.isEmpty ? "Alasan tidak boleh kosong" : null,
-              ),
-              const SizedBox(height: 24),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text(
-                    "Kirim Izin",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[700],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "Izin dikirim oleh ${_namaController.text}",
-                          ),
-                        ),
-                      );
-                      _stats['Izin'] = _stats['Izin']! + 1;
-                      setState(() {});
-                      _namaController.clear();
-                      _alasanController.clear();
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Simulasi fungsi absen
+  /// === SIMULASI ABSEN ===
   void _simulateAbsenMasuk() {
     setState(() {
       _statusAbsen = "Hadir";
       _jamMasuk = DateFormat('HH:mm').format(DateTime.now());
-
       _stats['Hadir'] = _stats['Hadir']! + 1;
     });
 
