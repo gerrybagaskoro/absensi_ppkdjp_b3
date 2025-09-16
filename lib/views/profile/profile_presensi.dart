@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
@@ -14,6 +16,28 @@ class ProfilePresensi extends StatefulWidget {
 }
 
 class _ProfilePresensiState extends State<ProfilePresensi> {
+  String? name;
+  String? email;
+  String? profilePhoto;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userDataString = await PreferenceHandler.getUserData();
+    if (userDataString != null) {
+      final data = jsonDecode(userDataString);
+      setState(() {
+        name = data['name'] ?? 'Tidak diketahui';
+        email = data['email'] ?? 'Tidak diketahui';
+        profilePhoto = data['profile_photo'];
+      });
+    }
+  }
+
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -26,7 +50,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
           content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context), // ✅ tutup dialog
+              onPressed: () => Navigator.pop(context),
               child: const Text("Batal"),
             ),
             ElevatedButton(
@@ -35,8 +59,8 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                Navigator.pop(context); // ✅ tutup dialog dulu
-                await _logout(); // ✅ proses logout
+                Navigator.pop(context);
+                await _logout();
               },
               child: const Text("Ya, Keluar"),
             ),
@@ -47,9 +71,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
   }
 
   Future<void> _logout() async {
-    // Hapus semua data kecuali onboarding
     await PreferenceHandler.clearAll();
-
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +81,6 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
       ),
     );
 
-    // Arahkan ke login dan hapus semua halaman sebelumnya
     context.pushReplacement(LoginPresensi());
   }
 
@@ -71,14 +92,19 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
         child: Column(
           children: [
             const SizedBox(height: 24),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage("assets/images/kano-pfp.jpg"),
+              backgroundImage: profilePhoto != null
+                  ? NetworkImage(
+                      'https://appabsensi.mobileprojp.com/storage/$profilePhoto',
+                    )
+                  : const AssetImage("assets/images/kano-pfp.jpg")
+                        as ImageProvider,
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Gerry Bagaskoro Putro",
-              style: TextStyle(
+            Text(
+              name ?? 'Loading...',
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
@@ -86,7 +112,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
             ),
             const SizedBox(height: 4),
             Text(
-              "gerry@example.com",
+              email ?? 'Loading...',
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 20),

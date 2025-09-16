@@ -35,14 +35,16 @@ class User {
   int? id;
   String? name;
   String? email;
-  String? emailVerifiedAt; // nullable
+  String? emailVerifiedAt; // bisa null
   DateTime? createdAt;
   DateTime? updatedAt;
   String? batchId;
   String? trainingId;
   String? jenisKelamin;
   String? profilePhoto;
-  String? onesignalPlayerId; // nullable
+  String? onesignalPlayerId; // bisa null
+
+  // batch & training tetap optional
   Batch? batch;
   Training? training;
 
@@ -63,21 +65,21 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["id"],
-    name: json["name"],
-    email: json["email"],
-    emailVerifiedAt: json["email_verified_at"],
+    id: json["id"] as int?,
+    name: json["name"] as String?,
+    email: json["email"] as String?,
+    emailVerifiedAt: json["email_verified_at"] as String?,
     createdAt: json["created_at"] == null
         ? null
         : DateTime.tryParse(json["created_at"]),
     updatedAt: json["updated_at"] == null
         ? null
         : DateTime.tryParse(json["updated_at"]),
-    batchId: json["batch_id"],
-    trainingId: json["training_id"],
-    jenisKelamin: json["jenis_kelamin"],
-    profilePhoto: json["profile_photo"],
-    onesignalPlayerId: json["onesignal_player_id"]?.toString(),
+    batchId: json["batch_id"] as String?,
+    trainingId: json["training_id"] as String?,
+    jenisKelamin: json["jenis_kelamin"] as String?,
+    profilePhoto: json["profile_photo"] as String?,
+    onesignalPlayerId: json["onesignal_player_id"] as String?,
     batch: json["batch"] == null ? null : Batch.fromJson(json["batch"]),
     training: json["training"] == null
         ? null
