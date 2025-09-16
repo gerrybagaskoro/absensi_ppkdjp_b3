@@ -1,4 +1,5 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/views/auth/login_peserta.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/edit_profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/settings_presensi.dart';
@@ -12,6 +13,52 @@ class ProfilePresensi extends StatefulWidget {
 }
 
 class _ProfilePresensiState extends State<ProfilePresensi> {
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text("Konfirmasi"),
+          content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.pop; // Tutup dialog
+              },
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                context.pushNamedAndRemoveAll('/login'); // Tutup dialog
+                _logout();
+              },
+              child: const Text("Ya, Keluar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logout() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Anda telah keluar."),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+    // contoh: arahkan kembali ke halaman login
+    context.pushReplacement(LoginPeserta());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,7 +128,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                     icon: Icons.logout,
                     text: "Keluar",
                     color: Colors.red,
-                    onTap: () {},
+                    onTap: _showLogoutDialog,
                   ),
                 ],
               ),
