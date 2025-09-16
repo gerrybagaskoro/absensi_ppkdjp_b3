@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             const AppLogo(height: 300, width: 300),
             const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
             ),
           ],
         ),

@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:absensi_ppkdjp_b3/views/absensi/history_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/absensi/izin_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/absensi/kehadiran_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
@@ -44,9 +46,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     final List<Widget> pages = [
       _buildDashboardPage(),
       HistoryPresensi(),
+      KehadiranPresensi(),
       // const Center(child: Text("Riwayat Presensi (Coming Soon)")),
-      const Center(child: Text("Kehadiran / Presensi (Coming Soon)")),
-      const Center(child: Text("Daftar Izin (Coming Soon)")),
+      // const Center(child: Text("Kehadiran / Presensi (Coming Soon)")),
+      IzinPresensi(),
+      // const Center(child: Text("Daftar Izin (Coming Soon)")),
       // const Center(child: Text("Profil (Coming Soon)")),
       ProfilePresensi(),
     ];
@@ -54,23 +58,27 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        // leading: Icon(Icons.menu, color: Colors.white),
         title: const Text(
           'Presensi Kita',
           style: TextStyle(color: Colors.white),
         ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
         centerTitle: true,
         backgroundColor: Colors.orange[700],
         elevation: 0,
-        actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.settings, color: Colors.white),
-          //   onPressed: () {},
-          // ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        // actions: [
+        //   // IconButton(
+        //   //   icon: const Icon(Icons.settings, color: Colors.white),
+        //   //   onPressed: () {},
+        //   // ),
+        //   // IconButton(
+        //   //   icon: const Icon(Icons.menu, color: Colors.white),
+        //   //   onPressed: () {},
+        //   // ),
+        // ],
       ),
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
