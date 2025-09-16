@@ -1,9 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'dart:convert';
+
+import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/model/auth/user_model.dart';
+import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPresensi extends StatefulWidget {
   const LoginPresensi({super.key});
@@ -19,18 +24,75 @@ class _LoginPresensiState extends State<LoginPresensi> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() => _isLoading = false);
+    setState(() => _isLoading = true);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Login berhasil!')));
-        context.pushNamedAndRemoveAll('/dashboard');
-      });
+    try {
+      final response = await http.post(
+        Uri.parse(Endpoint.login),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          "email": _emailController.text.trim(),
+          "password": _passwordController.text.trim(),
+        }),
+      );
+
+      print("Status code: ${response.statusCode}");
+      print("Login response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Parse dengan model UserModel
+        final userModel = UserModel.fromJson(jsonResponse);
+
+        final token = userModel.data?.token;
+        final user = userModel.data?.user;
+
+        if (token != null && user != null) {
+          // ✅ Simpan token dan data user ke SharedPreferences
+          await PreferenceHandler.saveLogin(true);
+          await PreferenceHandler.saveToken(token);
+          await PreferenceHandler.saveUserData(jsonEncode(user.toJson()));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login berhasil!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          context.pushNamedAndRemoveAll('/dashboard');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Data login tidak valid dari server'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login gagal: ${response.body}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -61,7 +123,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const AppLogo(width: 240, height: 240),
+                      const AppLogo(width: 200, height: 200),
                       const SizedBox(height: 20),
                       Text(
                         'Masuk untuk Presensi',
@@ -73,29 +135,21 @@ class _LoginPresensiState extends State<LoginPresensi> {
                             ),
                       ),
                       const SizedBox(height: 30),
-
-                      // Surel
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Surel',
-                          labelStyle: const TextStyle(color: Colors.black87),
                           prefixIcon: const Icon(
                             Icons.email,
                             color: Colors.orange,
                           ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16.0,
-                            horizontal: 16.0,
-                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
                         ),
-                        keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Surel tidak boleh kosong';
@@ -107,13 +161,10 @@ class _LoginPresensiState extends State<LoginPresensi> {
                         },
                       ),
                       const SizedBox(height: 16),
-
-                      // Password
                       TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Kata sandi',
-                          labelStyle: const TextStyle(color: Colors.black87),
                           prefixIcon: const Icon(
                             Icons.lock,
                             color: Colors.orange,
@@ -125,22 +176,16 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                   : Icons.visibility_off,
                               color: Colors.grey,
                             ),
-                            onPressed: () {
-                              setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              );
-                            },
+                            onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
                           ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16.0,
-                            horizontal: 16.0,
-                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
                         ),
                         obscureText: _obscurePassword,
                         validator: (value) {
@@ -148,14 +193,12 @@ class _LoginPresensiState extends State<LoginPresensi> {
                             return 'Kata sandi tidak boleh kosong';
                           }
                           if (value.length < 6) {
-                            return 'Kata sandi minimal 6 karakter';
+                            return 'Minimal 6 karakter';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 24),
-
-                      // Tombol login
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -169,7 +212,6 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12.0),
                                   ),
-                                  elevation: 4,
                                 ),
                                 child: const Text(
                                   'Masuk',
@@ -179,64 +221,6 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                   ),
                                 ),
                               ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Link daftar (Text.rich)
-                      Text.rich(
-                        TextSpan(
-                          text: 'Belum punya akun? ',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.w400,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: 'Daftar di sini',
-                              style: TextStyle(
-                                color: Colors.orange[700],
-                                fontWeight: FontWeight.bold,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  context.pushNamed('/register');
-                                },
-                            ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Link lupa password (Text.rich)
-                      Text.rich(
-                        TextSpan(
-                          text: 'Lupa kata sandi? ',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.w400,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: 'Reset di sini',
-                              style: TextStyle(
-                                color: Colors.orange[700],
-                                fontWeight: FontWeight.bold,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Fitur lupa password akan diimplementasi',
-                                      ),
-                                    ),
-                                  );
-                                },
-                            ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),

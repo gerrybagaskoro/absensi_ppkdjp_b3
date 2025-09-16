@@ -1,10 +1,12 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:async';
 
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/onboard_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,9 +21,16 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Simulasi delay splash 3 detik
-    Timer(const Duration(seconds: 3), () {
-      context.push(LoginPresensi());
+    // Simulasi delay splash 2 detik lalu cek onboarding
+    Timer(const Duration(seconds: 2), () async {
+      bool onboardingShown = await PreferenceHandler.getOnboardingShown();
+
+      if (onboardingShown) {
+        context.push(const LoginPresensi());
+      } else {
+        // Kalau belum → tampilkan onboarding dulu
+        context.push(const OnboardingScreen());
+      }
     });
   }
 
@@ -34,6 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const AppLogo(height: 300, width: 300),
+            const SizedBox(height: 24),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
             ),

@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:absensi_ppkdjp_b3/views/absensi/history_presensi.dart';
-import 'package:absensi_ppkdjp_b3/views/absensi/izin_presensi.dart';
-import 'package:absensi_ppkdjp_b3/views/absensi/kehadiran_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/history_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/izin_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/kehadiran_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';

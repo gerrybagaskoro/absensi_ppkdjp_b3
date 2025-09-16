@@ -1,4 +1,5 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/edit_profile_presensi.dart';
@@ -25,9 +26,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
           content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
           actions: [
             TextButton(
-              onPressed: () {
-                context.pop; // Tutup dialog
-              },
+              onPressed: () => Navigator.pop(context), // ✅ tutup dialog
               child: const Text("Batal"),
             ),
             ElevatedButton(
@@ -35,9 +34,9 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              onPressed: () {
-                context.pushNamedAndRemoveAll('/login'); // Tutup dialog
-                _logout();
+              onPressed: () async {
+                Navigator.pop(context); // ✅ tutup dialog dulu
+                await _logout(); // ✅ proses logout
               },
               child: const Text("Ya, Keluar"),
             ),
@@ -47,7 +46,12 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     );
   }
 
-  void _logout() {
+  Future<void> _logout() async {
+    // Hapus semua data kecuali onboarding
+    await PreferenceHandler.clearAll();
+
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Anda telah keluar."),
@@ -55,33 +59,23 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
       ),
     );
 
-    // contoh: arahkan kembali ke halaman login
+    // Arahkan ke login dan hapus semua halaman sebelumnya
     context.pushReplacement(LoginPresensi());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Profil", style: TextStyle(color: Colors.white)),
-      //   backgroundColor: Colors.orange,
-      //   elevation: 0,
-      //   centerTitle: true,
-      // ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             const SizedBox(height: 24),
-
-            // Avatar pakai image lokal
             const CircleAvatar(
               radius: 50,
               backgroundImage: AssetImage("assets/images/kano-pfp.jpg"),
             ),
             const SizedBox(height: 24),
-
-            // Nama
             const Text(
               "Gerry Bagaskoro Putro",
               style: TextStyle(
@@ -91,38 +85,28 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
               ),
             ),
             const SizedBox(height: 4),
-
-            // Email
             Text(
               "gerry@example.com",
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 20),
-
-            // Menu profil
             Expanded(
               child: ListView(
                 children: [
                   _buildMenuItem(
                     icon: Icons.edit,
                     text: "Edit Profil",
-                    onTap: () {
-                      context.push(EditProfilePage());
-                    },
+                    onTap: () => context.push(EditProfilePage()),
                   ),
                   _buildMenuItem(
                     icon: Icons.settings,
                     text: "Pengaturan",
-                    onTap: () {
-                      context.push(SettingsPresensi());
-                    },
+                    onTap: () => context.push(SettingsPresensi()),
                   ),
                   _buildMenuItem(
                     icon: Icons.android,
                     text: "Tentang Aplikasi",
-                    onTap: () {
-                      context.push(AboutApp());
-                    },
+                    onTap: () => context.push(AboutApp()),
                   ),
                   _buildMenuItem(
                     icon: Icons.logout,
@@ -159,7 +143,6 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: onTap,
         ),
-        // const Divider(height: 1),
       ],
     );
   }

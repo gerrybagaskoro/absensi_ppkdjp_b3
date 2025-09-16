@@ -1,6 +1,6 @@
-import 'package:absensi_ppkdjp_b3/views/absensi/dashboard_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/register_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/dashboard_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

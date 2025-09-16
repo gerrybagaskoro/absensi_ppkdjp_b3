@@ -20,35 +20,29 @@ class UserModel {
 class Data {
   String? token;
   User? user;
-  String? profilePhotoUrl; // Hanya ada di register
 
-  Data({this.token, this.user, this.profilePhotoUrl});
+  Data({this.token, this.user});
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     token: json["token"],
     user: json["user"] == null ? null : User.fromJson(json["user"]),
-    profilePhotoUrl: json["profile_photo_url"], // Bisa null
   );
 
-  Map<String, dynamic> toJson() => {
-    "token": token,
-    "user": user?.toJson(),
-    "profile_photo_url": profilePhotoUrl,
-  };
+  Map<String, dynamic> toJson() => {"token": token, "user": user?.toJson()};
 }
 
 class User {
   int? id;
   String? name;
   String? email;
-  dynamic emailVerifiedAt; // Hanya ada di login
+  String? emailVerifiedAt; // nullable
   DateTime? createdAt;
   DateTime? updatedAt;
   String? batchId;
   String? trainingId;
   String? jenisKelamin;
   String? profilePhoto;
-  dynamic onesignalPlayerId; // Hanya ada di login
+  String? onesignalPlayerId; // nullable
   Batch? batch;
   Training? training;
 
@@ -75,15 +69,15 @@ class User {
     emailVerifiedAt: json["email_verified_at"],
     createdAt: json["created_at"] == null
         ? null
-        : DateTime.parse(json["created_at"]),
+        : DateTime.tryParse(json["created_at"]),
     updatedAt: json["updated_at"] == null
         ? null
-        : DateTime.parse(json["updated_at"]),
+        : DateTime.tryParse(json["updated_at"]),
     batchId: json["batch_id"],
     trainingId: json["training_id"],
     jenisKelamin: json["jenis_kelamin"],
     profilePhoto: json["profile_photo"],
-    onesignalPlayerId: json["onesignal_player_id"],
+    onesignalPlayerId: json["onesignal_player_id"]?.toString(),
     batch: json["batch"] == null ? null : Batch.fromJson(json["batch"]),
     training: json["training"] == null
         ? null
@@ -129,23 +123,27 @@ class Batch {
     batchKe: json["batch_ke"],
     startDate: json["start_date"] == null
         ? null
-        : DateTime.parse(json["start_date"]),
-    endDate: json["end_date"] == null ? null : DateTime.parse(json["end_date"]),
+        : DateTime.tryParse(json["start_date"]),
+    endDate: json["end_date"] == null
+        ? null
+        : DateTime.tryParse(json["end_date"]),
     createdAt: json["created_at"] == null
         ? null
-        : DateTime.parse(json["created_at"]),
+        : DateTime.tryParse(json["created_at"]),
     updatedAt: json["updated_at"] == null
         ? null
-        : DateTime.parse(json["updatedated_at"]),
+        : DateTime.tryParse(json["updated_at"]),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "batch_ke": batchKe,
-    "start_date":
-        "${startDate!.year.toString().padLeft(4, '0')}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
-    "end_date":
-        "${endDate!.year.toString().padLeft(4, '0')}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}",
+    "start_date": startDate != null
+        ? startDate!.toIso8601String().split("T")[0]
+        : null,
+    "end_date": endDate != null
+        ? endDate!.toIso8601String().split("T")[0]
+        : null,
     "created_at": createdAt?.toIso8601String(),
     "updated_at": updatedAt?.toIso8601String(),
   };
@@ -181,10 +179,10 @@ class Training {
     duration: json["duration"],
     createdAt: json["created_at"] == null
         ? null
-        : DateTime.parse(json["created_at"]),
+        : DateTime.tryParse(json["created_at"]),
     updatedAt: json["updated_at"] == null
         ? null
-        : DateTime.parse(json["updated_at"]),
+        : DateTime.tryParse(json["updated_at"]),
   );
 
   Map<String, dynamic> toJson() => {
