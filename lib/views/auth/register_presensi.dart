@@ -5,14 +5,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class RegisterPeserta extends StatefulWidget {
-  const RegisterPeserta({super.key});
+class RegisterPresensi extends StatefulWidget {
+  const RegisterPresensi({super.key});
 
   @override
-  State<RegisterPeserta> createState() => _RegisterPesertaState();
+  State<RegisterPresensi> createState() => _RegisterPresensiState();
 }
 
-class _RegisterPesertaState extends State<RegisterPeserta> {
+class _RegisterPresensiState extends State<RegisterPresensi> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers

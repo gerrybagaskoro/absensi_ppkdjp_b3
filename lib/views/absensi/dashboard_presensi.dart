@@ -1,20 +1,20 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:absensi_ppkdjp_b3/views/absensi/history_absensi.dart';
+import 'package:absensi_ppkdjp_b3/views/absensi/history_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DashboardPeserta extends StatefulWidget {
-  const DashboardPeserta({super.key});
+class DashboardPresensi extends StatefulWidget {
+  const DashboardPresensi({super.key});
 
   @override
-  State<DashboardPeserta> createState() => _DashboardPesertaState();
+  State<DashboardPresensi> createState() => _DashboardPresensiState();
 }
 
-class _DashboardPesertaState extends State<DashboardPeserta> {
+class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
 
   final String _userName = "Gerry Bagaskoro Putro";
@@ -29,9 +29,9 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
     'Alpha': 0,
   };
 
-  final _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
-  final _alasanController = TextEditingController();
+  // final _formKey = GlobalKey<FormState>();
+  // final _namaController = TextEditingController();
+  // final _alasanController = TextEditingController();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -43,7 +43,7 @@ class _DashboardPesertaState extends State<DashboardPeserta> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       _buildDashboardPage(),
-      RiwayatPresensiPage(),
+      HistoryPresensi(),
       // const Center(child: Text("Riwayat Presensi (Coming Soon)")),
       const Center(child: Text("Kehadiran / Presensi (Coming Soon)")),
       const Center(child: Text("Daftar Izin (Coming Soon)")),

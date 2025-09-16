@@ -5,14 +5,14 @@ import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class LoginPeserta extends StatefulWidget {
-  const LoginPeserta({super.key});
+class LoginPresensi extends StatefulWidget {
+  const LoginPresensi({super.key});
 
   @override
-  State<LoginPeserta> createState() => _LoginPesertaState();
+  State<LoginPresensi> createState() => _LoginPresensiState();
 }
 
-class _LoginPesertaState extends State<LoginPeserta> {
+class _LoginPresensiState extends State<LoginPresensi> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();

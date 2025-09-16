@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
-import 'package:absensi_ppkdjp_b3/views/auth/login_peserta.dart';
+import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Simulasi delay splash 3 detik
     Timer(const Duration(seconds: 3), () {
-      context.push(LoginPeserta());
+      context.push(LoginPresensi());
     });
   }
 

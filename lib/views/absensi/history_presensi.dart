@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class RiwayatPresensiPage extends StatelessWidget {
-  RiwayatPresensiPage({super.key});
+class HistoryPresensi extends StatelessWidget {
+  HistoryPresensi({super.key});
 
   // Dummy data
   final List<Map<String, dynamic>> _riwayat = [

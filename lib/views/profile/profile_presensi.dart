@@ -1,5 +1,5 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
-import 'package:absensi_ppkdjp_b3/views/auth/login_peserta.dart';
+import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/edit_profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/settings_presensi.dart';
@@ -56,7 +56,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     );
 
     // contoh: arahkan kembali ke halaman login
-    context.pushReplacement(LoginPeserta());
+    context.pushReplacement(LoginPresensi());
   }
 
   @override
