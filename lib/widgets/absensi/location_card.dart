@@ -14,7 +14,7 @@ class _LocationCardState extends State<LocationCard> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        height: 180, // tinggi placeholder map
+        height: 300, // tinggi placeholder map
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.grey[200],
