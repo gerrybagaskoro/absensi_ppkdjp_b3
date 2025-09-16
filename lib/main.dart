@@ -3,6 +3,7 @@ import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/register_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -24,8 +25,17 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-
-      initialRoute: '/splash',
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('id', 'ID'), // tambah locale Indonesia
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      // initialRoute: '/splash',
+      home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginPresensi(),
         '/splash': (context) => const SplashScreen(),
