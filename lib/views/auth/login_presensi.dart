@@ -7,6 +7,7 @@ import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/user_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -221,6 +222,64 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                   ),
                                 ),
                               ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Link daftar (Text.rich)
+                      Text.rich(
+                        TextSpan(
+                          text: 'Belum punya akun? ',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.w400,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Daftar di sini',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  context.pushNamed('/register');
+                                },
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Link lupa password (Text.rich)
+                      Text.rich(
+                        TextSpan(
+                          text: 'Lupa kata sandi? ',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontWeight: FontWeight.w400,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Reset di sini',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Fitur lupa password akan diimplementasi',
+                                      ),
+                                    ),
+                                  );
+                                },
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
