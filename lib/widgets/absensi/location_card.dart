@@ -27,26 +27,71 @@ class _LocationCardState extends State<LocationCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        height: 300, // tinggi placeholder map
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[200],
-        ),
-        child: GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: _currentPosition,
-            zoom: 16,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      // margin: const EdgeInsets.all(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Bagian peta
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: SizedBox(
+              height: 250,
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: _currentPosition,
+                  zoom: 16,
+                ),
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                mapType: MapType.normal,
+                markers: _marker != null ? {_marker!} : {},
+                onMapCreated: (controller) {
+                  mapController = controller;
+                },
+              ),
+            ),
           ),
-          myLocationEnabled: true,
-          myLocationButtonEnabled: true,
-          mapType: MapType.normal,
-          markers: _marker != null ? {_marker!} : {}, // <-- tambahkan ini
-          onMapCreated: (controller) {
-            mapController = controller;
-          },
-        ),
+
+          // Bagian informasi lokasi
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Koordinat: ${_currentPosition.latitude.toStringAsFixed(6)}, ${_currentPosition.longitude.toStringAsFixed(6)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _currentAddress,
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _getCurrentLocation();
+                    },
+                    icon: const Icon(Icons.my_location),
+                    label: const Text("Lokasi terkini"),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
