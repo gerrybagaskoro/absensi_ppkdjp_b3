@@ -1,6 +1,6 @@
-import 'dart:convert';
-
+import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/model/auth/get_profile_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
@@ -16,57 +16,50 @@ class ProfilePresensi extends StatefulWidget {
 }
 
 class _ProfilePresensiState extends State<ProfilePresensi> {
-  String? name;
-  String? email;
-  String? profilePhoto;
+  Data? _profile;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadProfile();
   }
 
-  Future<void> _loadUserData() async {
-    final userDataString = await PreferenceHandler.getUserData();
-    if (userDataString != null) {
-      final data = jsonDecode(userDataString);
-      setState(() {
-        name = data['name'] ?? 'Tidak diketahui';
-        email = data['email'] ?? 'Tidak diketahui';
-        profilePhoto = data['profile_photo'];
-      });
-    }
+  Future<void> _loadProfile() async {
+    setState(() => _isLoading = true);
+    final profile = await ProfileService.fetchProfile();
+    if (!mounted) return;
+    setState(() {
+      _profile = profile?.data;
+      _isLoading = false;
+    });
   }
 
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
           ),
-          title: const Text("Konfirmasi"),
-          content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Batal"),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                Navigator.pop(context);
-                await _logout();
-              },
-              child: const Text("Ya, Keluar"),
-            ),
-          ],
-        );
-      },
+            onPressed: () async {
+              Navigator.pop(context);
+              await _logout();
+            },
+            child: const Text("Ya, Keluar"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -87,65 +80,80 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: profilePhoto != null
-                  ? NetworkImage(
-                      'https://appabsensi.mobileprojp.com/storage/$profilePhoto',
-                    )
-                  : const AssetImage("assets/images/kano-pfp.jpg")
-                        as ImageProvider,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              name ?? 'Loading...',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              email ?? 'Loading...',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 children: [
-                  _buildMenuItem(
-                    icon: Icons.edit,
-                    text: "Edit Profil",
-                    onTap: () => context.push(EditProfilePage()),
+                  const SizedBox(height: 24),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.orange, width: 4),
+                    ),
+                    child: CircleAvatar(
+                      radius: 52,
+                      backgroundImage: _profile?.profilePhoto != null
+                          ? NetworkImage(
+                              "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}",
+                            )
+                          : null,
+                      backgroundColor: Colors.grey[300],
+                      child: _profile?.profilePhoto == null
+                          ? const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
                   ),
-                  _buildMenuItem(
-                    icon: Icons.settings,
-                    text: "Pengaturan",
-                    onTap: () => context.push(SettingsPresensi()),
+                  const SizedBox(height: 24),
+                  Text(
+                    _profile?.name ?? "Tidak ada nama",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                  _buildMenuItem(
-                    icon: Icons.android,
-                    text: "Tentang Aplikasi",
-                    onTap: () => context.push(AboutApp()),
+                  const SizedBox(height: 4),
+                  Text(
+                    _profile?.email ?? "Tidak ada email",
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
-                  _buildMenuItem(
-                    icon: Icons.logout,
-                    text: "Keluar",
-                    color: Colors.red,
-                    onTap: _showLogoutDialog,
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _buildMenuItem(
+                          icon: Icons.edit,
+                          text: "Edit Profil",
+                          onTap: () => context.push(EditProfilePage()),
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.settings,
+                          text: "Pengaturan",
+                          onTap: () => context.push(SettingsPresensi()),
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.info,
+                          text: "Tentang Aplikasi",
+                          onTap: () => context.push(AboutApp()),
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.logout,
+                          text: "Keluar",
+                          color: Colors.red,
+                          onTap: _showLogoutDialog,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -155,21 +163,17 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     required VoidCallback onTap,
     Color color = Colors.orange,
   }) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(icon, color: color),
-          title: Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              color: color == Colors.red ? Colors.red : Colors.black87,
-            ),
-          ),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: onTap,
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          color: color == Colors.red ? Colors.red : Colors.black87,
         ),
-      ],
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
     );
   }
 }

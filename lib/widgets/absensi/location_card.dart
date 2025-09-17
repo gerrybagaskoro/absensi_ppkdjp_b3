@@ -31,24 +31,21 @@ class _LocationCardState extends State<LocationCard> {
       child: Container(
         height: 300, // tinggi placeholder map
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           color: Colors.grey[200],
         ),
-        child: SizedBox(
-          height: 300,
-          child: GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _currentPosition,
-              zoom: 12,
-            ),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            mapType: MapType.satellite,
-            markers: _marker != null ? {_marker!} : {}, // <-- tambahkan ini
-            onMapCreated: (controller) {
-              mapController = controller;
-            },
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: _currentPosition,
+            zoom: 16,
           ),
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          mapType: MapType.normal,
+          markers: _marker != null ? {_marker!} : {}, // <-- tambahkan ini
+          onMapCreated: (controller) {
+            mapController = controller;
+          },
         ),
       ),
     );
