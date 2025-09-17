@@ -2,9 +2,9 @@ class Endpoint {
   static const String baseURL = 'https://appabsensi.mobileprojp.com/api';
 
   // Auth Endpoints
-  static const String login = '$baseURL/login';
-  static const String register = '$baseURL/register';
-  static const String profile = "$baseURL/profile";
+  static const String login = '$baseURL/login'; // Sudah
+  static const String register = '$baseURL/register'; //Sudah
+  static const String profile = "$baseURL/profile"; //Sudah
   static const String editFoto = "$baseURL/profile/photo";
   static const String checkIn = "$baseURL/absen/check-in";
   static const String checkOut = "$baseURL/absen/check-out";

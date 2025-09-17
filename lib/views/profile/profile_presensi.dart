@@ -95,9 +95,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                     child: CircleAvatar(
                       radius: 92,
                       backgroundImage: _profile?.profilePhotoUrl != null
-                          ? NetworkImage(
-                              _profile!.profilePhotoUrl!,
-                            ) // 🔥 langsung pakai URL dari API
+                          ? NetworkImage(_profile!.profilePhotoUrl!)
                           : _profile?.profilePhoto != null
                           ? NetworkImage(
                               "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}",
@@ -118,15 +116,19 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                   const SizedBox(height: 24),
                   Text(
                     _profile?.name ?? "Tidak ada nama",
-                    style: TextStyle(fontSize: 20, color: Colors.black87),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                   Text(
                     _profile?.email ?? "Tidak ada email",
-                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 16),
 
-                  // 🔹 Tambahan info dalam container rapi
+                  // 🔹 Info batch & training
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
@@ -183,25 +185,28 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // 🔹 Menu list dengan card rounded
                   Expanded(
                     child: ListView(
+                      padding: EdgeInsets.all(1), // 🔥 buang padding bawaan
                       children: [
-                        _buildMenuItem(
+                        _buildMenuCard(
                           icon: Icons.edit,
                           text: "Edit Profil",
                           onTap: () => context.push(EditProfilePage()),
                         ),
-                        _buildMenuItem(
+                        _buildMenuCard(
                           icon: Icons.settings,
                           text: "Pengaturan",
                           onTap: () => context.push(SettingsPresensi()),
                         ),
-                        _buildMenuItem(
+                        _buildMenuCard(
                           icon: Icons.info,
                           text: "Tentang Aplikasi",
                           onTap: () => context.push(AboutApp()),
                         ),
-                        _buildMenuItem(
+                        _buildMenuCard(
                           icon: Icons.logout,
                           text: "Keluar",
                           color: Colors.red,
@@ -216,23 +221,48 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     );
   }
 
-  Widget _buildMenuItem({
+  // 🔹 Helper untuk menu card
+  Widget _buildMenuCard({
     required IconData icon,
     required String text,
     required VoidCallback onTap,
     Color color = Colors.orange,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          color: color == Colors.red ? Colors.red : Colors.black87,
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(
+        vertical: 6,
+        horizontal: 0,
+      ), // ⬅️ full width
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          child: Row(
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: color == Colors.red ? Colors.red : Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey.shade400,
+              ),
+            ],
+          ),
         ),
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
     );
   }
 }
