@@ -8,7 +8,7 @@ class Endpoint {
   static const String editFoto = "$baseURL/profile/photo"; // Sudah
   static const String checkIn = "$baseURL/absen/check-in"; // Sudah
   static const String checkOut = "$baseURL/absen/check-out"; // Sudah
-  static const String izin = "$baseURL/izin";
+  static const String izin = "$baseURL/izin"; // Sudah
   static const String absenToday = "$baseURL/absen/today"; // Sudah
   static const String absenStats = "$baseURL/absen/stats";
   static const String historyAbsen = "$baseURL/absen/history"; // Sudah

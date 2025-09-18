@@ -4,12 +4,11 @@ import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/history_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/izin_presensi.dart';
-import 'package:absensi_ppkdjp_b3/views/presensi/kehadiran_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/statistic_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DashboardPresensi extends StatefulWidget {
   const DashboardPresensi({super.key});
@@ -22,41 +21,23 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
 
   final String _userName = "Gerry Bagaskoro Putro";
-  String _statusAbsen = "Belum Absen";
-  String _jamMasuk = "--:--";
-  String _jamPulang = "--:--";
-
-  AbsenTodayData? _absenToday; // <-- simpan status hari ini
-
-  final Map<String, int> _stats = {
-    'Hadir': 20,
-    'Izin': 2,
-    'Telat': 1,
-    'Alpha': 0,
-  };
+  AbsenTodayData? _absenToday;
 
   @override
   void initState() {
     super.initState();
-    _loadTodayAbsen(); // cek status absen saat halaman dibuka
+    _loadTodayAbsen();
   }
 
   Future<void> _loadTodayAbsen() async {
     final result = await AbsenAPI.getToday();
     if (result != null && result.data != null) {
-      setState(() {
-        _absenToday = result.data;
-        _statusAbsen = _absenToday?.status ?? "Belum Absen";
-        _jamMasuk = _absenToday?.checkInTime ?? "--:--";
-        _jamPulang = _absenToday?.checkOutTime ?? "--:--";
-      });
+      setState(() => _absenToday = result.data);
     }
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
   }
 
   @override
@@ -64,7 +45,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     final List<Widget> pages = [
       _buildDashboardPage(),
       HistoryPresensi(),
-      KehadiranPresensi(),
+      StatisticPresensi(),
       IzinPresensi(),
       ProfilePresensi(),
     ];
@@ -94,8 +75,8 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "Riwayat"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.check_circle),
-            label: "Kehadiran",
+            icon: Icon(Icons.pie_chart),
+            label: "Statistik",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.note), label: "Izin"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
@@ -107,7 +88,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   /// === PAGE DASHBOARD ===
   Widget _buildDashboardPage() {
     return RefreshIndicator(
-      // bisa tarik buat refresh absen hari ini
       onRefresh: _loadTodayAbsen,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -115,15 +95,13 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            HeaderSection(),
+            const HeaderSection(),
             const SizedBox(height: 8),
-            LocationCard(),
+            const LocationCard(),
             const SizedBox(height: 8),
             _buildTodayStatusCard(),
             const SizedBox(height: 12),
             _buildAbsensiButtons(),
-            const SizedBox(height: 8),
-            _buildStatsSection(),
           ],
         ),
       ),
@@ -131,20 +109,22 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildTodayStatusCard() {
+    final status = _absenToday?.status?.toLowerCase() ?? "belum absen";
     Color statusColor;
-
-    switch (_statusAbsen) {
-      case "Hadir":
+    switch (status) {
+      case "hadir":
+      case "masuk":
         statusColor = Colors.green;
         break;
-      case "Telat":
+      case "telat":
+      case "izin":
         statusColor = Colors.orange;
         break;
-      case "Belum Absen":
-        statusColor = Colors.grey;
+      case "alpha":
+        statusColor = Colors.red;
         break;
       default:
-        statusColor = Colors.orange;
+        statusColor = Colors.grey;
     }
 
     return Card(
@@ -153,6 +133,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Status Hari Ini',
@@ -167,7 +148,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
                 border: Border.all(color: statusColor.withOpacity(0.3)),
               ),
               child: Text(
-                _statusAbsen,
+                _absenToday?.status ?? "Belum Absen",
                 style: TextStyle(
                   color: statusColor,
                   fontWeight: FontWeight.bold,
@@ -177,12 +158,28 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             ),
             const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildTimeInfo('Masuk', _jamMasuk),
-                _buildTimeInfo('Pulang', _jamPulang),
+                _buildTimeInfo(
+                  'Masuk',
+                  _absenToday?.checkInTime ?? "--:--",
+                  _absenToday?.checkInAddress,
+                ),
+                _buildTimeInfo(
+                  'Pulang',
+                  _absenToday?.checkOutTime ?? "--:--",
+                  _absenToday?.checkOutAddress,
+                ),
               ],
             ),
+            if (_absenToday?.alasanIzin != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Text(
+                  "Alasan Izin: ${_absenToday!.alasanIzin}",
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+              ),
           ],
         ),
       ),
@@ -190,53 +187,21 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildAbsensiButtons() {
-    // logika tombol
     if (_absenToday == null || _absenToday?.checkInTime == null) {
-      // Belum absen masuk
       return _buildAbsenButton(
         'Absen Masuk',
         Icons.login,
         Colors.orange[700]!,
-        () {
-          if (LocationCardState.lastLat != null &&
-              LocationCardState.lastLng != null &&
-              LocationCardState.lastAddress != null) {
-            _absenMasuk(
-              LocationCardState.lastLat!,
-              LocationCardState.lastLng!,
-              LocationCardState.lastAddress!,
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Lokasi belum tersedia")),
-            );
-          }
-        },
+        _handleCheckIn,
       );
     } else if (_absenToday?.checkOutTime == null) {
-      // Sudah masuk, belum pulang
       return _buildAbsenButton(
         'Absen Pulang',
         Icons.logout,
         Colors.green[700]!,
-        () {
-          if (LocationCardState.lastLat != null &&
-              LocationCardState.lastLng != null &&
-              LocationCardState.lastAddress != null) {
-            _absenPulang(
-              LocationCardState.lastLat!,
-              LocationCardState.lastLng!,
-              LocationCardState.lastAddress!,
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Lokasi belum tersedia")),
-            );
-          }
-        },
+        _handleCheckOut,
       );
     } else {
-      // Sudah masuk dan pulang
       return const Center(
         child: Text(
           "✅ Anda sudah absen masuk & pulang hari ini",
@@ -270,108 +235,64 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  Widget _buildTimeInfo(String label, String time) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-        const SizedBox(height: 4),
-        Text(
-          time,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Statistik Presensi $_userName',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 2,
-          children: [
-            _buildStatCard('Hadir', _stats['Hadir']!, Colors.green),
-            _buildStatCard('Izin', _stats['Izin']!, Colors.orange),
-            _buildStatCard('Telat', _stats['Telat']!, Colors.orange),
-            _buildStatCard('Alpha', _stats['Alpha']!, Colors.red),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, int value, Color color) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            Container(
-              width: 8,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                Text(
-                  value.toString(),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+  Widget _buildTimeInfo(String label, String time, String? address) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+          const SizedBox(height: 4),
+          Text(
+            time,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
 
-  /// === ABSEN API ===
-  Future<void> _absenMasuk(double lat, double lng, String address) async {
-    final now = DateTime.now();
-    final tanggal = DateFormat('yyyy-MM-dd').format(now);
-    final jam = DateFormat('HH:mm').format(now);
+  /// === HANDLER CHECKIN / CHECKOUT MENGGUNAKAN TANGGAL DARI SERVER ===
+  Future<void> _handleCheckIn() async {
+    if (LocationCardState.lastLat == null ||
+        LocationCardState.lastLng == null ||
+        LocationCardState.lastAddress == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Lokasi belum tersedia")));
+      return;
+    }
+
+    final todayResponse = await AbsenAPI.getToday();
+    if (todayResponse == null || todayResponse.data == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal mendapatkan tanggal dari server")),
+      );
+      return;
+    }
+
+    final tanggalServer = todayResponse.data!.attendanceDate!;
+    final jamSekarang = DateTime.now();
+    final jam =
+        "${jamSekarang.hour.toString().padLeft(2, '0')}:${jamSekarang.minute.toString().padLeft(2, '0')}";
 
     final response = await AbsenAPI.checkIn(
-      attendanceDate: tanggal,
+      attendanceDate: tanggalServer,
       checkIn: jam,
-      lat: lat,
-      lng: lng,
-      address: address,
+      lat: LocationCardState.lastLat!,
+      lng: LocationCardState.lastLng!,
+      address: LocationCardState.lastAddress!,
     );
 
     if (response != null && response.data != null) {
-      setState(() {
-        _statusAbsen = response.data!.status ?? "Hadir";
-        _jamMasuk = response.data!.checkInTime ?? jam;
-        _absenToday?.checkInTime = response.data!.checkInTime;
-      });
-
+      setState(
+        () => _absenToday = AbsenTodayData(
+          attendanceDate: tanggalServer,
+          checkInTime: response.data!.checkInTime,
+          checkOutTime: _absenToday?.checkOutTime,
+          status: response.data!.status,
+          checkInAddress: LocationCardState.lastAddress!,
+        ),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message ?? "Absen masuk berhasil")),
       );
@@ -382,25 +303,47 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     }
   }
 
-  Future<void> _absenPulang(double lat, double lng, String address) async {
-    final now = DateTime.now();
-    final tanggal = DateFormat('yyyy-MM-dd').format(now);
-    final jam = DateFormat('HH:mm').format(now);
+  Future<void> _handleCheckOut() async {
+    if (LocationCardState.lastLat == null ||
+        LocationCardState.lastLng == null ||
+        LocationCardState.lastAddress == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Lokasi belum tersedia")));
+      return;
+    }
+
+    final todayResponse = await AbsenAPI.getToday();
+    if (todayResponse == null || todayResponse.data == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal mendapatkan tanggal dari server")),
+      );
+      return;
+    }
+
+    final tanggalServer = todayResponse.data!.attendanceDate!;
+    final jamSekarang = DateTime.now();
+    final jam =
+        "${jamSekarang.hour.toString().padLeft(2, '0')}:${jamSekarang.minute.toString().padLeft(2, '0')}";
 
     final response = await AbsenAPI.checkOut(
-      attendanceDate: tanggal,
+      attendanceDate: tanggalServer,
       checkOut: jam,
-      lat: lat,
-      lng: lng,
-      address: address,
+      lat: LocationCardState.lastLat!,
+      lng: LocationCardState.lastLng!,
+      address: LocationCardState.lastAddress!,
     );
 
     if (response != null && response.data != null) {
-      setState(() {
-        _jamPulang = response.data!.checkOutTime ?? jam;
-        _absenToday?.checkOutTime = response.data!.checkOutTime;
-      });
-
+      setState(
+        () => _absenToday = AbsenTodayData(
+          attendanceDate: tanggalServer,
+          checkInTime: _absenToday?.checkInTime,
+          checkOutTime: response.data!.checkOutTime,
+          status: response.data!.status,
+          checkOutAddress: LocationCardState.lastAddress!,
+        ),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message ?? "Absen pulang berhasil")),
       );
