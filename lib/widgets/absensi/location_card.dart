@@ -68,7 +68,6 @@ class _LocationCardState extends State<LocationCard> {
               ),
             ),
           ),
-
           // Info + tombol
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -76,34 +75,34 @@ class _LocationCardState extends State<LocationCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Koordinat: ${_currentPosition.latitude.toStringAsFixed(6)}, ${_currentPosition.longitude.toStringAsFixed(6)}",
+                  "Koordinat Lokasi: ${_currentPosition.latitude.toStringAsFixed(6)}, ${_currentPosition.longitude.toStringAsFixed(6)}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   _currentAddress,
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _loading ? null : _getCurrentLocation,
-                    icon: const Icon(Icons.my_location),
-                    label: Text(
-                      _loading ? "Mencari lokasi..." : "Lokasi terkini",
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
+                // const SizedBox(height: 12),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: ElevatedButton.icon(
+                //     onPressed: _loading ? null : _getCurrentLocation,
+                //     icon: const Icon(Icons.my_location),
+                //     label: Text(
+                //       _loading ? "Mencari lokasi..." : "Lokasi terkini",
+                //     ),
+                //     style: ElevatedButton.styleFrom(
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 14),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

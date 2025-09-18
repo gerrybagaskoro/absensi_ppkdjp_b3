@@ -2,10 +2,10 @@
 
 import 'dart:convert';
 
-import 'package:absensi_ppkdjp_b3/api/absen_today.dart';
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_checkin.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_checkout.dart';
+import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:http/http.dart' as http;
 

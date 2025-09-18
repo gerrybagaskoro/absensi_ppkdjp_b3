@@ -1,5 +1,7 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
+import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,31 +13,26 @@ class HistoryPresensi extends StatefulWidget {
 }
 
 class _HistoryPresensiState extends State<HistoryPresensi> {
-  // Dummy data
-  final List<Map<String, dynamic>> _riwayat = [
-    {
-      "tanggal": DateTime(2025, 9, 10),
-      "masuk": "08:00",
-      "pulang": "16:00",
-      "status": "Hadir",
-    },
-    {
-      "tanggal": DateTime(2025, 9, 9),
-      "masuk": "08:30",
-      "pulang": "16:00",
-      "status": "Telat",
-    },
-    {
-      "tanggal": DateTime(2025, 9, 8),
-      "masuk": "-",
-      "pulang": "-",
-      "status": "Izin",
-    },
-  ];
-
+  List<Datum> _riwayat = [];
   DateTimeRange? _selectedRange;
+  bool _isLoading = true;
 
-  Color _getStatusColor(String status) {
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    setState(() => _isLoading = true);
+    final history = await AbsenApiHistory.getHistory();
+    setState(() {
+      _riwayat = history?.data ?? [];
+      _isLoading = false;
+    });
+  }
+
+  Color _getStatusColor(String? status) {
     switch (status) {
       case "Hadir":
         return Colors.green;
@@ -71,20 +68,26 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
 
   @override
   Widget build(BuildContext context) {
-    // filter data sesuai range jika dipilih
-    final List<Map<String, dynamic>> filteredRiwayat = _selectedRange == null
+    final List<Datum> filteredRiwayat = _selectedRange == null
         ? _riwayat
         : _riwayat.where((item) {
-            final DateTime tgl = item["tanggal"];
-            return tgl.isAfter(
-                  _selectedRange!.start.subtract(const Duration(days: 1)),
-                ) &&
-                tgl.isBefore(_selectedRange!.end.add(const Duration(days: 1)));
+            final tgl = item.attendanceDate;
+            if (tgl == null) return false;
+
+            return (tgl.isAtSameMomentAs(_selectedRange!.start) ||
+                    tgl.isAfter(_selectedRange!.start)) &&
+                (tgl.isAtSameMomentAs(_selectedRange!.end) ||
+                    tgl.isBefore(_selectedRange!.end));
           }).toList();
 
     return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text("Riwayat Presensi"),
+      //   backgroundColor: Colors.orange,
+      // ),
       body: Column(
         children: [
+          // Filter bar
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.orange[50],
@@ -116,67 +119,72 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
 
           const SizedBox(height: 10),
 
-          // Daftar riwayat
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredRiwayat.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final item = filteredRiwayat[index];
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    title: Text(
-                      DateFormat(
-                        'EEEE, dd MMMM yyyy',
-                        'id_ID',
-                      ).format(item["tanggal"]),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Masuk: ${item["masuk"]}"),
-                          Text("Pulang: ${item["pulang"]}"),
-                        ],
-                      ),
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(item["status"]).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _getStatusColor(
-                            item["status"],
-                          ).withOpacity(0.3),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredRiwayat.isEmpty
+                ? const Center(child: Text("Belum ada data presensi"))
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredRiwayat.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final item = filteredRiwayat[index];
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      child: Text(
-                        item["status"],
-                        style: TextStyle(
-                          color: _getStatusColor(item["status"]),
-                          fontWeight: FontWeight.bold,
+                        elevation: 2,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          title: Text(
+                            DateFormat(
+                              'EEEE, dd MMMM yyyy',
+                              'id_ID',
+                            ).format(item.attendanceDate ?? DateTime.now()),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Masuk: ${item.checkInTime ?? "-"}"),
+                                Text("Pulang: ${item.checkOutTime ?? "-"}"),
+                              ],
+                            ),
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(
+                                item.status,
+                              ).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: _getStatusColor(
+                                  item.status,
+                                ).withOpacity(0.3),
+                              ),
+                            ),
+                            child: Text(
+                              item.status ?? "-",
+                              style: TextStyle(
+                                color: _getStatusColor(item.status),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),

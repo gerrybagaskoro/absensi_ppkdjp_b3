@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
-import 'package:absensi_ppkdjp_b3/api/absen_today.dart';
+import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/history_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/izin_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/kehadiran_presensi.dart';
@@ -120,7 +120,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             LocationCard(),
             const SizedBox(height: 8),
             _buildTodayStatusCard(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             _buildAbsensiButtons(),
             const SizedBox(height: 8),
             _buildStatsSection(),
