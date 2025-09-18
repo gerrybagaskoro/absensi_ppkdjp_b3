@@ -1,9 +1,8 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 class HistoryPresensi extends StatefulWidget {
   const HistoryPresensi({super.key});
@@ -33,14 +32,15 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
   }
 
   Color _getStatusColor(String? status) {
-    switch (status) {
-      case "Hadir":
+    switch (status?.toLowerCase()) {
+      case "hadir":
+      case "masuk":
         return Colors.green;
-      case "Telat":
+      case "telat":
         return Colors.orange;
-      case "Izin":
+      case "izin":
         return Colors.blue;
-      case "Alpha":
+      case "alpha":
         return Colors.red;
       default:
         return Colors.grey;
@@ -60,10 +60,20 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     );
 
     if (picked != null) {
-      setState(() {
-        _selectedRange = picked;
-      });
+      setState(() => _selectedRange = picked);
     }
+  }
+
+  // Group data per bulan
+  Map<String, List<Datum>> _groupByMonth(List<Datum> data) {
+    Map<String, List<Datum>> grouped = {};
+    for (var item in data) {
+      if (item.attendanceDate == null) continue;
+      final key = DateFormat("MMMM yyyy", "id_ID").format(item.attendanceDate!);
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(item);
+    }
+    return grouped;
   }
 
   @override
@@ -73,114 +83,203 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
         : _riwayat.where((item) {
             final tgl = item.attendanceDate;
             if (tgl == null) return false;
-
             return (tgl.isAtSameMomentAs(_selectedRange!.start) ||
                     tgl.isAfter(_selectedRange!.start)) &&
                 (tgl.isAtSameMomentAs(_selectedRange!.end) ||
                     tgl.isBefore(_selectedRange!.end));
           }).toList();
 
+    // Group per bulan & urut descending
+    final grouped = _groupByMonth(filteredRiwayat);
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        final dateA = DateFormat("MMMM yyyy", "id_ID").parse(a);
+        final dateB = DateFormat("MMMM yyyy", "id_ID").parse(b);
+        return dateB.compareTo(dateA); // terbaru duluan
+      });
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Riwayat Presensi"),
-      //   backgroundColor: Colors.orange,
-      // ),
       body: Column(
         children: [
           // Filter bar
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             color: Colors.orange[50],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _selectedRange == null
-                      ? "Semua Tanggal"
-                      : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - "
-                            "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                // Label range tanggal / semua tanggal
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    _selectedRange == null
+                        ? "Semua Tanggal"
+                        : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - "
+                              "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
+
+                // Tombol pilih tanggal
                 OutlinedButton.icon(
                   onPressed: _pickDateRange,
-                  icon: const Icon(Icons.date_range, color: Colors.orange),
+                  icon: const Icon(
+                    Icons.date_range,
+                    color: Colors.orange,
+                    size: 18,
+                  ),
                   label: const Text("Pilih Tanggal"),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.orange),
                     foregroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 10),
-
+          // List presensi
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredRiwayat.isEmpty
-                ? const Center(child: Text("Belum ada data presensi"))
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredRiwayat.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                ? const Center(
+                    child: Text(
+                      "Belum ada data presensi",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: sortedKeys.length,
                     itemBuilder: (context, index) {
-                      final item = filteredRiwayat[index];
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 2,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            DateFormat(
-                              'EEEE, dd MMMM yyyy',
-                              'id_ID',
-                            ).format(item.attendanceDate ?? DateTime.now()),
+                      final bulan = sortedKeys[index];
+                      final items = grouped[bulan]!;
+
+                      return StickyHeader(
+                        header: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          color: Colors.orange[50], // selaras filter bar
+                          child: Text(
+                            bulan,
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Masuk: ${item.checkInTime ?? "-"}"),
-                                Text("Pulang: ${item.checkOutTime ?? "-"}"),
-                              ],
-                            ),
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(
-                                item.status,
-                              ).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: _getStatusColor(
-                                  item.status,
-                                ).withOpacity(0.3),
+                        ),
+                        content: Column(
+                          children: [
+                            ...items.map((item) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  title: Text(
+                                    DateFormat(
+                                      'EEEE, dd MMM yyyy',
+                                      'id_ID',
+                                    ).format(
+                                      item.attendanceDate ?? DateTime.now(),
+                                    ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Masuk: ${item.checkInTime ?? "-"}",
+                                        ),
+                                        Text(
+                                          "Pulang: ${item.checkOutTime ?? "-"}",
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  trailing: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(
+                                        item.status,
+                                      ).withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      item.status ?? "-",
+                                      style: TextStyle(
+                                        color: _getStatusColor(item.status),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                            // Divider antar bulan
+                            if (index < sortedKeys.length - 1)
+                              const Divider(
+                                thickness: 1,
+                                height: 32,
+                                indent: 16,
+                                endIndent: 16,
+                                color: Colors.black12,
                               ),
-                            ),
-                            child: Text(
-                              item.status ?? "-",
-                              style: TextStyle(
-                                color: _getStatusColor(item.status),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
                       );
                     },
