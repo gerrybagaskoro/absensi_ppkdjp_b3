@@ -50,9 +50,7 @@ class _IzinPresensiState extends State<IzinPresensi> {
           )
           .toList();
 
-      setState(() {
-        _izinList = izinData;
-      });
+      setState(() => _izinList = izinData);
     } catch (e) {
       print("Error izin list: $e");
     } finally {
@@ -63,7 +61,10 @@ class _IzinPresensiState extends State<IzinPresensi> {
   Future<void> _submitIzin() async {
     if (!_formKey.currentState!.validate() || _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lengkapi tanggal & alasan izin")),
+        const SnackBar(
+          content: Text("Lengkapi tanggal & alasan izin"),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -92,7 +93,10 @@ class _IzinPresensiState extends State<IzinPresensi> {
         final izin = izinPresensiFromJson(res.body);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(izin.message ?? "Izin berhasil diajukan")),
+          SnackBar(
+            content: Text(izin.message ?? "Izin berhasil diajukan"),
+            backgroundColor: Colors.green,
+          ),
         );
 
         setState(() {
@@ -102,17 +106,21 @@ class _IzinPresensiState extends State<IzinPresensi> {
 
         _loadIzinList();
       } else {
-        print("Gagal izin: ${res.body}");
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Gagal mengajukan izin")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Gagal mengajukan izin"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      print("Error izin: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Terjadi kesalahan")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Terjadi kesalahan"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -130,10 +138,6 @@ class _IzinPresensiState extends State<IzinPresensi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Ajukan Izin"),
-      //   backgroundColor: Colors.orange,
-      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -141,37 +145,38 @@ class _IzinPresensiState extends State<IzinPresensi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ====== Card Input (Tanggal + Alasan) ======
+              // ===== Card Input (Tanggal + Alasan) =====
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
                       blurRadius: 6,
-                      offset: const Offset(0, 3),
+                      offset: Offset(0, 3),
                     ),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Label tanggal dengan icon
+                    // Tanggal
                     Row(
                       children: const [
                         Icon(Icons.date_range, color: Colors.orange),
                         SizedBox(width: 8),
                         Text(
                           "Pilih Tanggal",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-
-                    // Pilih tanggal
                     GestureDetector(
                       onTap: _pickDate,
                       child: Container(
@@ -193,6 +198,11 @@ class _IzinPresensiState extends State<IzinPresensi> {
                                       "EEEE, dd MMM yyyy",
                                       "id_ID",
                                     ).format(_selectedDate!),
+                              style: TextStyle(
+                                color: _selectedDate == null
+                                    ? Colors.grey[600]
+                                    : Colors.black87,
+                              ),
                             ),
                             const Icon(
                               Icons.arrow_drop_down,
@@ -204,20 +214,21 @@ class _IzinPresensiState extends State<IzinPresensi> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Label alasan dengan icon
+                    // Alasan Izin
                     Row(
                       children: const [
                         Icon(Icons.note_alt, color: Colors.orange),
                         SizedBox(width: 8),
                         Text(
                           "Alasan Izin",
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-
-                    // Alasan izin
                     TextFormField(
                       controller: _alasanController,
                       maxLines: 3,
@@ -225,6 +236,13 @@ class _IzinPresensiState extends State<IzinPresensi> {
                         hintText: "Tuliskan alasan izin",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.orange,
+                            width: 2,
+                          ),
                         ),
                       ),
                       validator: (val) => val == null || val.isEmpty
@@ -237,7 +255,7 @@ class _IzinPresensiState extends State<IzinPresensi> {
 
               const SizedBox(height: 30),
 
-              // Tombol submit
+              // Tombol Submit
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -255,6 +273,7 @@ class _IzinPresensiState extends State<IzinPresensi> {
                   label: Text(_isLoading ? "Mengajukan..." : "Ajukan Izin"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -264,9 +283,9 @@ class _IzinPresensiState extends State<IzinPresensi> {
               ),
 
               const SizedBox(height: 30),
-              const Divider(),
+              const Divider(color: Colors.grey),
 
-              // ====== Daftar izin ======
+              // ===== Daftar Izin =====
               const Text(
                 "Daftar Izin Saya",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -285,19 +304,19 @@ class _IzinPresensiState extends State<IzinPresensi> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _izinList.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final item = _izinList[index];
                         return Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.grey[50],
                             borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 6,
-                                offset: const Offset(0, 3),
+                                offset: Offset(0, 3),
                               ),
                             ],
                           ),
@@ -326,7 +345,10 @@ class _IzinPresensiState extends State<IzinPresensi> {
                               const SizedBox(height: 6),
                               Text(
                                 "Alasan: ${item["alasan_izin"] ?? "-"}",
-                                style: const TextStyle(color: Colors.black87),
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
                               ),
                             ],
                           ),
