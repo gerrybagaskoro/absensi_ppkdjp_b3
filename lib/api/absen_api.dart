@@ -79,19 +79,47 @@ class AbsenAPI {
   }
 
   static Future<AbsenTodayResponse?> getToday() async {
-    final token = await PreferenceHandler.getToken(); // jangan lupa await
+    final token = await PreferenceHandler.getToken();
 
-    final response = await http.get(
-      Uri.parse(Endpoint.absenToday),
-      headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return AbsenTodayResponse.fromJson(jsonDecode(response.body));
+    if (token == null) {
+      print("⚠️ Token tidak tersedia");
+      return null;
     }
+
+    try {
+      final response = await http.get(
+        Uri.parse(Endpoint.absenToday),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      print("📌 getToday status: ${response.statusCode}");
+      print("📌 getToday body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+
+        if (jsonMap['data'] == null) {
+          print("⚠️ Data absen hari ini null");
+          return null;
+        }
+
+        return AbsenTodayResponse.fromJson(jsonMap);
+      } else if (response.statusCode == 401) {
+        print("⚠️ Unauthorized. Token kemungkinan kadaluarsa atau salah");
+      } else if (response.statusCode == 403) {
+        print("⚠️ Forbidden. Anda tidak memiliki akses ke endpoint ini");
+      } else if (response.statusCode >= 500) {
+        print("⚠️ Server error (${response.statusCode})");
+      } else {
+        print("⚠️ Error tidak terduga: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("❌ Exception saat memanggil getToday: $e");
+    }
+
     return null;
   }
 }

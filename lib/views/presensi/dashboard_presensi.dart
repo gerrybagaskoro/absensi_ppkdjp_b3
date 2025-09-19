@@ -262,44 +262,44 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       return;
     }
 
-    final todayResponse = await AbsenAPI.getToday();
-    if (todayResponse == null || todayResponse.data == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Gagal mendapatkan tanggal dari server")),
-      );
-      return;
-    }
-
-    final tanggalServer = todayResponse.data!.attendanceDate!;
-    final jamSekarang = DateTime.now();
+    final now = DateTime.now();
+    final tanggal =
+        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
-        "${jamSekarang.hour.toString().padLeft(2, '0')}:${jamSekarang.minute.toString().padLeft(2, '0')}";
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
-    final response = await AbsenAPI.checkIn(
-      attendanceDate: tanggalServer,
-      checkIn: jam,
-      lat: LocationCardState.lastLat!,
-      lng: LocationCardState.lastLng!,
-      address: LocationCardState.lastAddress!,
-    );
+    try {
+      final response = await AbsenAPI.checkIn(
+        attendanceDate: tanggal,
+        checkIn: jam,
+        lat: LocationCardState.lastLat!,
+        lng: LocationCardState.lastLng!,
+        address: LocationCardState.lastAddress!,
+      );
 
-    if (response != null && response.data != null) {
-      setState(
-        () => _absenToday = AbsenTodayData(
-          attendanceDate: tanggalServer,
-          checkInTime: response.data!.checkInTime,
-          checkOutTime: _absenToday?.checkOutTime,
-          status: response.data!.status,
-          checkInAddress: LocationCardState.lastAddress!,
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message ?? "Absen masuk berhasil")),
-      );
-    } else {
+      if (response != null && response.data != null) {
+        setState(() {
+          _absenToday = AbsenTodayData(
+            attendanceDate: tanggal,
+            checkInTime: response.data!.checkInTime,
+            checkOutTime: _absenToday?.checkOutTime,
+            status: response.data!.status,
+            checkInAddress: LocationCardState.lastAddress!,
+          );
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message ?? "Absen masuk berhasil")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response?.message ?? "Gagal absen masuk")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Gagal absen masuk")));
+      ).showSnackBar(SnackBar(content: Text("Terjadi error saat absen: $e")));
     }
   }
 
@@ -313,44 +313,44 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       return;
     }
 
-    final todayResponse = await AbsenAPI.getToday();
-    if (todayResponse == null || todayResponse.data == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Gagal mendapatkan tanggal dari server")),
-      );
-      return;
-    }
-
-    final tanggalServer = todayResponse.data!.attendanceDate!;
-    final jamSekarang = DateTime.now();
+    final now = DateTime.now();
+    final tanggal =
+        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
-        "${jamSekarang.hour.toString().padLeft(2, '0')}:${jamSekarang.minute.toString().padLeft(2, '0')}";
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
-    final response = await AbsenAPI.checkOut(
-      attendanceDate: tanggalServer,
-      checkOut: jam,
-      lat: LocationCardState.lastLat!,
-      lng: LocationCardState.lastLng!,
-      address: LocationCardState.lastAddress!,
-    );
+    try {
+      final response = await AbsenAPI.checkOut(
+        attendanceDate: tanggal,
+        checkOut: jam,
+        lat: LocationCardState.lastLat!,
+        lng: LocationCardState.lastLng!,
+        address: LocationCardState.lastAddress!,
+      );
 
-    if (response != null && response.data != null) {
-      setState(
-        () => _absenToday = AbsenTodayData(
-          attendanceDate: tanggalServer,
-          checkInTime: _absenToday?.checkInTime,
-          checkOutTime: response.data!.checkOutTime,
-          status: response.data!.status,
-          checkOutAddress: LocationCardState.lastAddress!,
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message ?? "Absen pulang berhasil")),
-      );
-    } else {
+      if (response != null && response.data != null) {
+        setState(() {
+          _absenToday = AbsenTodayData(
+            attendanceDate: tanggal,
+            checkInTime: _absenToday?.checkInTime,
+            checkOutTime: response.data!.checkOutTime,
+            status: response.data!.status,
+            checkOutAddress: LocationCardState.lastAddress!,
+          );
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message ?? "Absen pulang berhasil")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response?.message ?? "Gagal absen pulang")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Gagal absen pulang")));
+      ).showSnackBar(SnackBar(content: Text("Terjadi error saat absen: $e")));
     }
   }
 }
