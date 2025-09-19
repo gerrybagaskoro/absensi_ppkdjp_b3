@@ -31,9 +31,9 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
   Future<void> _loadTodayAbsen() async {
     final result = await AbsenAPI.getToday();
-    if (result != null && result.data != null) {
-      setState(() => _absenToday = result.data);
-    }
+    setState(() {
+      _absenToday = result?.data; // langsung assign, bisa null
+    });
   }
 
   void _onItemTapped(int index) {

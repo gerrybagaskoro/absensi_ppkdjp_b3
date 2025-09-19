@@ -23,8 +23,8 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
   Future<void> loadStats() async {
     setState(() => isLoading = true);
     final result = await AbsenStatsAPI.fetchAbsenStats(
-      start: '2025-07-31',
-      end: '2025-12-31',
+      start: '2000-01-01', // tanggal awal sangat jauh
+      end: '2100-12-31', // tanggal akhir sangat jauh
     );
     setState(() {
       stats = result;
