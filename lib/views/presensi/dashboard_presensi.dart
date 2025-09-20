@@ -207,28 +207,50 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     required IconData icon,
   }) {
     final bool done = time != null;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          backgroundColor: done ? color.withOpacity(0.2) : Colors.grey[300],
-          radius: 20,
-          child: Icon(icon, color: done ? color : Colors.grey, size: 20),
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: done ? color.withOpacity(0.1) : Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: done ? color.withOpacity(0.3) : Colors.grey[300]!,
         ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: done ? color : Colors.grey,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            backgroundColor: done ? color.withOpacity(0.2) : Colors.grey[300],
+            radius: 20,
+            child: Icon(icon, color: done ? color : Colors.grey, size: 20),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          done ? time : "--:--",
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: done ? color : Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 4),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: ScaleTransition(scale: anim, child: child),
+            ),
+            child: Text(
+              done ? time : "--:--",
+              key: ValueKey(time),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
