@@ -101,10 +101,13 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         child: CircleAvatar(
                           radius: 92,
                           backgroundImage: _profile?.profilePhotoUrl != null
-                              ? NetworkImage(_profile!.profilePhotoUrl!)
+                              ? NetworkImage(
+                                  "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}",
+                                )
                               : _profile?.profilePhoto != null
                               ? NetworkImage(
-                                  "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}",
+                                  "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}"
+                                  "?v=${DateTime.now().millisecondsSinceEpoch}",
                                 )
                               : null,
                           backgroundColor: Colors.grey[300],
