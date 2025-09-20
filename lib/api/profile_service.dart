@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_print
+
+import 'dart:convert';
+
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/get_profile_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
@@ -27,5 +31,17 @@ class ProfileService {
       print("Error fetch profile: $e");
       return null;
     }
+  }
+
+  static Future<Map<String, dynamic>?> getProfileFromCache() async {
+    final userJson = await PreferenceHandler.getUserData();
+    if (userJson != null) {
+      try {
+        return jsonDecode(userJson);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 }
