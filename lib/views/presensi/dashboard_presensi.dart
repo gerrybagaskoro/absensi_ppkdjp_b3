@@ -20,7 +20,6 @@ class DashboardPresensi extends StatefulWidget {
 class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
 
-  final String _userName = "Gerry Bagaskoro Putro";
   AbsenTodayData? _absenToday;
 
   @override
@@ -135,40 +134,55 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Status Hari Ini',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: statusColor.withOpacity(0.3)),
-              ),
-              child: Text(
-                _absenToday?.status ?? "Belum Absen",
-                style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+            /// Row Judul + Status
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildTimeInfo(
-                  'Masuk',
-                  _absenToday?.checkInTime ?? "--:--",
-                  _absenToday?.checkInAddress,
+                const Text(
+                  'Status Absen Hari Ini',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                _buildTimeInfo(
-                  'Pulang',
-                  _absenToday?.checkOutTime ?? "--:--",
-                  _absenToday?.checkOutAddress,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    _absenToday?.status ?? "Belum Absen",
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            /// Row Masuk & Pulang
+            Row(
+              children: [
+                Expanded(
+                  child: _buildCheckTile(
+                    label: "Masuk",
+                    time: _absenToday?.checkInTime,
+                    color: Colors.green,
+                    icon: Icons.login,
+                  ),
+                ),
+                Expanded(
+                  child: _buildCheckTile(
+                    label: "Pulang",
+                    time: _absenToday?.checkOutTime,
+                    color: Colors.red,
+                    icon: Icons.logout,
+                  ),
                 ),
               ],
             ),
@@ -186,7 +200,55 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
+  Widget _buildCheckTile({
+    required String label,
+    required String? time,
+    required Color color,
+    required IconData icon,
+  }) {
+    final bool done = time != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CircleAvatar(
+          backgroundColor: done ? color.withOpacity(0.2) : Colors.grey[300],
+          radius: 20,
+          child: Icon(icon, color: done ? color : Colors.grey, size: 20),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: done ? color : Colors.grey,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          done ? time : "--:--",
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAbsensiButtons() {
+    final status = _absenToday?.status?.toLowerCase();
+
+    // Jika status izin, tombol disembunyikan
+    if (status == "izin") {
+      return const Center(
+        child: Text(
+          "📌 Anda sedang izin hari ini",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.orange,
+          ),
+        ),
+      );
+    }
+
     if (_absenToday == null || _absenToday?.checkInTime == null) {
       return _buildAbsenButton(
         'Absen Masuk',
@@ -230,22 +292,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           Icon(icon, size: 20, color: Colors.white),
           const SizedBox(width: 8),
           Text(text, style: const TextStyle(fontSize: 14, color: Colors.white)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimeInfo(String label, String time, String? address) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-          const SizedBox(height: 4),
-          Text(
-            time,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
         ],
       ),
     );
