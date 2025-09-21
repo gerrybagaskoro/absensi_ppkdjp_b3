@@ -7,6 +7,7 @@ import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/user_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -112,176 +113,188 @@ class _LoginPresensiState extends State<LoginPresensi> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 8,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const AppLogo(width: 200, height: 200),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Masuk untuk Presensi',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange[800],
-                              fontSize: 18,
-                            ),
-                      ),
-                      const SizedBox(height: 30),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Surel',
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.orange,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
+            child: FadeInDown(
+              delay: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutBack,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FadeIn(
+                          duration: const Duration(milliseconds: 800),
+                          delay: const Duration(
+                            milliseconds: 100,
+                          ), // Logo muncul duluan
+                          child: const AppLogo(width: 200, height: 200),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Surel tidak boleh kosong';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Format Surel tidak valid';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Kata sandi',
-                          prefixIcon: const Icon(
-                            Icons.lock,
-                            color: Colors.orange,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            ),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                        obscureText: _obscurePassword,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Kata sandi tidak boleh kosong';
-                          }
-                          if (value.length < 6) {
-                            return 'Minimal 6 karakter';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange[700],
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Masuk',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Link daftar (Text.rich)
-                      Text.rich(
-                        TextSpan(
-                          text: 'Belum punya akun? ',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.w400,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: 'Daftar di sini',
-                              style: TextStyle(
-                                color: Colors.orange[700],
+                        // const AppLogo(width: 200, height: 200),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Masuk untuk Presensi',
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.orange[800],
+                                fontSize: 18,
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  context.pushNamed('/register');
-                                },
-                            ),
-                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Link lupa password (Text.rich)
-                      Text.rich(
-                        TextSpan(
-                          text: 'Lupa kata sandi? ',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.w400,
+                        const SizedBox(height: 30),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Surel',
+                            prefixIcon: const Icon(
+                              Icons.email,
+                              color: Colors.orange,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
                           ),
-                          children: [
-                            TextSpan(
-                              text: 'Reset di sini',
-                              style: TextStyle(
-                                color: Colors.orange[700],
-                                fontWeight: FontWeight.bold,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Surel tidak boleh kosong';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Format Surel tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Kata sandi',
+                            prefixIcon: const Icon(
+                              Icons.lock,
+                              color: Colors.orange,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Fitur lupa password akan diimplementasi',
-                                      ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                          obscureText: _obscurePassword,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Kata sandi tidak boleh kosong';
+                            }
+                            if (value.length < 6) {
+                              return 'Minimal 6 karakter';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: _isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                  onPressed: _login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
                                     ),
-                                  );
-                                },
-                            ),
-                          ],
+                                  ),
+                                  child: const Text(
+                                    'Masuk',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+
+                        // Link daftar (Text.rich)
+                        Text.rich(
+                          TextSpan(
+                            text: 'Belum punya akun? ',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w400,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Daftar di sini',
+                                style: TextStyle(
+                                  color: Colors.orange[700],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    context.pushNamed('/register');
+                                  },
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Link lupa password (Text.rich)
+                        Text.rich(
+                          TextSpan(
+                            text: 'Lupa kata sandi? ',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w400,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Reset di sini',
+                                style: TextStyle(
+                                  color: Colors.orange[700],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Fitur lupa password akan diimplementasi',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

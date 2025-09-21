@@ -16,22 +16,46 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
 
-    // Simulasi delay splash 2 detik lalu cek onboarding
-    Timer(const Duration(seconds: 2), () async {
-      bool onboardingShown = await PreferenceHandler.getOnboardingShown();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-      if (onboardingShown) {
-        context.push(const LoginPresensi());
-      } else {
-        // Kalau belum → tampilkan onboarding dulu
-        context.push(const OnboardingScreen());
-      }
-    });
+    _controller.forward();
+
+    _startSplash();
+  }
+
+  Future<void> _startSplash() async {
+    await Future.delayed(const Duration(seconds: 5));
+
+    final onboardingShown = await PreferenceHandler.getOnboardingShown();
+    final isLoggedIn = await PreferenceHandler.getLogin();
+    final token = await PreferenceHandler.getToken();
+
+    if (!mounted) return;
+
+    if (isLoggedIn == true && token != null && token.isNotEmpty) {
+      context.pushNamedAndRemoveAll('/dashboard');
+      return;
+    }
+
+    if (!onboardingShown) {
+      context.pushReplacement(const OnboardingScreen());
+      return;
+    }
+
+    context.pushReplacement(const LoginPresensi());
   }
 
   @override
@@ -39,15 +63,18 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.orange[700],
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const AppLogo(height: 300, width: 300),
-            const SizedBox(height: 24),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
-            ),
-          ],
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const AppLogo(height: 300, width: 300),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -59,5 +86,11 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
