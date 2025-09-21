@@ -6,6 +6,7 @@ import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/edit_profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/settings_presensi.dart';
+import 'package:absensi_ppkdjp_b3/widgets/profile/avatar_hero.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePresensi extends StatefulWidget {
@@ -93,34 +94,50 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                       const SizedBox(height: 24),
 
                       // 🔹 Avatar
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.orange, width: 5),
-                        ),
-                        child: CircleAvatar(
-                          radius: 92,
-                          backgroundImage: _profile?.profilePhotoUrl != null
-                              ? NetworkImage(
-                                  "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}",
-                                )
-                              : _profile?.profilePhoto != null
-                              ? NetworkImage(
-                                  "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}"
-                                  "?v=${DateTime.now().millisecondsSinceEpoch}",
-                                )
-                              : null,
-                          backgroundColor: Colors.grey[300],
-                          child:
-                              (_profile?.profilePhotoUrl == null &&
-                                  _profile?.profilePhoto == null)
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
+                      // 🔹 Avatar
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.circle,
+                      //     border: Border.all(color: Colors.orange, width: 5),
+                      //   ),
+                      //   child:
+                      // Hero(
+                      //   tag:
+                      //       "profile-avatar", // ⬅️ sama dengan di EditProfilePage
+                      //   child: CircleAvatar(
+                      //     radius: 92,
+                      //     backgroundImage: _profile?.profilePhotoUrl != null
+                      //         ? NetworkImage(
+                      //             "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}",
+                      //           )
+                      //         : _profile?.profilePhoto != null
+                      //         ? NetworkImage(
+                      //             "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}"
+                      //             "?v=${DateTime.now().millisecondsSinceEpoch}",
+                      //           )
+                      //         : null,
+                      //     backgroundColor: Colors.grey[300],
+                      //     child:
+                      //         (_profile?.profilePhotoUrl == null &&
+                      //             _profile?.profilePhoto == null)
+                      //         ? const Icon(
+                      //             Icons.person,
+                      //             size: 50,
+                      //             color: Colors.white,
+                      //           )
+                      //         : null,
+                      //   ),
+                      // ),
+                      AvatarHero(
+                        tag: "profile-avatar",
+                        radius: 92,
+                        imageUrl: _profile?.profilePhotoUrl != null
+                            ? "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
+                            : _profile?.profilePhoto != null
+                            ? "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}?v=${DateTime.now().millisecondsSinceEpoch}"
+                            : null,
+                        showBorder: true,
+                        isUploading: false,
                       ),
 
                       const SizedBox(height: 24),

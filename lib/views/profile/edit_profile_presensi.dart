@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
+import 'package:absensi_ppkdjp_b3/widgets/profile/avatar_hero.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _nameController = TextEditingController();
 
   bool _isLoading = false;
-  final bool _isUploading = false;
+  bool _isUploading = false;
 
   String? _currentPhotoUrl;
   String? _email;
@@ -57,7 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
     if (picked == null) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _isUploading = true);
 
     try {
       final token = await PreferenceHandler.getToken();
@@ -97,6 +98,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           if (newPhotoUrl != null) {
             setState(() => _currentPhotoUrl = newPhotoUrl);
 
+            // update local cache
             final userJson = await PreferenceHandler.getUserData();
             Map<String, dynamic> currentData = {};
             if (userJson != null) {
@@ -129,7 +131,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 
@@ -223,67 +225,81 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Avatar dengan tombol edit
+                    // 🔹 Avatar + Hero
+                    // Center(
+                    //   child: Stack(
+                    //     alignment: Alignment.center,
+                    //     children: [
+                    //       Hero(
+                    //         tag: "profile-avatar",
+                    //         child: CircleAvatar(
+                    //           radius: 56,
+                    //           backgroundImage: _currentPhotoUrl != null
+                    //               ? NetworkImage(_currentPhotoUrl!)
+                    //               : null,
+                    //           backgroundColor: Colors.grey[300],
+                    //           child: _currentPhotoUrl == null
+                    //               ? const Icon(
+                    //                   Icons.person,
+                    //                   size: 48,
+                    //                   color: Colors.white70,
+                    //                 )
+                    //               : null,
+                    //         ),
+                    //       ),
+
+                    //       // Loading spinner saat upload
+                    //       if (_isUploading)
+                    //         const Positioned.fill(
+                    //           child: Align(
+                    //             alignment: Alignment.center,
+                    //             child: CircularProgressIndicator(
+                    //               strokeWidth: 3,
+                    //               valueColor: AlwaysStoppedAnimation<Color>(
+                    //                 Colors.orange,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ),
+
+                    //       // Tombol edit foto
+                    //       Positioned(
+                    //         bottom: 0,
+                    //         right: 0,
+                    //         child: InkWell(
+                    //           onTap: _pickAndUploadImage,
+                    //           borderRadius: BorderRadius.circular(20),
+                    //           child: Container(
+                    //             padding: const EdgeInsets.all(6),
+                    //             decoration: BoxDecoration(
+                    //               shape: BoxShape.circle,
+                    //               color: Colors.orange[700],
+                    //               border: Border.all(
+                    //                 color: Colors.white,
+                    //                 width: 2,
+                    //               ),
+                    //             ),
+                    //             child: const Icon(
+                    //               Icons.edit,
+                    //               size: 18,
+                    //               color: Colors.white,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                     Center(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Avatar
-                          CircleAvatar(
-                            radius: 56,
-                            backgroundImage: _currentPhotoUrl != null
-                                ? NetworkImage(_currentPhotoUrl!)
-                                : null,
-                            backgroundColor: Colors.grey[300],
-                            child: _currentPhotoUrl == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 48,
-                                    color: Colors.white70,
-                                  )
-                                : null,
-                          ),
-
-                          // Loading spinner (muncul saat upload)
-                          if (_isUploading)
-                            const Positioned.fill(
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.orange,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          // Tombol edit
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: InkWell(
-                              onTap: _pickAndUploadImage,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.orange[700],
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: AvatarHero(
+                        tag: "profile-avatar",
+                        radius: 56,
+                        imageUrl: _currentPhotoUrl != null
+                            ? "${_currentPhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
+                            : null,
+                        showBorder: true,
+                        isUploading: _isUploading,
+                        onEdit: _pickAndUploadImage,
                       ),
                     ),
 
