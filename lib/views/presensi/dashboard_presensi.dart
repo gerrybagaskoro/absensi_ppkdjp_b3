@@ -1,3 +1,4 @@
+// dashboard_presensi.dart
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
@@ -20,8 +21,14 @@ class DashboardPresensi extends StatefulWidget {
 
 class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
-
   AbsenTodayData? _absenToday;
+  String _formatDistance(double distanceMeters) {
+    if (distanceMeters < 1000) {
+      return "${distanceMeters.toStringAsFixed(0)} m";
+    } else {
+      return "${(distanceMeters / 1000).toStringAsFixed(2)} km";
+    }
+  }
 
   @override
   void initState() {
@@ -32,12 +39,21 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   Future<void> _loadTodayAbsen() async {
     final result = await AbsenAPI.getToday();
     setState(() {
-      _absenToday = result?.data; // langsung assign, bisa null
+      _absenToday = result?.data;
     });
   }
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
+  }
+
+  void _onLocationUpdated(
+    double lat,
+    double lng,
+    String address,
+    double distance,
+  ) {
+    setState(() {});
   }
 
   @override
@@ -85,19 +101,18 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  /// === PAGE DASHBOARD ===
   Widget _buildDashboardPage() {
     return RefreshIndicator(
       onRefresh: _loadTodayAbsen,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const HeaderSection(),
             const SizedBox(height: 8),
-            const LocationCard(),
+            LocationCard(onLocationUpdated: _onLocationUpdated),
             const SizedBox(height: 8),
             _buildTodayStatusCard(),
             const SizedBox(height: 12),
@@ -131,11 +146,10 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Row Judul + Status
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -165,8 +179,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
               ],
             ),
             const SizedBox(height: 16),
-
-            /// Row Masuk & Pulang
             Row(
               children: [
                 Expanded(
@@ -256,44 +268,72 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildAbsensiButtons() {
-    final status = _absenToday?.status?.toLowerCase();
+    return ValueListenableBuilder<double>(
+      valueListenable: LocationCardStateNotifier.distanceNotifier,
+      builder: (context, distance, _) {
+        final status = _absenToday?.status?.toLowerCase();
 
-    // Jika status izin, tombol disembunyikan
-    if (status == "izin") {
-      return const Center(
-        child: Text(
-          "📌 Anda sedang izin hari ini",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.orange,
+        // Jika status izin, tombol disembunyikan
+        if (status == "izin") {
+          return const Center(
+            child: Text(
+              "📌 Anda sedang izin hari ini",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.orange,
+              ),
+            ),
+          );
+        }
+
+        Widget content;
+
+        if (distance > 50) {
+          content = Center(
+            child: Text(
+              "⚠️ Anda masih jauh dari PPKDJP (Jarak ${_formatDistance(distance)})",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        } else if (_absenToday == null || _absenToday?.checkInTime == null) {
+          content = _buildAbsenButton(
+            'Absen Masuk',
+            Icons.login,
+            Colors.orange[700]!,
+            _handleCheckIn,
+          );
+        } else if (_absenToday?.checkOutTime == null) {
+          content = _buildAbsenButton(
+            'Absen Pulang',
+            Icons.logout,
+            Colors.green[700]!,
+            _handleCheckOut,
+          );
+        } else {
+          content = const Center(
+            child: Text(
+              "✅ Anda sudah absen masuk & pulang hari ini",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          );
+        }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          transitionBuilder: (child, anim) => FadeTransition(
+            opacity: anim,
+            child: ScaleTransition(scale: anim, child: child),
           ),
-        ),
-      );
-    }
-
-    if (_absenToday == null || _absenToday?.checkInTime == null) {
-      return _buildAbsenButton(
-        'Absen Masuk',
-        Icons.login,
-        Colors.orange[700]!,
-        _handleCheckIn,
-      );
-    } else if (_absenToday?.checkOutTime == null) {
-      return _buildAbsenButton(
-        'Absen Pulang',
-        Icons.logout,
-        Colors.green[700]!,
-        _handleCheckOut,
-      );
-    } else {
-      return const Center(
-        child: Text(
-          "✅ Anda sudah absen masuk & pulang hari ini",
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-      );
-    }
+          child: content,
+        );
+      },
+    );
   }
 
   Widget _buildAbsenButton(
@@ -320,7 +360,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  /// === HANDLER CHECKIN / CHECKOUT MENGGUNAKAN TANGGAL DARI SERVER ===
   Future<void> _handleCheckIn() async {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
@@ -333,7 +372,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
     final now = DateTime.now();
     final tanggal =
-        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
@@ -346,11 +385,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         address: LocationCardState.lastAddress!,
       );
 
-      if (response != null && response.data != null) {
+      if (response?.data != null) {
         setState(() {
           _absenToday = AbsenTodayData(
             attendanceDate: tanggal,
-            checkInTime: response.data!.checkInTime,
+            checkInTime: response!.data!.checkInTime,
             checkOutTime: _absenToday?.checkOutTime,
             status: response.data!.status,
             checkInAddress: LocationCardState.lastAddress!,
@@ -358,11 +397,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message ?? "Absen masuk berhasil")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Gagal absen masuk")),
+          SnackBar(content: Text(response?.message ?? "Absen masuk berhasil")),
         );
       }
     } catch (e) {
@@ -384,7 +419,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
     final now = DateTime.now();
     final tanggal =
-        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
@@ -397,23 +432,19 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         address: LocationCardState.lastAddress!,
       );
 
-      if (response != null && response.data != null) {
+      if (response?.data != null) {
         setState(() {
           _absenToday = AbsenTodayData(
             attendanceDate: tanggal,
             checkInTime: _absenToday?.checkInTime,
-            checkOutTime: response.data!.checkOutTime,
+            checkOutTime: response!.data!.checkOutTime,
             status: response.data!.status,
             checkOutAddress: LocationCardState.lastAddress!,
           );
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message ?? "Absen pulang berhasil")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Gagal absen pulang")),
+          SnackBar(content: Text(response?.message ?? "Absen pulang berhasil")),
         );
       }
     } catch (e) {
