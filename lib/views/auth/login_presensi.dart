@@ -80,11 +80,11 @@ class _LoginPresensiState extends State<LoginPresensi> {
           );
         }
       } else {
+        final Map<String, dynamic> errorResponse = jsonDecode(response.body);
+        final String message = errorResponse['message'] ?? 'Login gagal';
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login gagal: ${response.body}'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
