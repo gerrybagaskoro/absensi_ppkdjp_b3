@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -32,7 +34,6 @@ class _LocationCardState extends State<LocationCard> {
   double long = 106.816666;
   String _currentAddress = "Alamat tidak ditemukan";
   Marker? _marker;
-  bool _loading = true;
 
   @override
   void initState() {
@@ -112,12 +113,10 @@ class _LocationCardState extends State<LocationCard> {
   }
 
   Future<void> _getCurrentLocation() async {
-    setState(() => _loading = true);
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         await Geolocator.openLocationSettings();
-        setState(() => _loading = false);
         return;
       }
 
@@ -127,7 +126,6 @@ class _LocationCardState extends State<LocationCard> {
         permission = await Geolocator.requestPermission();
         if (permission != LocationPermission.whileInUse &&
             permission != LocationPermission.always) {
-          setState(() => _loading = false);
           return;
         }
       }
@@ -170,7 +168,6 @@ class _LocationCardState extends State<LocationCard> {
           ),
         );
         _currentAddress = address;
-        _loading = false;
       });
 
       // Simpan di static holder (DashboardPresensi bisa baca)
@@ -195,7 +192,6 @@ class _LocationCardState extends State<LocationCard> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Gagal mengambil lokasi: $e')));
-        setState(() => _loading = false);
       }
     }
   }

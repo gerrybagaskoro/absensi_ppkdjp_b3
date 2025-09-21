@@ -1,5 +1,7 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingsPresensi extends StatefulWidget {
   const SettingsPresensi({super.key});
@@ -9,7 +11,6 @@ class SettingsPresensi extends StatefulWidget {
 }
 
 class _SettingsPresensiState extends State<SettingsPresensi> {
-  bool _darkMode = false;
   bool _notifikasi = true;
   String _bahasa = "Indonesia";
 
@@ -27,16 +28,16 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
         children: [
           // Tema
           SwitchListTile(
-            value: _darkMode,
-            activeColor: Colors.orange,
             title: const Text("Mode Gelap"),
-            subtitle: const Text("Aktifkan tema gelap untuk aplikasi"),
-            onChanged: (value) {
-              setState(() {
-                _darkMode = value;
-              });
+            value: Provider.of<ThemeProvider>(context).isDarkMode,
+            onChanged: (val) {
+              Provider.of<ThemeProvider>(
+                context,
+                listen: false,
+              ).toggleTheme(val);
             },
           ),
+
           const Divider(),
 
           // Notifikasi
