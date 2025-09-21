@@ -256,65 +256,69 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildAbsensiButtons() {
-    final status = _absenToday?.status?.toLowerCase();
-    final distance = LocationCardState.lastDistance ?? double.infinity;
+    return ValueListenableBuilder<double>(
+      valueListenable: LocationCardStateNotifier.distanceNotifier,
+      builder: (context, distance, _) {
+        final status = _absenToday?.status?.toLowerCase();
 
-    // Jika status izin, tombol disembunyikan
-    if (status == "izin") {
-      return const Center(
-        child: Text(
-          "📌 Anda sedang izin hari ini",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.orange,
-          ),
-        ),
-      );
-    }
+        // Jika status izin, tombol disembunyikan
+        if (status == "izin") {
+          return const Center(
+            child: Text(
+              "📌 Anda sedang izin hari ini",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.orange,
+              ),
+            ),
+          );
+        }
 
-    // Jika user berada di luar radius 50m
-    if (distance > 50) {
-      String distText = distance < 1000
-          ? "${distance.toStringAsFixed(0)} m"
-          : "${(distance / 1000).toStringAsFixed(2)} km";
+        // Jika user berada di luar radius 50m
+        if (distance > 50) {
+          String distText = distance < 1000
+              ? "${distance.toStringAsFixed(0)} m"
+              : "${(distance / 1000).toStringAsFixed(2)} km";
 
-      return Center(
-        child: Text(
-          "⚠️ Anda terlalu jauh dari lokasi absen (jarak $distText)",
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.red,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
+          return Center(
+            child: Text(
+              "⚠️ Anda jauh dari lokasi PPKDJP (Jarak: $distText)",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
 
-    // Jika user berada di dalam radius 50m, tampilkan tombol absen
-    if (_absenToday == null || _absenToday?.checkInTime == null) {
-      return _buildAbsenButton(
-        'Absen Masuk',
-        Icons.login,
-        Colors.orange[700]!,
-        _handleCheckIn,
-      );
-    } else if (_absenToday?.checkOutTime == null) {
-      return _buildAbsenButton(
-        'Absen Pulang',
-        Icons.logout,
-        Colors.green[700]!,
-        _handleCheckOut,
-      );
-    } else {
-      return const Center(
-        child: Text(
-          "✅ Anda sudah absen masuk & pulang hari ini",
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-      );
-    }
+        // Jika user berada di dalam radius 50m, tampilkan tombol absen
+        if (_absenToday == null || _absenToday?.checkInTime == null) {
+          return _buildAbsenButton(
+            'Absen Masuk',
+            Icons.login,
+            Colors.orange[700]!,
+            _handleCheckIn,
+          );
+        } else if (_absenToday?.checkOutTime == null) {
+          return _buildAbsenButton(
+            'Absen Pulang',
+            Icons.logout,
+            Colors.green[700]!,
+            _handleCheckOut,
+          );
+        } else {
+          return const Center(
+            child: Text(
+              "✅ Anda sudah absen masuk & pulang hari ini",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          );
+        }
+      },
+    );
   }
 
   Widget _buildAbsenButton(
