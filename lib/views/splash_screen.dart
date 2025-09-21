@@ -7,6 +7,7 @@ import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/onboard_screen.dart';
+import 'package:absensi_ppkdjp_b3/views/presensi/dashboard_presensi.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,14 +41,33 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _startSplash() async {
     await Future.delayed(const Duration(seconds: 5));
 
-    final onboardingShown = await PreferenceHandler.getOnboardingShown();
-    final isLoggedIn = await PreferenceHandler.getLogin();
-    final token = await PreferenceHandler.getToken();
+    bool onboardingShown = false;
+    bool isLoggedIn = false;
+    String? token;
+
+    try {
+      onboardingShown = await PreferenceHandler.getOnboardingShown().timeout(
+        const Duration(seconds: 2),
+      );
+      isLoggedIn =
+          await PreferenceHandler.getLogin().timeout(
+            const Duration(seconds: 2),
+          ) ??
+          false;
+      token = await PreferenceHandler.getToken().timeout(
+        const Duration(seconds: 2),
+      );
+    } catch (e) {
+      print("Error membaca SharedPreferences: $e");
+      onboardingShown = false;
+      isLoggedIn = false;
+      token = null;
+    }
 
     if (!mounted) return;
 
-    if (isLoggedIn == true && token != null && token.isNotEmpty) {
-      context.pushNamedAndRemoveAll('/dashboard');
+    if (isLoggedIn && token != null && token.isNotEmpty) {
+      context.pushNamedAndRemoveAll(DashboardPresensi.id);
       return;
     }
 
