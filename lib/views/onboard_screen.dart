@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
+  static const String id = '/onboard_presensi';
   const OnboardingScreen({super.key});
 
   Future<void> _onIntroEnd(BuildContext context) async {

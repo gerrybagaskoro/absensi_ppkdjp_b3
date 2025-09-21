@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class RegisterPresensi extends StatefulWidget {
+  static const String id = '/register_presensi';
   const RegisterPresensi({super.key});
 
   @override

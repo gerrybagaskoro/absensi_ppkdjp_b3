@@ -1,5 +1,7 @@
+import 'package:absensi_ppkdjp_b3/views/auth/forgot_account_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/register_presensi.dart';
+import 'package:absensi_ppkdjp_b3/views/onboard_screen.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/dashboard_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +10,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
-  runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -34,13 +36,16 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // initialRoute: '/splash',
-      home: const SplashScreen(),
+
+      initialRoute: SplashScreen.id,
       routes: {
-        '/login': (context) => const LoginPresensi(),
-        '/splash': (context) => const SplashScreen(),
-        '/register': (context) => const RegisterPresensi(),
-        '/dashboard': (context) => const DashboardPresensi(),
+        SplashScreen.id: (context) => const SplashScreen(),
+        OnboardingScreen.id: (context) => const OnboardingScreen(),
+        LoginPresensi.id: (context) => const LoginPresensi(),
+        RegisterPresensi.id: (context) => const RegisterPresensi(),
+        ForgotResetPasswordScreen.id: (context) =>
+            const ForgotResetPasswordScreen(),
+        DashboardPresensi.id: (context) => const DashboardPresensi(),
       },
     );
   }

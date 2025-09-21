@@ -10,6 +10,7 @@ import 'package:absensi_ppkdjp_b3/views/onboard_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
+  static const String id = '/splash_presensi';
   const SplashScreen({super.key});
 
   @override

@@ -11,6 +11,7 @@ import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPresensi extends StatefulWidget {
+  static const String id = '/dashboard_presensi';
   const DashboardPresensi({super.key});
 
   @override

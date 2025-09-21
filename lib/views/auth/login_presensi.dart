@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class LoginPresensi extends StatefulWidget {
+  static const String id = '/login_presensi';
   const LoginPresensi({super.key});
 
   @override
@@ -69,7 +70,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
             ),
           );
 
-          context.pushNamedAndRemoveAll('/dashboard');
+          context.pushNamedAndRemoveAll('/dashboard_presensi');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -254,7 +255,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    context.pushNamed('/register');
+                                    context.pushNamed('/register_presensi');
                                   },
                               ),
                             ],
@@ -280,12 +281,9 @@ class _LoginPresensiState extends State<LoginPresensi> {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Fitur lupa password akan diimplementasi',
-                                        ),
-                                      ),
+                                    // ✅ arahkan ke halaman forgot/reset password
+                                    context.pushNamed(
+                                      '/forgot_password_presensi',
                                     );
                                   },
                               ),
