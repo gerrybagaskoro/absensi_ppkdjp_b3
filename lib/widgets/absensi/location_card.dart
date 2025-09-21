@@ -30,12 +30,15 @@ class LocationCard extends StatefulWidget {
 
 class _LocationCardState extends State<LocationCard> {
   GoogleMapController? mapController;
-  LatLng _currentPosition = const LatLng(-6.200000, 106.816666);
+  LatLng _currentPosition = const LatLng(
+    -6.210932,
+    106.813075,
+  ); // Lokasi View awal Maps
   double _distanceToTarget = 0;
   String _currentAddress = "Alamat tidak ditemukan";
 
   // Lokasi PPKDJP
-  final LatLng _targetLocation = const LatLng(-6.200123, 106.816789);
+  final LatLng _targetLocation = const LatLng(-6.210914, 106.812958);
 
   Stream<Position>? _positionStream;
 
@@ -167,7 +170,7 @@ class _LocationCardState extends State<LocationCard> {
                   Marker(
                     markerId: const MarkerId('ppkdjp'),
                     position: _targetLocation,
-                    infoWindow: const InfoWindow(title: 'PPKDJP Jakpus'),
+                    infoWindow: const InfoWindow(title: 'PPKDJP'),
                     icon: BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueAzure,
                     ),
