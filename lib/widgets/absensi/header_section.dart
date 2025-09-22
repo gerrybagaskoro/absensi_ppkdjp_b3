@@ -20,7 +20,6 @@ class _HeaderSectionState extends State<HeaderSection> {
   }
 
   Future<void> _loadProfile() async {
-    // coba fetch dari API
     final profile = await ProfileService.fetchProfile();
 
     if (profile?.data?.name != null) {
@@ -28,7 +27,6 @@ class _HeaderSectionState extends State<HeaderSection> {
         _userName = profile!.data!.name!;
       });
     } else {
-      // fallback ke cache
       final cached = await ProfileService.getProfileFromCache();
       setState(() {
         _userName = cached?['name'] ?? "Pengguna";
@@ -38,26 +36,36 @@ class _HeaderSectionState extends State<HeaderSection> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // warna teks menyesuaikan theme
+    final primaryTextColor = theme.brightness == Brightness.light
+        ? Colors.black87
+        : Colors.white;
+    final secondaryTextColor = theme.brightness == Brightness.light
+        ? Colors.grey[600]
+        : Colors.white70;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Selamat Datang Kembali,',
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 16, color: secondaryTextColor),
         ),
         const SizedBox(height: 4),
         Text(
           _userName ?? "Memuat...",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: primaryTextColor,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(_currentDate),
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 16, color: secondaryTextColor),
         ),
       ],
     );

@@ -39,6 +39,25 @@ class _LocationCardState extends State<LocationCard> {
 
   Stream<Position>? _positionStream;
 
+  // Maps style JSON
+  final String _darkMapStyle = '''
+[
+  {"elementType": "geometry", "stylers": [{"color": "#212121"}]},
+  {"elementType": "labels.icon", "stylers": [{"visibility": "off"}]},
+  {"elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
+  {"elementType": "labels.text.stroke", "stylers": [{"color": "#212121"}]},
+  {"featureType": "administrative", "elementType": "geometry", "stylers": [{"color": "#757575"}]},
+  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#757575"}]},
+  {"featureType": "poi.park", "elementType": "geometry", "stylers": [{"color": "#181818"}]},
+  {"featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{"color": "#616161"}]},
+  {"featureType": "road", "elementType": "geometry.fill", "stylers": [{"color": "#2c2c2c"}]},
+  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#8a8a8a"}]},
+  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#2f2f2f"}]},
+  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}]},
+  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d3d3d"}]}
+]
+''';
+
   @override
   void initState() {
     super.initState();
@@ -129,11 +148,19 @@ class _LocationCardState extends State<LocationCard> {
       distance,
     );
 
-    mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: _currentPosition, zoom: 17),
-      ),
-    );
+    if (mapController != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: _currentPosition, zoom: 17),
+        ),
+      );
+
+      if (Theme.of(context).brightness == Brightness.dark) {
+        mapController!.setMapStyle(_darkMapStyle);
+      } else {
+        mapController!.setMapStyle(null);
+      }
+    }
   }
 
   String _formatDistance(double distanceMeters) {
@@ -146,9 +173,11 @@ class _LocationCardState extends State<LocationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bool canCheckIn = _distanceToTarget <= _allowedRadius;
 
     return Card(
+      color: theme.cardColor,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
@@ -186,7 +215,14 @@ class _LocationCardState extends State<LocationCard> {
                     strokeWidth: 2,
                   ),
                 },
-                onMapCreated: (controller) => mapController = controller,
+                onMapCreated: (controller) {
+                  mapController = controller;
+                  if (theme.brightness == Brightness.dark) {
+                    controller.setMapStyle(_darkMapStyle);
+                  } else {
+                    controller.setMapStyle(null);
+                  }
+                },
               ),
             ),
           ),
@@ -197,13 +233,16 @@ class _LocationCardState extends State<LocationCard> {
               children: [
                 Text(
                   "Alamat Anda: ${_currentAddress ?? 'Sedang mengambil lokasi...'}",
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.brightness == Brightness.light
+                        ? Colors.black87
+                        : Colors.white70,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Jarak anda ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: canCheckIn ? Colors.green : Colors.red,
                   ),

@@ -41,7 +41,8 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
   @override
   Widget build(BuildContext context) {
-    // Final list of pages, tombol absen hanya muncul di beranda
+    final theme = Theme.of(context);
+
     final List<Widget> pages = [
       _buildDashboardPage(),
       const HistoryPresensi(),
@@ -51,23 +52,16 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'Presensi Kita',
-          style: TextStyle(color: Colors.white),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.orange[700],
-        elevation: 0,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Column(
+        children: [
+          _buildAppBar(theme),
+          Expanded(child: pages[_selectedIndex]),
+        ],
       ),
-      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.orange[700],
+        selectedItemColor: theme.primaryColor,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
@@ -85,7 +79,28 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  /// === PAGE DASHBOARD ===
+  Widget _buildAppBar(ThemeData theme) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Presensi Kita',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.brightness == Brightness.light
+                    ? Colors.black
+                    : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDashboardPage() {
     return RefreshIndicator(
       onRefresh: _loadTodayAbsen,
@@ -96,11 +111,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const HeaderSection(),
-            const SizedBox(height: 8),
-            const LocationCard(),
-            const SizedBox(height: 8),
-            _buildTodayStatusCard(),
             const SizedBox(height: 12),
+            const LocationCard(),
+            const SizedBox(height: 16),
+            _buildTodayStatusCard(),
+            const SizedBox(height: 24),
             _buildAbsensiButtons(),
           ],
         ),
@@ -109,6 +124,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildTodayStatusCard() {
+    final theme = Theme.of(context);
     final status = _absenToday?.status?.toLowerCase() ?? "belum absen";
     Color statusColor;
     switch (status) {
@@ -127,76 +143,75 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         statusColor = Colors.grey;
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Judul + Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Status Absen Hari Ini',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    _absenToday?.status ?? "Belum Absen",
-                    style: TextStyle(
-                      color: statusColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            /// Masuk & Pulang
-            Row(
-              children: [
-                Expanded(
-                  child: _buildCheckTile(
-                    label: "Masuk",
-                    time: _absenToday?.checkInTime,
-                    color: Colors.green,
-                    icon: Icons.login,
-                  ),
-                ),
-                Expanded(
-                  child: _buildCheckTile(
-                    label: "Pulang",
-                    time: _absenToday?.checkOutTime,
-                    color: Colors.red,
-                    icon: Icons.logout,
-                  ),
-                ),
-              ],
-            ),
-            if (_absenToday?.alasanIzin != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: Text(
-                  "Alasan Izin: ${_absenToday!.alasanIzin}",
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Judul + Status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Status Absen Hari Ini',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-          ],
-        ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  _absenToday?.status ?? "Belum Absen",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildCheckTile(
+                  label: "Masuk",
+                  time: _absenToday?.checkInTime,
+                  color: Colors.green,
+                  icon: Icons.login,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildCheckTile(
+                  label: "Pulang",
+                  time: _absenToday?.checkOutTime,
+                  color: Colors.red,
+                  icon: Icons.logout,
+                ),
+              ),
+            ],
+          ),
+          if (_absenToday?.alasanIzin != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: Text(
+                "Alasan Izin: ${_absenToday!.alasanIzin}",
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -207,47 +222,41 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     required Color color,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
     final bool done = time != null;
-
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: done ? color.withOpacity(0.1) : Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: done ? color.withOpacity(0.3) : Colors.grey[300]!,
-        ),
+        color: done
+            ? color.withOpacity(0.1)
+            : theme.inputDecorationTheme.fillColor,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
-            backgroundColor: done ? color.withOpacity(0.2) : Colors.grey[300],
-            radius: 20,
-            child: Icon(icon, color: done ? color : Colors.grey, size: 20),
+            radius: 22,
+            backgroundColor: done ? color.withOpacity(0.2) : theme.dividerColor,
+            child: Icon(icon, color: done ? color : theme.iconTheme.color),
           ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: TextStyle(
+            style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,
-              color: done ? color : Colors.grey,
+              color: done ? color : theme.textTheme.bodyMedium?.color,
             ),
           ),
           const SizedBox(height: 4),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
-            transitionBuilder: (child, anim) => FadeTransition(
-              opacity: anim,
-              child: ScaleTransition(scale: anim, child: child),
-            ),
             child: Text(
               done ? time : "--:--",
               key: ValueKey(time),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -256,18 +265,17 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Widget _buildAbsensiButtons() {
+    final theme = Theme.of(context);
     return ValueListenableBuilder<double>(
       valueListenable: LocationCardStateNotifier.distanceNotifier,
       builder: (context, distance, _) {
         final status = _absenToday?.status?.toLowerCase();
 
-        // Jika status izin, tombol disembunyikan
         if (status == "izin") {
-          return const Center(
+          return Center(
             child: Text(
               "📌 Anda sedang izin hari ini",
-              style: TextStyle(
-                fontSize: 14,
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.orange,
               ),
@@ -275,7 +283,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           );
         }
 
-        // Jika user berada di luar radius 50m
         if (distance > 50) {
           String distText = distance < 1000
               ? "${distance.toStringAsFixed(0)} m"
@@ -284,8 +291,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           return Center(
             child: Text(
               "⚠️ Anda jauh dari lokasi PPKDJP (Jarak: $distText)",
-              style: const TextStyle(
-                fontSize: 14,
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.red,
               ),
@@ -294,12 +300,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           );
         }
 
-        // Jika user berada di dalam radius 50m, tampilkan tombol absen
         if (_absenToday == null || _absenToday?.checkInTime == null) {
           return _buildAbsenButton(
             'Absen Masuk',
             Icons.login,
-            Colors.orange[700]!,
+            theme.primaryColor,
             _handleCheckIn,
           );
         } else if (_absenToday?.checkOutTime == null) {
@@ -310,10 +315,12 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             _handleCheckOut,
           );
         } else {
-          return const Center(
+          return Center(
             child: Text(
               "✅ Anda sudah absen masuk & pulang hari ini",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           );
         }
@@ -327,25 +334,42 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     Color color,
     VoidCallback onPressed,
   ) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(colors: [color.withOpacity(0.9), color]),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 20, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(text, style: const TextStyle(fontSize: 14, color: Colors.white)),
-        ],
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(24),
+          splashColor: Colors.white24,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: 10),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  /// === HANDLER CHECKIN / CHECKOUT ===
+  /// === HANDLER CHECKIN & CHECKOUT ===
   Future<void> _handleCheckIn() async {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
@@ -358,7 +382,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
     final now = DateTime.now();
     final tanggal =
-        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
@@ -409,7 +433,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
     final now = DateTime.now();
     final tanggal =
-        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final jam =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
