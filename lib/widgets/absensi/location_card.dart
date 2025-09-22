@@ -30,14 +30,12 @@ class LocationCard extends StatefulWidget {
 
 class _LocationCardState extends State<LocationCard> {
   GoogleMapController? mapController;
-  LatLng _currentPosition = const LatLng(
-    -6.210932,
-    106.813075,
-  ); // Lokasi awal view maps
+  LatLng _currentPosition = const LatLng(-6.210932, 106.813075);
   double _distanceToTarget = 0;
-  String? _currentAddress; // awalnya null
+  String? _currentAddress;
 
   final LatLng _targetLocation = const LatLng(-6.210882, 106.812942);
+  final double _allowedRadius = 50; // radius absen dalam meter
 
   Stream<Position>? _positionStream;
 
@@ -64,7 +62,6 @@ class _LocationCardState extends State<LocationCard> {
       }
     }
 
-    // Ambil lokasi awal
     try {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -72,7 +69,6 @@ class _LocationCardState extends State<LocationCard> {
       await _updateLocation(position);
     } catch (_) {}
 
-    // Stream untuk update lokasi real-time
     _positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -88,7 +84,6 @@ class _LocationCardState extends State<LocationCard> {
   Future<void> _updateLocation(Position position) async {
     final newPos = LatLng(position.latitude, position.longitude);
 
-    // Reverse geocoding
     String address = "Alamat tidak ditemukan";
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -136,7 +131,7 @@ class _LocationCardState extends State<LocationCard> {
 
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(target: _currentPosition, zoom: 16),
+        CameraPosition(target: _currentPosition, zoom: 17),
       ),
     );
   }
@@ -151,6 +146,8 @@ class _LocationCardState extends State<LocationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final bool canCheckIn = _distanceToTarget <= _allowedRadius;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -164,7 +161,7 @@ class _LocationCardState extends State<LocationCard> {
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
                   target: _currentPosition,
-                  zoom: 16,
+                  zoom: 18,
                 ),
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
@@ -177,6 +174,16 @@ class _LocationCardState extends State<LocationCard> {
                     icon: BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueAzure,
                     ),
+                  ),
+                },
+                circles: {
+                  Circle(
+                    circleId: const CircleId('ppkdjp_radius'),
+                    center: _targetLocation,
+                    radius: _allowedRadius,
+                    fillColor: Colors.red.withOpacity(0.2),
+                    strokeColor: Colors.red,
+                    strokeWidth: 2,
                   ),
                 },
                 onMapCreated: (controller) => mapController = controller,
@@ -198,9 +205,10 @@ class _LocationCardState extends State<LocationCard> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: _distanceToTarget <= 50 ? Colors.green : Colors.red,
+                    color: canCheckIn ? Colors.green : Colors.red,
                   ),
                 ),
+                const SizedBox(height: 6),
               ],
             ),
           ),

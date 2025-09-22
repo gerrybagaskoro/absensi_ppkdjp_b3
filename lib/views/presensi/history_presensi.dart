@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
+import 'package:absensi_ppkdjp_b3/api/absen_delete.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -78,6 +79,40 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     return grouped;
   }
 
+  Future<void> _deletePresensi(Datum item) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Hapus Presensi"),
+        content: const Text("Apakah Anda yakin ingin menghapus presensi ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Hapus"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final success = await AbsenApiDelete.deleteHistory(item.id.toString());
+    if (success) {
+      setState(() => _riwayat.remove(item));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Presensi berhasil dihapus")),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Gagal menghapus presensi")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Datum> filteredRiwayat = _selectedRange == null
@@ -91,7 +126,6 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                     tgl.isBefore(_selectedRange!.end));
           }).toList();
 
-    // Group per bulan & urut descending
     final grouped = _groupByMonth(filteredRiwayat);
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) {
@@ -110,7 +144,6 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Label range tanggal / semua tanggal
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -130,16 +163,13 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                   child: Text(
                     _selectedRange == null
                         ? "Semua Tanggal"
-                        : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - "
-                              "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
+                        : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-
-                // Tombol pilih tanggal
                 OutlinedButton.icon(
                   onPressed: _pickDateRange,
                   icon: const Icon(
@@ -167,8 +197,6 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
               ],
             ),
           ),
-
-          // List presensi
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -184,7 +212,6 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                     itemBuilder: (context, index) {
                       final bulan = sortedKeys[index];
                       final items = grouped[bulan]!;
-
                       return StickyHeader(
                         header: Container(
                           width: double.infinity,
@@ -192,7 +219,7 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          color: Colors.orange[50], // selaras filter bar
+                          color: Colors.orange[50],
                           child: Text(
                             bulan,
                             style: const TextStyle(
@@ -205,74 +232,76 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                         content: Column(
                           children: [
                             ...items.map((item) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  title: Text(
-                                    DateFormat(
-                                      'EEEE, dd MMM yyyy',
-                                      'id_ID',
-                                    ).format(
-                                      item.attendanceDate ?? DateTime.now(),
-                                    ),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
+                              return GestureDetector(
+                                onLongPress: () => _deletePresensi(item),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 6,
                                   ),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Masuk: ${item.checkInTime ?? "-"}",
-                                        ),
-                                        Text(
-                                          "Pulang: ${item.checkOutTime ?? "-"}",
-                                        ),
-                                      ],
-                                    ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      const BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                  trailing: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(16),
+                                    title: Text(
+                                      DateFormat(
+                                        'EEEE, dd MMM yyyy',
+                                        'id_ID',
+                                      ).format(
+                                        item.attendanceDate ?? DateTime.now(),
+                                      ),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: _getStatusColor(
-                                        item.status,
-                                      ).withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(20),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Masuk: ${item.checkInTime ?? "-"}",
+                                          ),
+                                          Text(
+                                            "Pulang: ${item.checkOutTime ?? "-"}",
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    child: Text(
-                                      item.status ?? "-",
-                                      style: TextStyle(
-                                        color: _getStatusColor(item.status),
-                                        fontWeight: FontWeight.w600,
+                                    trailing: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _getStatusColor(
+                                          item.status,
+                                        ).withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        item.status ?? "-",
+                                        style: TextStyle(
+                                          color: _getStatusColor(item.status),
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               );
                             }),
-                            // Divider antar bulan
                             if (index < sortedKeys.length - 1)
                               const Divider(
                                 thickness: 1,
