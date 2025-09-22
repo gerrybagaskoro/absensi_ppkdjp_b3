@@ -61,9 +61,9 @@ class _IzinPresensiState extends State<IzinPresensi> {
   Future<void> _submitIzin() async {
     if (!_formKey.currentState!.validate() || _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Lengkapi tanggal & alasan izin"),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text("Lengkapi tanggal & alasan izin"),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -95,7 +95,7 @@ class _IzinPresensiState extends State<IzinPresensi> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(izin.message ?? "Izin berhasil diajukan"),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -107,18 +107,18 @@ class _IzinPresensiState extends State<IzinPresensi> {
         _loadIzinList();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal mengajukan izin"),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text("Gagal mengajukan izin"),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Terjadi kesalahan"),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text("Terjadi kesalahan"),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -137,7 +137,14 @@ class _IzinPresensiState extends State<IzinPresensi> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Izin Presensi"),
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -146,158 +153,143 @@ class _IzinPresensiState extends State<IzinPresensi> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ===== Card Input (Tanggal + Alasan) =====
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
+              Card(
+                elevation: 0,
+                color: scheme.surface,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
+                  side: BorderSide(color: scheme.outlineVariant),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Tanggal
-                    Row(
-                      children: const [
-                        Icon(Icons.date_range, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Text(
-                          "Pilih Tanggal",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tanggal
+                      Row(
+                        children: [
+                          Icon(Icons.date_range, color: scheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Pilih Tanggal",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: scheme.onSurface,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: _pickDate,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orange),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _selectedDate == null
-                                  ? "Belum dipilih"
-                                  : DateFormat(
-                                      "EEEE, dd MMM yyyy",
-                                      "id_ID",
-                                    ).format(_selectedDate!),
-                              style: TextStyle(
-                                color: _selectedDate == null
-                                    ? Colors.grey[600]
-                                    : Colors.black87,
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: _pickDate,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: scheme.primary),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? "Belum dipilih"
+                                    : DateFormat(
+                                        "EEEE, dd MMM yyyy",
+                                        "id_ID",
+                                      ).format(_selectedDate!),
+                                style: TextStyle(
+                                  color: _selectedDate == null
+                                      ? scheme.onSurfaceVariant
+                                      : scheme.onSurface,
+                                ),
                               ),
-                            ),
-                            const Icon(
-                              Icons.arrow_drop_down,
-                              color: Colors.orange,
-                            ),
-                          ],
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: scheme.primary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // Alasan Izin
-                    Row(
-                      children: const [
-                        Icon(Icons.note_alt, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Text(
-                          "Alasan Izin",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                      // Alasan Izin
+                      Row(
+                        children: [
+                          Icon(Icons.note_alt, color: scheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Alasan Izin",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: scheme.onSurface,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _alasanController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: "Tuliskan alasan izin",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.orange,
-                            width: 2,
-                          ),
-                        ),
+                        ],
                       ),
-                      validator: (val) => val == null || val.isEmpty
-                          ? "Alasan wajib diisi"
-                          : null,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _alasanController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: "Tuliskan alasan izin",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Alasan wajib diisi"
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
 
               // Tombol Submit
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: FilledButton.icon(
                   onPressed: _isLoading ? null : _submitIzin,
                   icon: _isLoading
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.send),
                   label: Text(_isLoading ? "Mengajukan..." : "Ajukan Izin"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
                 ),
               ),
 
-              const SizedBox(height: 30),
-              const Divider(color: Colors.grey),
+              const SizedBox(height: 24),
+              const Divider(),
 
               // ===== Daftar Izin =====
-              const Text(
+              Text(
                 "Daftar Izin Saya",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: scheme.onSurface,
+                ),
               ),
               const SizedBox(height: 10),
 
               _isLoadingList
                   ? const Center(child: CircularProgressIndicator())
                   : _izinList.isEmpty
-                  ? const Text(
+                  ? Text(
                       "Belum ada data izin",
-                      style: TextStyle(color: Colors.black54),
+                      style: TextStyle(color: scheme.onSurfaceVariant),
                     )
                   : ListView.separated(
                       shrinkWrap: true,
@@ -307,50 +299,32 @@ class _IzinPresensiState extends State<IzinPresensi> {
                           const SizedBox(height: 10),
                       itemBuilder: (context, index) {
                         final item = _izinList[index];
-                        return Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
+                        return Card(
+                          elevation: 0,
+                          color: scheme.surface,
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 6,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
+                            side: BorderSide(color: scheme.outlineVariant),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.event_note,
-                                    color: Colors.orange,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    DateFormat(
-                                      "dd MMM yyyy",
-                                      "id_ID",
-                                    ).format(DateTime.parse(item["date"])),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.event_note,
+                              color: scheme.primary,
+                            ),
+                            title: Text(
+                              DateFormat(
+                                "dd MMM yyyy",
+                                "id_ID",
+                              ).format(DateTime.parse(item["date"])),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: scheme.onSurface,
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                "Alasan: ${item["alasan_izin"] ?? "-"}",
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                            ),
+                            subtitle: Text(
+                              "Alasan: ${item["alasan_izin"] ?? "-"}",
+                              style: TextStyle(color: scheme.onSurfaceVariant),
+                            ),
                           ),
                         );
                       },

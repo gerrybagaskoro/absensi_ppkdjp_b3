@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/api/absen_delete.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
@@ -34,19 +32,20 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     });
   }
 
-  Color _getStatusColor(String? status) {
+  Color _getStatusColor(String? status, BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     switch (status?.toLowerCase()) {
       case "hadir":
       case "masuk":
-        return Colors.green;
+        return scheme.primary;
       case "telat":
-        return Colors.orange;
+        return scheme.tertiary;
       case "izin":
-        return Colors.blue;
+        return scheme.secondary;
       case "alpha":
-        return Colors.red;
+        return scheme.error;
       default:
-        return Colors.grey;
+        return scheme.outline;
     }
   }
 
@@ -67,9 +66,8 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     }
   }
 
-  // Group data per bulan
   Map<String, List<Datum>> _groupByMonth(List<Datum> data) {
-    Map<String, List<Datum>> grouped = {};
+    final grouped = <String, List<Datum>>{};
     for (var item in data) {
       if (item.attendanceDate == null) continue;
       final key = DateFormat("MMMM yyyy", "id_ID").format(item.attendanceDate!);
@@ -90,7 +88,7 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text("Batal"),
           ),
-          ElevatedButton(
+          FilledButton.tonal(
             onPressed: () => Navigator.pop(context, true),
             child: const Text("Hapus"),
           ),
@@ -115,6 +113,8 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     final List<Datum> filteredRiwayat = _selectedRange == null
         ? _riwayat
         : _riwayat.where((item) {
@@ -135,65 +135,54 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
       });
 
     return Scaffold(
+      appBar: AppBar(title: const Text("Riwayat Presensi")),
       body: Column(
         children: [
-          // Filter bar
-          Container(
+          // Filter bar dengan reset + snackbar konfirmasi
+          Padding(
             padding: const EdgeInsets.all(12),
-            color: Colors.orange[50],
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: null,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    _selectedRange == null
-                        ? "Semua Tanggal"
-                        : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      alignment: Alignment.centerLeft,
+                    ),
+                    child: Text(
+                      _selectedRange == null
+                          ? "Semua Tanggal"
+                          : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: _pickDateRange,
-                  icon: const Icon(
-                    Icons.date_range,
-                    color: Colors.orange,
-                    size: 18,
-                  ),
+                  icon: const Icon(Icons.date_range),
                   label: const Text("Pilih Tanggal"),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.orange),
-                    foregroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
+                if (_selectedRange != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    tooltip: "Reset filter",
+                    onPressed: () {
+                      setState(() => _selectedRange = null);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Filter tanggal direset"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
               ],
             ),
           ),
@@ -219,97 +208,79 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          color: Colors.orange[50],
+                          color: scheme.surfaceContainerHighest,
                           child: Text(
                             bulan,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: scheme.onSurfaceVariant,
                             ),
                           ),
                         ),
                         content: Column(
                           children: [
                             ...items.map((item) {
-                              return GestureDetector(
-                                onLongPress: () => _deletePresensi(item),
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      const BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.all(16),
-                                    title: Text(
-                                      DateFormat(
-                                        'EEEE, dd MMM yyyy',
-                                        'id_ID',
-                                      ).format(
-                                        item.attendanceDate ?? DateTime.now(),
-                                      ),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 6,
+                                ),
+                                child: ListTile(
+                                  onLongPress: () => _deletePresensi(item),
+                                  title: Text(
+                                    DateFormat(
+                                      'EEEE, dd MMM yyyy',
+                                      'id_ID',
+                                    ).format(
+                                      item.attendanceDate ?? DateTime.now(),
                                     ),
-                                    subtitle: Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Masuk: ${item.checkInTime ?? "-"}",
-                                          ),
-                                          Text(
-                                            "Pulang: ${item.checkOutTime ?? "-"}",
-                                          ),
-                                        ],
-                                      ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
                                     ),
-                                    trailing: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Masuk: ${item.checkInTime ?? "-"}",
+                                        ),
+                                        Text(
+                                          "Pulang: ${item.checkOutTime ?? "-"}",
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  trailing: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(
+                                        item.status,
+                                        context,
+                                      ).withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      item.status ?? "-",
+                                      style: TextStyle(
                                         color: _getStatusColor(
                                           item.status,
-                                        ).withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        item.status ?? "-",
-                                        style: TextStyle(
-                                          color: _getStatusColor(item.status),
-                                          fontWeight: FontWeight.w600,
+                                          context,
                                         ),
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
                                 ),
                               );
                             }),
-                            if (index < sortedKeys.length - 1)
-                              const Divider(
-                                thickness: 1,
-                                height: 32,
-                                indent: 16,
-                                endIndent: 16,
-                                color: Colors.black12,
-                              ),
                           ],
                         ),
                       );

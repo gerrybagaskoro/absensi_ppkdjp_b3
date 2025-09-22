@@ -39,7 +39,7 @@ class _LocationCardState extends State<LocationCard> {
 
   Stream<Position>? _positionStream;
 
-  // Maps style JSON
+  // Maps style JSON untuk Dark Mode
   final String _darkMapStyle = '''
 [
   {"elementType": "geometry", "stylers": [{"color": "#212121"}]},
@@ -154,12 +154,6 @@ class _LocationCardState extends State<LocationCard> {
           CameraPosition(target: _currentPosition, zoom: 17),
         ),
       );
-
-      if (Theme.of(context).brightness == Brightness.dark) {
-        mapController!.setMapStyle(_darkMapStyle);
-      } else {
-        mapController!.setMapStyle(null);
-      }
     }
   }
 
@@ -178,13 +172,46 @@ class _LocationCardState extends State<LocationCard> {
 
     return Card(
       color: theme.cardColor,
-      elevation: 2,
+      elevation: 4,
+      shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Header lokasi
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.08),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Lokasi Presensi",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Map dengan tinggi tetap (200)
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(16),
+            ),
             child: SizedBox(
               height: 200,
               child: GoogleMap(
@@ -226,14 +253,16 @@ class _LocationCardState extends State<LocationCard> {
               ),
             ),
           ),
+
+          // Info lokasi
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Alamat Anda: ${_currentAddress ?? 'Sedang mengambil lokasi...'}",
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  _currentAddress ?? 'Sedang mengambil lokasi...',
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.brightness == Brightness.light
                         ? Colors.black87
                         : Colors.white70,
@@ -241,13 +270,12 @@ class _LocationCardState extends State<LocationCard> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Jarak anda ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  "Jarak ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: canCheckIn ? Colors.green : Colors.red,
                   ),
                 ),
-                const SizedBox(height: 6),
               ],
             ),
           ),

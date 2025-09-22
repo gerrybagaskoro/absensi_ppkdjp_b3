@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -11,12 +13,24 @@ class HeaderSection extends StatefulWidget {
 
 class _HeaderSectionState extends State<HeaderSection> {
   String? _userName;
-  final DateTime _currentDate = DateTime.now();
+  DateTime _currentDateTime = DateTime.now();
+
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    _currentDateTime = DateTime.now();
+    _startClock();
     _loadProfile();
+  }
+
+  void _startClock() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentDateTime = DateTime.now();
+      });
+    });
   }
 
   Future<void> _loadProfile() async {
@@ -35,16 +49,31 @@ class _HeaderSectionState extends State<HeaderSection> {
   }
 
   @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // warna teks menyesuaikan theme
     final primaryTextColor = theme.brightness == Brightness.light
         ? Colors.black87
         : Colors.white;
     final secondaryTextColor = theme.brightness == Brightness.light
         ? Colors.grey[600]
         : Colors.white70;
+
+    // format tanggal + jam
+    final formattedDate = DateFormat(
+      'EEEE, dd MMMM yyyy',
+      'id_ID',
+    ).format(_currentDateTime);
+    final formattedTime = DateFormat(
+      'HH:mm:ss',
+      'id_ID',
+    ).format(_currentDateTime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +93,7 @@ class _HeaderSectionState extends State<HeaderSection> {
         ),
         const SizedBox(height: 4),
         Text(
-          DateFormat('EEEE, dd MMMM yyyy', 'id_ID').format(_currentDate),
+          "$formattedDate | $formattedTime",
           style: TextStyle(fontSize: 16, color: secondaryTextColor),
         ),
       ],

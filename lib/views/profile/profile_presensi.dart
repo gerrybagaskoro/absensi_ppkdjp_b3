@@ -37,6 +37,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
   }
 
   void _showLogoutDialog() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -50,8 +51,8 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
             ),
             onPressed: () async {
               Navigator.pop(context);
@@ -69,9 +70,9 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Anda telah keluar."),
-        backgroundColor: Colors.red,
+      SnackBar(
+        content: const Text("Anda telah keluar."),
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
 
@@ -80,11 +81,14 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _loadProfile, // ✅ tarik ke bawah untuk refresh profil
+              onRefresh: _loadProfile,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Padding(
@@ -94,40 +98,6 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                       const SizedBox(height: 24),
 
                       // 🔹 Avatar
-                      // 🔹 Avatar
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     shape: BoxShape.circle,
-                      //     border: Border.all(color: Colors.orange, width: 5),
-                      //   ),
-                      //   child:
-                      // Hero(
-                      //   tag:
-                      //       "profile-avatar", // ⬅️ sama dengan di EditProfilePage
-                      //   child: CircleAvatar(
-                      //     radius: 92,
-                      //     backgroundImage: _profile?.profilePhotoUrl != null
-                      //         ? NetworkImage(
-                      //             "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}",
-                      //           )
-                      //         : _profile?.profilePhoto != null
-                      //         ? NetworkImage(
-                      //             "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}"
-                      //             "?v=${DateTime.now().millisecondsSinceEpoch}",
-                      //           )
-                      //         : null,
-                      //     backgroundColor: Colors.grey[300],
-                      //     child:
-                      //         (_profile?.profilePhotoUrl == null &&
-                      //             _profile?.profilePhoto == null)
-                      //         ? const Icon(
-                      //             Icons.person,
-                      //             size: 50,
-                      //             color: Colors.white,
-                      //           )
-                      //         : null,
-                      //   ),
-                      // ),
                       AvatarHero(
                         tag: "profile-avatar",
                         radius: 92,
@@ -145,17 +115,15 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                       // 🔹 Nama & email
                       Text(
                         _profile?.name ?? "Tidak ada nama",
-                        style: const TextStyle(
-                          fontSize: 20,
+                        style: textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         _profile?.email ?? "Tidak ada email",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
 
@@ -166,9 +134,11 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.orange[50],
+                          color: theme.colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withOpacity(0.4),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,8 +146,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                             if (_profile?.batchKe != null)
                               Text(
                                 "Batch ke-${_profile!.batchKe}",
-                                style: const TextStyle(
-                                  fontSize: 14,
+                                style: textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -186,8 +155,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   "Pelatihan: ${_profile!.trainingTitle}",
-                                  style: const TextStyle(
-                                    fontSize: 14,
+                                  style: textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -197,9 +165,8 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Text(
                                   "Dibuat pada: ${_profile!.batch!.createdAt!.toLocal().toString().substring(0, 19)}",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ),
@@ -208,9 +175,8 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   "Diperbarui pada: ${_profile!.batch!.updatedAt!.toLocal().toString().substring(0, 19)}",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ),
@@ -251,7 +217,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                           _buildMenuCard(
                             icon: Icons.logout,
                             text: "Keluar",
-                            color: Colors.red,
+                            color: theme.colorScheme.error,
                             onTap: _showLogoutDialog,
                           ),
                         ],
@@ -269,15 +235,14 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     required IconData icon,
     required String text,
     required VoidCallback onTap,
-    Color color = Colors.orange,
+    Color? color,
   }) {
+    final theme = Theme.of(context);
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 2,
-      margin: const EdgeInsets.symmetric(
-        vertical: 6,
-        horizontal: 0,
-      ), // ⬅️ full width
+      margin: const EdgeInsets.symmetric(vertical: 6),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
@@ -285,14 +250,16 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           child: Row(
             children: [
-              Icon(icon, color: color),
+              Icon(icon, color: color ?? theme.colorScheme.primary),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   text,
                   style: TextStyle(
                     fontSize: 16,
-                    color: color == Colors.red ? Colors.red : Colors.black87,
+                    color:
+                        color ??
+                        theme.colorScheme.onSurface, // default pakai onSurface
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -300,7 +267,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: Colors.grey.shade400,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ],
           ),

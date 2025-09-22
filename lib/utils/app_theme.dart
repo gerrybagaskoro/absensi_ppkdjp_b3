@@ -2,68 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Light Theme
+  // Light Theme dengan Material You
   static ThemeData get lightTheme {
-    return ThemeData(
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange,
       brightness: Brightness.light,
-      primarySwatch: Colors.orange,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
       textTheme: GoogleFonts.poppinsTextTheme(),
-      scaffoldBackgroundColor: Colors.grey[100],
+      scaffoldBackgroundColor: colorScheme.surface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurfaceVariant,
+      ),
       inputDecorationTheme: InputDecorationTheme(
-        labelStyle: const TextStyle(color: Colors.black87),
-        floatingLabelStyle: const TextStyle(color: Colors.black87),
-        hintStyle: const TextStyle(color: Colors.black54),
+        labelStyle: TextStyle(color: colorScheme.onSurface),
+        floatingLabelStyle: TextStyle(color: colorScheme.primary),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.orange, width: 2),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
+          borderSide: BorderSide(color: colorScheme.outline, width: 1.5),
         ),
         filled: true,
-        fillColor: Colors.grey[50],
+        fillColor: colorScheme.surfaceContainerHighest,
       ),
     );
   }
 
-  // Dark Theme
+  // Dark Theme dengan Material You
   static ThemeData get darkTheme {
-    return ThemeData(
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange,
       brightness: Brightness.dark,
-      primarySwatch: Colors.orange,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
-      scaffoldBackgroundColor: Colors.grey[900],
+      scaffoldBackgroundColor: colorScheme.surface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurfaceVariant,
+      ),
       inputDecorationTheme: InputDecorationTheme(
-        labelStyle: const TextStyle(color: Colors.white70),
-        floatingLabelStyle: const TextStyle(color: Colors.white),
-        hintStyle: const TextStyle(color: Colors.white54),
+        labelStyle: TextStyle(color: colorScheme.onSurface),
+        floatingLabelStyle: TextStyle(color: colorScheme.primary),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.orange, width: 2),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: Colors.grey[700]!, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
+          borderSide: BorderSide(color: colorScheme.outline, width: 1.5),
         ),
         filled: true,
-        fillColor: Colors.grey[850],
+        fillColor: colorScheme.surfaceContainerHighest,
       ),
     );
   }

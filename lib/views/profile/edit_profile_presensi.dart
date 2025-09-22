@@ -1,4 +1,3 @@
-// lib/views/profile/edit_profile_presensi.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -113,9 +112,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Foto profil berhasil diperbarui"),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text("Foto profil berhasil diperbarui"),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       } else {
@@ -126,7 +126,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error upload foto: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -165,9 +166,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Nama berhasil diperbarui"),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text("Nama berhasil diperbarui"),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         Navigator.pop(context, true);
@@ -179,7 +181,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error update nama: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -211,10 +214,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Profil", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.orange[700],
+        title: Text(
+          "Edit Profil",
+          style: textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
         centerTitle: true,
       ),
       body: _isLoading
@@ -225,71 +236,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // 🔹 Avatar + Hero
-                    // Center(
-                    //   child: Stack(
-                    //     alignment: Alignment.center,
-                    //     children: [
-                    //       Hero(
-                    //         tag: "profile-avatar",
-                    //         child: CircleAvatar(
-                    //           radius: 56,
-                    //           backgroundImage: _currentPhotoUrl != null
-                    //               ? NetworkImage(_currentPhotoUrl!)
-                    //               : null,
-                    //           backgroundColor: Colors.grey[300],
-                    //           child: _currentPhotoUrl == null
-                    //               ? const Icon(
-                    //                   Icons.person,
-                    //                   size: 48,
-                    //                   color: Colors.white70,
-                    //                 )
-                    //               : null,
-                    //         ),
-                    //       ),
-
-                    //       // Loading spinner saat upload
-                    //       if (_isUploading)
-                    //         const Positioned.fill(
-                    //           child: Align(
-                    //             alignment: Alignment.center,
-                    //             child: CircularProgressIndicator(
-                    //               strokeWidth: 3,
-                    //               valueColor: AlwaysStoppedAnimation<Color>(
-                    //                 Colors.orange,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ),
-
-                    //       // Tombol edit foto
-                    //       Positioned(
-                    //         bottom: 0,
-                    //         right: 0,
-                    //         child: InkWell(
-                    //           onTap: _pickAndUploadImage,
-                    //           borderRadius: BorderRadius.circular(20),
-                    //           child: Container(
-                    //             padding: const EdgeInsets.all(6),
-                    //             decoration: BoxDecoration(
-                    //               shape: BoxShape.circle,
-                    //               color: Colors.orange[700],
-                    //               border: Border.all(
-                    //                 color: Colors.white,
-                    //                 width: 2,
-                    //               ),
-                    //             ),
-                    //             child: const Icon(
-                    //               Icons.edit,
-                    //               size: 18,
-                    //               color: Colors.white,
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                     Center(
                       child: AvatarHero(
                         tag: "profile-avatar",
@@ -310,9 +256,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: "Nama Lengkap",
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.person,
-                          color: Colors.orange,
+                          color: theme.colorScheme.primary,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -330,7 +276,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       readOnly: true,
                       decoration: InputDecoration(
                         labelText: "Surel",
-                        prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                        prefixIcon: Icon(
+                          Icons.email,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -344,7 +293,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange[700],
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         onPressed: _submitName,
                         child: const Text("Simpan Nama"),

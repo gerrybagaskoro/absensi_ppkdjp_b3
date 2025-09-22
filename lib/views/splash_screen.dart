@@ -59,9 +59,6 @@ class _SplashScreenState extends State<SplashScreen>
       );
     } catch (e) {
       print("Error membaca SharedPreferences: $e");
-      onboardingShown = false;
-      isLoggedIn = false;
-      token = null;
     }
 
     if (!mounted) return;
@@ -81,17 +78,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Cek apakah Dark Mode aktif
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    // Atur warna background dan progress indicator sesuai tema
-    final bgColor = isDarkMode ? Colors.grey[900] : Colors.orange[700];
-    final progressColor = isDarkMode
-        ? Colors.orangeAccent
-        : Colors.orangeAccent;
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: Colors.orange[700],
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -100,8 +88,8 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               const AppLogo(height: 300, width: 300),
               const SizedBox(height: 24),
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
               ),
             ],
           ),
@@ -111,12 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
         padding: const EdgeInsets.all(16.0),
         child: Text(
           "© 2025 Gerry Bagaskoro Putro",
-          style: TextStyle(
-            color: isDarkMode
-                ? Colors.white.withOpacity(0.8)
-                : Colors.white.withOpacity(0.8),
-            fontSize: 12,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
