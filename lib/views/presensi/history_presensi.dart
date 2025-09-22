@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
 import 'package:flutter/material.dart';

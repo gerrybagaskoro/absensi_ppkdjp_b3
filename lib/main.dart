@@ -1,3 +1,4 @@
+import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_theme.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/forgot_account_presensi.dart';
@@ -14,9 +15,13 @@ import 'package:provider/provider.dart'; // <--- tambahkan provider
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
+
+  // Ambil tema dari SharedPreferences sebelum runApp
+  bool isDarkMode = await PreferenceHandler.getThemeMode();
+
   runApp(
     ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+      create: (_) => ThemeProvider()..setInitialTheme(isDarkMode),
       child: const MyApp(),
     ),
   );
@@ -34,7 +39,7 @@ class MyApp extends StatelessWidget {
       title: 'Absensi PPKD',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode,
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       supportedLocales: const [Locale('en', 'US'), Locale('id', 'ID')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

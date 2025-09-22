@@ -7,7 +7,8 @@ class PreferenceHandler {
   static const String tokenKey = "token";
   static const String userDataKey = "user_data";
   static const String isAdminKey = "is_admin";
-  static const String onboardingShownKey = "onboarding_shown"; // ✅ SUDAH ADA
+  static const String onboardingShownKey = "onboarding_shown";
+  static const String themeModeKey = "theme_mode";
 
   // ✅ TAMBAHKAN METHOD UNTUK ONBOARDING
   // Simpan status onboarding sudah ditampilkan
@@ -83,5 +84,17 @@ class PreferenceHandler {
     await prefs.remove(userDataKey);
     await prefs.remove(isAdminKey);
     await prefs.remove(onboardingShownKey); // Hapus juga onboarding status
+  }
+
+  // Simpan tema (true = dark, false = light)
+  static Future<void> saveThemeMode(bool isDarkMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(themeModeKey, isDarkMode);
+  }
+
+  // Ambil tema
+  static Future<bool> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(themeModeKey) ?? false; // default = light mode
   }
 }

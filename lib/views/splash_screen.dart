@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
 import 'dart:async';
 
@@ -81,8 +81,17 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Cek apakah Dark Mode aktif
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // Atur warna background dan progress indicator sesuai tema
+    final bgColor = isDarkMode ? Colors.grey[900] : Colors.orange[700];
+    final progressColor = isDarkMode
+        ? Colors.orangeAccent
+        : Colors.orangeAccent;
+
     return Scaffold(
-      backgroundColor: Colors.orange[700],
+      backgroundColor: bgColor,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -91,8 +100,8 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               const AppLogo(height: 300, width: 300),
               const SizedBox(height: 24),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               ),
             ],
           ),
@@ -102,7 +111,12 @@ class _SplashScreenState extends State<SplashScreen>
         padding: const EdgeInsets.all(16.0),
         child: Text(
           "© 2025 Gerry Bagaskoro Putro",
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+          style: TextStyle(
+            color: isDarkMode
+                ? Colors.white.withOpacity(0.8)
+                : Colors.white.withOpacity(0.8),
+            fontSize: 12,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
