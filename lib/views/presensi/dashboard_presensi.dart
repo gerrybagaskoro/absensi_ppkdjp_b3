@@ -8,6 +8,7 @@ import 'package:absensi_ppkdjp_b3/views/presensi/statistic_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/profile_presensi.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPresensi extends StatefulWidget {
@@ -21,6 +22,7 @@ class DashboardPresensi extends StatefulWidget {
 class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
   AbsenTodayData? _absenToday;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -29,9 +31,15 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Future<void> _loadTodayAbsen() async {
+    setState(() => _loading = true);
+
+    // beri delay 1 detik supaya animasi loading terasa
+    await Future.delayed(const Duration(seconds: 1));
+
     final result = await AbsenAPI.getToday();
     setState(() {
       _absenToday = result?.data;
+      _loading = false;
     });
   }
 
@@ -95,13 +103,26 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HeaderSection(),
+            // Header Section
+            FadeInDown(child: const HeaderSection()),
             const SizedBox(height: 12),
-            const LocationCard(),
+            // Location Card
+            FadeInUp(
+              delay: const Duration(milliseconds: 100),
+              child: const LocationCard(),
+            ),
             const SizedBox(height: 16),
-            _buildTodayStatusCard(),
+            // Today Status Card
+            FadeInUp(
+              delay: const Duration(milliseconds: 200),
+              child: _buildTodayStatusCard(),
+            ),
             const SizedBox(height: 24),
-            _buildAbsensiButtons(),
+            // Absensi Buttons
+            FadeInUp(
+              delay: const Duration(milliseconds: 300),
+              child: _buildAbsensiButtons(),
+            ),
           ],
         ),
       ),
@@ -145,7 +166,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Judul + Status
+          // Header Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -175,6 +196,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             ],
           ),
           const SizedBox(height: 20),
+          // Check Tiles
           Row(
             children: [
               Expanded(
@@ -196,6 +218,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
               ),
             ],
           ),
+          // Alasan Izin
           if (_absenToday?.alasanIzin != null)
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
@@ -217,6 +240,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }) {
     final theme = Theme.of(context);
     final bool done = time != null;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       padding: const EdgeInsets.symmetric(vertical: 16),
