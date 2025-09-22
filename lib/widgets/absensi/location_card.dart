@@ -33,22 +33,21 @@ class _LocationCardState extends State<LocationCard> {
   LatLng _currentPosition = const LatLng(
     -6.210932,
     106.813075,
-  ); // Lokasi View awal Maps
+  ); // Lokasi awal view maps
   double _distanceToTarget = 0;
-  String _currentAddress = "Alamat tidak ditemukan";
+  String? _currentAddress; // awalnya null
 
-  // Lokasi PPKDJP
-  final LatLng _targetLocation = const LatLng(-6.210914, 106.812958);
+  final LatLng _targetLocation = const LatLng(-6.210882, 106.812942);
 
   Stream<Position>? _positionStream;
 
   @override
   void initState() {
     super.initState();
-    _startLocationUpdates();
+    _initLocation();
   }
 
-  void _startLocationUpdates() async {
+  Future<void> _initLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       await Geolocator.openLocationSettings();
@@ -65,6 +64,15 @@ class _LocationCardState extends State<LocationCard> {
       }
     }
 
+    // Ambil lokasi awal
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      await _updateLocation(position);
+    } catch (_) {}
+
+    // Stream untuk update lokasi real-time
     _positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -97,7 +105,6 @@ class _LocationCardState extends State<LocationCard> {
       }
     } catch (_) {}
 
-    // Hitung jarak ke target
     final distance = Geolocator.distanceBetween(
       newPos.latitude,
       newPos.longitude,
@@ -113,24 +120,20 @@ class _LocationCardState extends State<LocationCard> {
       _distanceToTarget = distance;
     });
 
-    // Update static holder
     LocationCardState.lastLat = position.latitude;
     LocationCardState.lastLng = position.longitude;
     LocationCardState.lastAddress = _currentAddress;
     LocationCardState.lastDistance = distance;
 
-    // Update notifier untuk dashboard
     LocationCardStateNotifier.distanceNotifier.value = distance;
 
-    // Callback ke dashboard
     widget.onLocationUpdated?.call(
       position.latitude,
       position.longitude,
-      _currentAddress,
+      _currentAddress!,
       distance,
     );
 
-    // Animate camera ke posisi user
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: _currentPosition, zoom: 16),
@@ -157,7 +160,7 @@ class _LocationCardState extends State<LocationCard> {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: SizedBox(
-              height: 250,
+              height: 200,
               child: GoogleMap(
                 initialCameraPosition: CameraPosition(
                   target: _currentPosition,
@@ -186,12 +189,12 @@ class _LocationCardState extends State<LocationCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Alamat Anda: $_currentAddress",
+                  "Alamat Anda: ${_currentAddress ?? 'Sedang mengambil lokasi...'}",
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Jarak ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
+                  "Jarak anda ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
