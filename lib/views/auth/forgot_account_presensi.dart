@@ -71,32 +71,38 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
     required String label,
     required IconData icon,
     Widget? suffix,
+    Color? color,
   }) {
+    final theme = Theme.of(context);
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: Colors.orange),
+      prefixIcon: Icon(icon, color: color ?? theme.colorScheme.primary),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.grey[50],
+      fillColor: theme.colorScheme.surfaceContainerHighest,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.orange, width: 2),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFFA726), Color(0xFFF57C00)],
+            colors: [
+              theme.colorScheme.primaryContainer,
+              theme.colorScheme.primary,
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -109,149 +115,189 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
               duration: const Duration(milliseconds: 800),
               child: Card(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                elevation: 8,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Reset Kata Sandi",
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange[800],
-                              ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Email
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: _inputDecoration(
-                            label: "Email",
-                            icon: Icons.email,
+                elevation: 6,
+                color: theme.colorScheme.surface,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  splashColor: theme.colorScheme.primary.withOpacity(0.1),
+                  onTap: () {}, // ripple di card
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Reset Kata Sandi",
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
-                          validator: (v) => v == null || v.isEmpty
-                              ? "Email tidak boleh kosong"
-                              : null,
-                        ),
+                          const SizedBox(height: 20),
 
-                        const SizedBox(height: 16),
-
-                        if (_showResetFields) ...[
-                          // OTP
                           TextFormField(
-                            controller: _otpController,
+                            controller: _emailController,
                             decoration: _inputDecoration(
-                              label: "Kode OTP",
-                              icon: Icons.confirmation_number,
+                              label: "Email",
+                              icon: Icons.email,
                             ),
                             validator: (v) => v == null || v.isEmpty
-                                ? "OTP tidak boleh kosong"
+                                ? "Email tidak boleh kosong"
                                 : null,
                           ),
                           const SizedBox(height: 16),
 
-                          // Password
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: _inputDecoration(
-                              label: "Password Baru",
-                              icon: Icons.lock,
-                              suffix: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: Colors.grey,
-                                ),
-                                onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword,
-                                ),
+                          if (_showResetFields) ...[
+                            TextFormField(
+                              controller: _otpController,
+                              decoration: _inputDecoration(
+                                label: "Kode OTP",
+                                icon: Icons.confirmation_number,
                               ),
+                              validator: (v) => v == null || v.isEmpty
+                                  ? "OTP tidak boleh kosong"
+                                  : null,
                             ),
-                            validator: (v) => v == null || v.length < 6
-                                ? "Minimal 6 karakter"
-                                : null,
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: OutlinedButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.orange[700],
-                                    side: BorderSide(
-                                      color: Colors.orange.shade700,
-                                      width: 2,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              decoration: _inputDecoration(
+                                label: "Password Baru",
+                                icon: Icons.lock,
+                                suffix: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
-                                  child: const Text(
-                                    "Kembali",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
                                   ),
                                 ),
                               ),
+                              validator: (v) => v == null || v.length < 6
+                                  ? "Minimal 6 karakter"
+                                  : null,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading
-                                      ? null
-                                      : _showResetFields
-                                      ? _resetPassword
-                                      : _sendOtp,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange[700],
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : Text(
-                                          _showResetFields
-                                              ? "Reset Password"
-                                              : "Kirim OTP",
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                ),
-                              ),
-                            ),
+                            const SizedBox(height: 24),
                           ],
-                        ),
-                      ],
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 48,
+                                  child: OutlinedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: ButtonStyle(
+                                      foregroundColor:
+                                          WidgetStateProperty.resolveWith(
+                                            (states) =>
+                                                states.contains(
+                                                  WidgetState.pressed,
+                                                )
+                                                ? theme
+                                                      .colorScheme
+                                                      .primaryContainer
+                                                : theme.colorScheme.primary,
+                                          ),
+                                      side: WidgetStateProperty.all(
+                                        BorderSide(
+                                          color: theme.colorScheme.primary,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      shape: WidgetStateProperty.all(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Kembali",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _showResetFields
+                                        ? _resetPassword
+                                        : _sendOtp,
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          WidgetStateProperty.resolveWith((
+                                            states,
+                                          ) {
+                                            if (states.contains(
+                                              WidgetState.pressed,
+                                            )) {
+                                              return theme
+                                                  .colorScheme
+                                                  .primaryContainer;
+                                            }
+                                            return theme.colorScheme.primary;
+                                          }),
+                                      foregroundColor: WidgetStateProperty.all(
+                                        theme.colorScheme.onPrimary,
+                                      ),
+                                      shape: WidgetStateProperty.all(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                      ),
+                                      overlayColor: WidgetStateProperty.all(
+                                        theme.colorScheme.onPrimary.withOpacity(
+                                          0.1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              color:
+                                                  theme.colorScheme.onPrimary,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : Text(
+                                            _showResetFields
+                                                ? "Reset Password"
+                                                : "Kirim OTP",
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

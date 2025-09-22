@@ -1,4 +1,5 @@
 import 'package:absensi_ppkdjp_b3/utils/app_theme.dart';
+import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/forgot_account_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/register_presensi.dart';
@@ -8,12 +9,18 @@ import 'package:absensi_ppkdjp_b3/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,12 +28,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Absensi PPKD',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system, // <-- sinkron otomatis dengan sistem Android
+      themeMode: themeProvider.themeMode, // <-- pakai ThemeProvider
       supportedLocales: const [Locale('en', 'US'), Locale('id', 'ID')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

@@ -2,21 +2,25 @@ import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:flutter/material.dart';
 
 class ThemeProvider with ChangeNotifier {
-  bool _isDarkMode = false;
+  ThemeMode _themeMode = ThemeMode.system;
 
-  bool get isDarkMode => _isDarkMode;
+  ThemeMode get themeMode => _themeMode;
 
-  ThemeProvider();
-
-  // Digunakan untuk mengatur tema sebelum runApp
-  void setInitialTheme(bool isDark) {
-    _isDarkMode = isDark;
-    notifyListeners();
+  ThemeProvider() {
+    _loadTheme();
   }
 
-  void toggleTheme(bool isDark) {
-    _isDarkMode = isDark;
-    PreferenceHandler.saveThemeMode(_isDarkMode);
+  Future<void> _loadTheme() async {
+    final savedTheme = await PreferenceHandler.getThemeMode();
+    if (savedTheme != null) {
+      _themeMode = savedTheme;
+      notifyListeners();
+    }
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    PreferenceHandler.saveThemeMode(mode);
     notifyListeners();
   }
 }

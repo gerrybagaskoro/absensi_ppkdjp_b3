@@ -220,14 +220,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Edit Profil",
+          "Sunting Profil",
           style: textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onPrimary,
+            color:
+                theme.colorScheme.onPrimaryContainer, // sama seperti AboutPage
+            fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: theme.colorScheme.primaryContainer, // soft orange
+        elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: theme.colorScheme.onPrimaryContainer),
+        surfaceTintColor: Colors.transparent, // supaya tidak ada efek overlay
       ),
+
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

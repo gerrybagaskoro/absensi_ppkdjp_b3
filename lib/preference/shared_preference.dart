@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceHandler {
@@ -8,7 +9,7 @@ class PreferenceHandler {
   static const String userDataKey = "user_data";
   static const String isAdminKey = "is_admin";
   static const String onboardingShownKey = "onboarding_shown";
-  static const String themeModeKey = "theme_mode";
+  static const String themeKey = "theme_mode";
 
   // ✅ TAMBAHKAN METHOD UNTUK ONBOARDING
   // Simpan status onboarding sudah ditampilkan
@@ -87,14 +88,17 @@ class PreferenceHandler {
   }
 
   // Simpan tema (true = dark, false = light)
-  static Future<void> saveThemeMode(bool isDarkMode) async {
+  static Future<void> saveThemeMode(ThemeMode mode) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(themeModeKey, isDarkMode);
+    prefs.setInt(themeKey, mode.index); // 0 = system, 1 = light, 2 = dark
   }
 
-  // Ambil tema
-  static Future<bool> getThemeMode() async {
+  static Future<ThemeMode?> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(themeModeKey) ?? false; // default = light mode
+    final index = prefs.getInt(themeKey);
+    if (index != null) {
+      return ThemeMode.values[index];
+    }
+    return null;
   }
 }

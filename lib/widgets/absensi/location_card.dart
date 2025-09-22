@@ -64,6 +64,20 @@ class _LocationCardState extends State<LocationCard> {
     _initLocation();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // update map style setiap theme berubah
+    if (mapController != null) {
+      final theme = Theme.of(context);
+      if (theme.brightness == Brightness.dark) {
+        mapController!.setMapStyle(_darkMapStyle);
+      } else {
+        mapController!.setMapStyle(null);
+      }
+    }
+  }
+
   Future<void> _initLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {

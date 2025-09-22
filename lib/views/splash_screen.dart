@@ -78,8 +78,10 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.orange[700],
+      backgroundColor: colorScheme.primary,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -88,8 +90,10 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               const AppLogo(height: 300, width: 300),
               const SizedBox(height: 24),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  colorScheme.onPrimary,
+                ),
               ),
             ],
           ),
@@ -99,7 +103,10 @@ class _SplashScreenState extends State<SplashScreen>
         padding: const EdgeInsets.all(16.0),
         child: Text(
           "© 2025 Gerry Bagaskoro Putro",
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+          style: TextStyle(
+            color: colorScheme.onPrimary.withOpacity(0.8),
+            fontSize: 12,
+          ),
           textAlign: TextAlign.center,
         ),
       ),

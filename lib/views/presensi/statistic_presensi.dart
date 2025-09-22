@@ -58,7 +58,10 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistik Presensi')),
+      appBar: AppBar(
+        title: const Text('Statistik Presensi'),
+        centerTitle: true,
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : stats == null

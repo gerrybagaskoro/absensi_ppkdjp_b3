@@ -16,34 +16,59 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pengaturan", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.orange[700],
+        title: Text(
+          "Pengaturan",
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.primaryContainer, // soft orange
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+        surfaceTintColor: Colors.transparent, // hilangkan overlay M3
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Tema
-          SwitchListTile(
-            title: const Text("Mode Gelap"),
-            value: Provider.of<ThemeProvider>(context).isDarkMode,
-            onChanged: (val) {
-              Provider.of<ThemeProvider>(
-                context,
-                listen: false,
-              ).toggleTheme(val);
-            },
+          // 🔹 Pilihan Tema
+          ListTile(
+            leading: const Icon(Icons.color_lens, color: Colors.orange),
+            title: const Text("Tema Aplikasi"),
+            subtitle: Text(_getThemeText(themeProvider.themeMode)),
+            trailing: DropdownButton<ThemeMode>(
+              value: themeProvider.themeMode,
+              underline: const SizedBox(),
+              onChanged: (mode) {
+                if (mode != null) {
+                  themeProvider.setThemeMode(mode);
+                }
+              },
+              items: const [
+                DropdownMenuItem(
+                  value: ThemeMode.system,
+                  child: Text("Mengikuti Sistem"),
+                ),
+                DropdownMenuItem(value: ThemeMode.light, child: Text("Terang")),
+                DropdownMenuItem(value: ThemeMode.dark, child: Text("Gelap")),
+              ],
+            ),
           ),
-
           const Divider(),
 
-          // Notifikasi
+          // 🔹 Notifikasi
           SwitchListTile(
             value: _notifikasi,
-            activeColor: Colors.orange,
+            activeColor: Theme.of(context).colorScheme.primary,
             title: const Text("Notifikasi"),
             subtitle: const Text("Terima notifikasi presensi"),
             onChanged: (value) {
@@ -54,7 +79,7 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
           ),
           const Divider(),
 
-          // Bahasa
+          // 🔹 Bahasa
           ListTile(
             leading: const Icon(Icons.language, color: Colors.orange),
             title: const Text("Bahasa"),
@@ -66,7 +91,7 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
           ),
           const Divider(),
 
-          // Privasi
+          // 🔹 Privasi
           ListTile(
             leading: const Icon(Icons.lock, color: Colors.orange),
             title: const Text("Privasi & Keamanan"),
@@ -79,13 +104,13 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
           ),
           const SizedBox(height: 30),
 
-          // Tombol simpan
+          // 🔹 Tombol simpan
           SizedBox(
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -113,6 +138,7 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
     );
   }
 
+  // 🔹 Dialog pilih bahasa
   void _showBahasaDialog() {
     showDialog(
       context: context,
@@ -149,5 +175,17 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
         );
       },
     );
+  }
+
+  // 🔹 Helper untuk menampilkan teks tema
+  String _getThemeText(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return "Terang";
+      case ThemeMode.dark:
+        return "Gelap";
+      case ThemeMode.system:
+        return "Mengikuti Sistem";
+    }
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/api/absen_delete.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
@@ -135,7 +137,7 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Riwayat Presensi")),
+      appBar: AppBar(title: const Text("Riwayat Presensi"), centerTitle: true),
       body: Column(
         children: [
           // Filter bar dengan reset + snackbar konfirmasi

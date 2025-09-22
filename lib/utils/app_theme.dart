@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Light Theme dengan Material You
   static ThemeData get lightTheme {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.orange,
+    final baseScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange.shade300,
       brightness: Brightness.light,
+    );
+
+    final colorScheme = baseScheme.copyWith(
+      primary: Colors.orange.shade400, // tombol & fokus
+      secondary: Colors.orange.shade300, // aksen ringan
+      primaryContainer: Colors.orange.shade100, // AppBar soft orange
     );
 
     return ThemeData(
@@ -15,8 +20,8 @@ class AppTheme {
       textTheme: GoogleFonts.poppinsTextTheme(),
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: colorScheme.primaryContainer, // soft orange
+        foregroundColor: colorScheme.onPrimaryContainer,
         elevation: 0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -42,11 +47,16 @@ class AppTheme {
     );
   }
 
-  // Dark Theme dengan Material You
   static ThemeData get darkTheme {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.orange,
+    final baseScheme = ColorScheme.fromSeed(
+      seedColor: Colors.orange.shade300,
       brightness: Brightness.dark,
+    );
+
+    final colorScheme = baseScheme.copyWith(
+      primary: Colors.orange.shade300, // tombol & fokus
+      secondary: Colors.orange.shade200, // aksen ringan
+      primaryContainer: Colors.orange.shade700, // AppBar soft orange dark
     );
 
     return ThemeData(
@@ -55,8 +65,8 @@ class AppTheme {
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: colorScheme.primaryContainer, // soft orange dark
+        foregroundColor: colorScheme.onPrimaryContainer,
         elevation: 0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(

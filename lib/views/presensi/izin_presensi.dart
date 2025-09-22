@@ -1,6 +1,7 @@
 // lib/views/presensi/izin_presensi.dart
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+// lib/views/presensi/izin_presensi.dart
 import 'dart:convert';
 
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
@@ -142,8 +143,9 @@ class _IzinPresensiState extends State<IzinPresensi> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Izin Presensi"),
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
+        centerTitle: true,
+        backgroundColor: scheme.primaryContainer,
+        foregroundColor: scheme.onPrimaryContainer,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

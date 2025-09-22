@@ -108,6 +108,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                             : null,
                         showBorder: true,
                         isUploading: false,
+                        // tidak memberikan onEdit -> tidak editable
                       ),
 
                       const SizedBox(height: 24),
@@ -194,7 +195,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         children: [
                           _buildMenuCard(
                             icon: Icons.edit,
-                            text: "Edit Profil",
+                            text: "Sunting Profil",
                             onTap: () async {
                               final updated = await context.push(
                                 const EditProfilePage(),

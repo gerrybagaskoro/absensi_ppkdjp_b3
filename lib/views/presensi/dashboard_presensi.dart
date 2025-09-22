@@ -52,13 +52,19 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     ];
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
-        children: [
-          _buildAppBar(theme),
-          Expanded(child: pages[_selectedIndex]),
-        ],
+      appBar: AppBar(
+        title: Text(
+          'Presensi Kita',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.primaryContainer,
+        foregroundColor: theme.colorScheme.onPrimaryContainer,
+        elevation: 0,
       ),
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -76,28 +82,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           BottomNavigationBarItem(icon: Icon(Icons.note), label: "Izin"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAppBar(ThemeData theme) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Presensi Kita',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: theme.brightness == Brightness.light
-                    ? Colors.black
-                    : Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

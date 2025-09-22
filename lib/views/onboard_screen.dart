@@ -11,19 +11,26 @@ class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   Future<void> _onIntroEnd(BuildContext context) async {
-    // Simpan status onboarding sudah pernah ditampilkan
     await PreferenceHandler.saveOnboardingShown(true);
-
-    // Lanjut ke halaman login
     context.pushReplacement(LoginPresensi());
   }
 
   @override
   Widget build(BuildContext context) {
-    const bodyStyle = TextStyle(fontSize: 16, color: Colors.black87);
-    const pageDecoration = PageDecoration(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final bodyStyle = TextStyle(
+      fontSize: 16,
+      color: colorScheme.onSurfaceVariant,
+    );
+
+    final pageDecoration = PageDecoration(
       bodyTextStyle: bodyStyle,
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: colorScheme.onSurface,
+      ),
     );
 
     return IntroductionScreen(
@@ -32,32 +39,32 @@ class OnboardingScreen extends StatelessWidget {
           title: "Selamat Datang",
           body:
               "Aplikasi presensi digital yang memudahkan absensi sehari-hari.",
-          image: const Icon(Icons.access_time, size: 150, color: Colors.orange),
+          image: Icon(Icons.access_time, size: 150, color: colorScheme.primary),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "Cepat & Mudah",
           body: "Login sekali, presensi bisa dilakukan lebih praktis.",
-          image: const Icon(Icons.touch_app, size: 150, color: Colors.orange),
+          image: Icon(Icons.touch_app, size: 150, color: colorScheme.primary),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "Data Aman",
           body: "Semua presensi tersimpan dengan aman dan terintegrasi.",
-          image: const Icon(
+          image: Icon(
             Icons.verified_user,
             size: 150,
-            color: Colors.orange,
+            color: colorScheme.primary,
           ),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "Mulai Sekarang",
           body: "Siap untuk presensi digital? Yuk kita mulai!",
-          image: const Icon(
+          image: Icon(
             Icons.rocket_launch,
             size: 150,
-            color: Colors.orange,
+            color: colorScheme.primary,
           ),
           decoration: pageDecoration,
         ),
@@ -73,7 +80,8 @@ class OnboardingScreen extends StatelessWidget {
         activeShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5.0),
         ),
-        activeColor: Colors.orange[700]!,
+        activeColor: colorScheme.primary,
+        color: colorScheme.outlineVariant,
       ),
     );
   }
