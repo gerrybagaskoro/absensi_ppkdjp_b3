@@ -14,13 +14,11 @@ class HeaderSection extends StatefulWidget {
 class _HeaderSectionState extends State<HeaderSection> {
   String? _userName;
   DateTime _currentDateTime = DateTime.now();
-
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _currentDateTime = DateTime.now();
     _startClock();
     _loadProfile();
   }
@@ -35,7 +33,6 @@ class _HeaderSectionState extends State<HeaderSection> {
 
   Future<void> _loadProfile() async {
     final profile = await ProfileService.fetchProfile();
-
     if (profile?.data?.name != null) {
       setState(() {
         _userName = profile!.data!.name!;
@@ -57,7 +54,6 @@ class _HeaderSectionState extends State<HeaderSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final primaryTextColor = theme.brightness == Brightness.light
         ? Colors.black87
         : Colors.white;
@@ -65,7 +61,6 @@ class _HeaderSectionState extends State<HeaderSection> {
         ? Colors.grey[600]
         : Colors.white70;
 
-    // format tanggal + jam
     final formattedDate = DateFormat(
       'EEEE, dd MMMM yyyy',
       'id_ID',
@@ -78,20 +73,34 @@ class _HeaderSectionState extends State<HeaderSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Selamat Datang Kembali,',
-          style: TextStyle(fontSize: 16, color: secondaryTextColor),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          _userName ?? "Memuat...",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: primaryTextColor,
+        // Selamat Datang + username tanpa marquee
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: "Selamat Datang, ",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  color: primaryTextColor,
+                ),
+              ),
+              TextSpan(
+                text: _userName ?? "Memuat...",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: primaryTextColor,
+                ),
+              ),
+            ],
           ),
+          maxLines: 1,
+          overflow:
+              TextOverflow.ellipsis, // kalau terlalu panjang, potong dengan ...
         ),
         const SizedBox(height: 4),
+        // Tanggal + waktu
         Text(
           "$formattedDate | $formattedTime",
           style: TextStyle(fontSize: 16, color: secondaryTextColor),
