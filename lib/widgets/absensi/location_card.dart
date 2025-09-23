@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -34,12 +33,14 @@ class _LocationCardState extends State<LocationCard> {
   double _distanceToTarget = 0;
   String? _currentAddress;
 
+  // Animasi jarak
+  double _animatedDistance = 0;
+
   final LatLng _targetLocation = const LatLng(-6.210882, 106.812942);
   final double _allowedRadius = 50; // radius absen dalam meter
 
   Stream<Position>? _positionStream;
 
-  // Maps style JSON untuk Dark Mode
   final String _darkMapStyle = '''
 [
   {"elementType": "geometry", "stylers": [{"color": "#212121"}]},
@@ -67,7 +68,6 @@ class _LocationCardState extends State<LocationCard> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // update map style setiap theme berubah
     if (mapController != null) {
       final theme = Theme.of(context);
       if (theme.brightness == Brightness.dark) {
@@ -146,6 +146,9 @@ class _LocationCardState extends State<LocationCard> {
       _currentPosition = newPos;
       _currentAddress = address;
       _distanceToTarget = distance;
+
+      // Animasi jarak
+      _animatedDistance = distance;
     });
 
     LocationCardState.lastLat = position.latitude;
@@ -182,46 +185,42 @@ class _LocationCardState extends State<LocationCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final bool canCheckIn = _distanceToTarget <= _allowedRadius;
 
     return Card(
-      color: theme.cardColor,
-      elevation: 4,
-      shadowColor: Colors.black26,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: colorScheme.surface,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header lokasi
+          // Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.08),
+              color: colorScheme.primary.withOpacity(0.12),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.location_on,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
+                Icon(Icons.location_on, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
                   "Lokasi Presensi",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
             ),
           ),
 
-          // Map dengan tinggi tetap (200)
+          // Map
           ClipRRect(
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(16),
@@ -251,8 +250,8 @@ class _LocationCardState extends State<LocationCard> {
                     circleId: const CircleId('ppkdjp_radius'),
                     center: _targetLocation,
                     radius: _allowedRadius,
-                    fillColor: Colors.red.withOpacity(0.2),
-                    strokeColor: Colors.red,
+                    fillColor: colorScheme.primary.withOpacity(0.2),
+                    strokeColor: canCheckIn ? Colors.green : Colors.red,
                     strokeWidth: 2,
                   ),
                 },
@@ -268,7 +267,7 @@ class _LocationCardState extends State<LocationCard> {
             ),
           ),
 
-          // Info lokasi
+          // Info
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -277,18 +276,23 @@ class _LocationCardState extends State<LocationCard> {
                 Text(
                   _currentAddress ?? 'Sedang mengambil lokasi...',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.brightness == Brightness.light
-                        ? Colors.black87
-                        : Colors.white70,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  "Jarak anda ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: canCheckIn ? Colors.green : Colors.red,
-                  ),
+                // Animasi jarak
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: _animatedDistance),
+                  duration: const Duration(milliseconds: 500),
+                  builder: (context, value, child) {
+                    return Text(
+                      "Jarak anda ke PPKDJP: ${_formatDistance(value)}",
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: canCheckIn ? Colors.green : Colors.red,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
