@@ -34,20 +34,21 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     });
   }
 
-  Color _getStatusColor(String? status, BuildContext context) {
+  /// Mapping status ke warna Material You
+  (Color bg, Color fg) _getStatusStyle(String? status, BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     switch (status?.toLowerCase()) {
       case "hadir":
       case "masuk":
-        return scheme.primary;
+        return (scheme.primaryContainer, scheme.onPrimaryContainer);
       case "telat":
-        return scheme.tertiary;
+        return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
       case "izin":
-        return scheme.secondary;
+        return (scheme.secondaryContainer, scheme.onSecondaryContainer);
       case "alpha":
-        return scheme.error;
+        return (scheme.errorContainer, scheme.onErrorContainer);
       default:
-        return scheme.outline;
+        return (scheme.surfaceVariant, scheme.onSurfaceVariant);
     }
   }
 
@@ -137,65 +138,78 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Riwayat Presensi"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("Riwayat Presensi"),
+        centerTitle: true,
+        surfaceTintColor: scheme.primary,
+      ),
       body: Column(
         children: [
-          // Filter bar dengan reset + snackbar konfirmasi
+          // Filter bar
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonal(
-                    onPressed: null,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      alignment: Alignment.centerLeft,
-                    ),
-                    child: Text(
-                      _selectedRange == null
-                          ? "Semua Tanggal"
-                          : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed: _pickDateRange,
-                  icon: const Icon(Icons.date_range),
-                  label: const Text("Pilih Tanggal"),
-                ),
-                if (_selectedRange != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    tooltip: "Reset filter",
-                    onPressed: () {
-                      setState(() => _selectedRange = null);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Filter tanggal direset"),
-                          duration: Duration(seconds: 2),
+            child: Material(
+              elevation: 1,
+              borderRadius: BorderRadius.circular(16),
+              color: scheme.surfaceContainerLowest,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedRange == null
+                            ? "Semua Tanggal"
+                            : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: scheme.onSurfaceVariant,
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ],
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _pickDateRange,
+                      icon: const Icon(Icons.date_range),
+                      tooltip: "Pilih rentang tanggal",
+                    ),
+                    if (_selectedRange != null)
+                      IconButton(
+                        tooltip: "Reset filter",
+                        onPressed: () {
+                          setState(() => _selectedRange = null);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Filter tanggal direset"),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredRiwayat.isEmpty
-                ? const Center(
-                    child: Text(
-                      "Belum ada data presensi",
-                      style: TextStyle(fontSize: 16),
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.event_busy, size: 64, color: scheme.outline),
+                        const SizedBox(height: 12),
+                        Text(
+                          "Belum ada data presensi",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : ListView.builder(
@@ -204,29 +218,50 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                       final bulan = sortedKeys[index];
                       final items = grouped[bulan]!;
                       return StickyHeader(
-                        header: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          color: scheme.surfaceContainerHighest,
-                          child: Text(
-                            bulan,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: scheme.onSurfaceVariant,
+                        header: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Material(
+                            elevation: 1,
+                            borderRadius: BorderRadius.circular(12),
+                            color: scheme.surfaceContainerHigh,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_today, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    bulan,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                         content: Column(
                           children: [
                             ...items.map((item) {
+                              final (bgColor, fgColor) = _getStatusStyle(
+                                item.status,
+                                context,
+                              );
+
                               return Card(
+                                elevation: 1,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 6,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: ListTile(
                                   onLongPress: () => _deletePresensi(item),
@@ -257,28 +292,19 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                                       ],
                                     ),
                                   ),
-                                  trailing: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _getStatusColor(
-                                        item.status,
-                                        context,
-                                      ).withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
+                                  trailing: Chip(
+                                    label: Text(
                                       item.status ?? "-",
                                       style: TextStyle(
-                                        color: _getStatusColor(
-                                          item.status,
-                                          context,
-                                        ),
                                         fontWeight: FontWeight.w600,
+                                        color: fgColor,
                                       ),
                                     ),
+                                    backgroundColor: bgColor,
+                                    side: BorderSide.none,
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                 ),
                               );

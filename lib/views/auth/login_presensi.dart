@@ -21,21 +21,37 @@ class LoginPresensi extends StatefulWidget {
   State<LoginPresensi> createState() => _LoginPresensiState();
 }
 
-class _LoginPresensiState extends State<LoginPresensi> {
+class _LoginPresensiState extends State<LoginPresensi>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _loginSuccess = false; // true jika login berhasil
-  String _loginMessage = ''; // pesan animasi (success/failed)
+  bool? _loginSuccess; // null = loading, true = success, false = gagal
+  String _loginMessage = '';
+
+  // animasi titik "sedang memuat..."
+  late AnimationController _dotsController;
+  late Animation<int> _dotsAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _dotsController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+    _dotsAnimation = StepTween(begin: 0, end: 3).animate(_dotsController);
+  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
+      _loginSuccess = null;
       _loginMessage = '';
     });
 
@@ -69,8 +85,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
             _loginMessage = 'Login berhasil!';
           });
 
-          // Tampilkan animasi success selama 5 detik
-          await Future.delayed(const Duration(seconds: 5));
+          await Future.delayed(const Duration(seconds: 3));
 
           if (mounted) {
             setState(() => _isLoading = false);
@@ -80,7 +95,6 @@ class _LoginPresensiState extends State<LoginPresensi> {
           setState(() {
             _loginSuccess = false;
             _loginMessage = 'Data login tidak valid dari server';
-            _isLoading = true; // tetap loading untuk menampilkan overlay
           });
         }
       } else {
@@ -90,21 +104,18 @@ class _LoginPresensiState extends State<LoginPresensi> {
         setState(() {
           _loginSuccess = false;
           _loginMessage = message;
-          _isLoading = true; // overlay failed
         });
       }
     } catch (e) {
       setState(() {
         _loginSuccess = false;
         _loginMessage = 'Terjadi kesalahan: $e';
-        _isLoading = true; // overlay failed
       });
     }
   }
 
-  // Tap overlay untuk menutup failed animation
   void _dismissFailedOverlay() {
-    if (!_loginSuccess) {
+    if (_loginSuccess == false) {
       setState(() {
         _isLoading = false;
         _loginMessage = '';
@@ -208,11 +219,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
                             height: 50,
                             child: FilledButton(
                               onPressed: _isLoading ? null : _login,
-                              child: _isLoading && !_loginSuccess
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                  : const Text('Masuk'),
+                              child: const Text('Masuk'),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -266,41 +273,39 @@ class _LoginPresensiState extends State<LoginPresensi> {
             ),
           ),
 
-          // Overlay Lottie
-          // Overlay Lottie
-          // Overlay
+          // Overlay animasi loading + hasil login
           if (_isLoading)
             GestureDetector(
-              onTap: !_loginSuccess ? _dismissFailedOverlay : null,
+              onTap: _loginSuccess == false ? _dismissFailedOverlay : null,
               child: Container(
                 color: Colors.black.withOpacity(0.7),
                 alignment: Alignment.center,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_loginMessage.isEmpty) ...[
-                      const CircularProgressIndicator(color: Colors.white),
-                      const SizedBox(height: 16),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 800),
-                        child: Text(
-                          'Menghubungkan ke server...',
-                          key: ValueKey(DateTime.now().second), // biar berganti
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                    if (_loginSuccess == null) ...[
+                      AnimatedBuilder(
+                        animation: _dotsAnimation,
+                        builder: (_, __) {
+                          String dots = "." * _dotsAnimation.value;
+                          return Text(
+                            "Sedang memuat$dots",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     ] else ...[
                       Lottie.asset(
-                        _loginSuccess
+                        _loginSuccess == true
                             ? 'assets/animations/success.json'
                             : 'assets/animations/failed.json',
                         width: 200,
                         height: 200,
-                        repeat: true,
+                        repeat: false,
                       ),
                       const SizedBox(height: 16),
                       Container(
@@ -326,5 +331,13 @@ class _LoginPresensiState extends State<LoginPresensi> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _dotsController.dispose();
+    super.dispose();
   }
 }

@@ -24,7 +24,7 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
   Future<void> loadStats() async {
     setState(() => isLoading = true);
 
-    // Delay 1 detik supaya shimmer muncul dulu
+    // Delay shimmer muncul dulu
     await Future.delayed(const Duration(seconds: 1));
 
     final result = await AbsenStatsAPI.fetchAbsenStats(
@@ -44,20 +44,31 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
     Color color, {
     int delay = 0,
   }) {
+    final theme = Theme.of(context);
+
     final cardContent = Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 40, color: color),
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: color.withOpacity(0.15),
+          child: Icon(icon, size: 28, color: color),
+        ),
         const SizedBox(height: 12),
         Text(
           value,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 14),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -65,9 +76,10 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       delay: Duration(milliseconds: delay),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 4,
+      child: Material(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(20),
+        elevation: 1,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: isLoading
@@ -77,7 +89,14 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(width: 40, height: 40, color: Colors.white),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       Container(width: 60, height: 22, color: Colors.white),
                       const SizedBox(height: 6),
@@ -99,9 +118,8 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
       appBar: AppBar(
         title: const Text('Statistik Presensi'),
         centerTitle: true,
-        backgroundColor: theme.colorScheme.primaryContainer,
-        foregroundColor: theme.colorScheme.onPrimaryContainer,
-        elevation: 0,
+        surfaceTintColor: theme.colorScheme.primary,
+        elevation: 1,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -117,21 +135,21 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
               'Total Absen',
               stats != null ? '${stats!.totalAbsen}' : '0',
               Icons.event_available,
-              Colors.blueAccent.shade400,
+              theme.colorScheme.primary,
               delay: 100,
             ),
             buildStatCard(
               'Total Masuk',
               stats != null ? '${stats!.totalMasuk}' : '0',
               Icons.login,
-              Colors.greenAccent.shade400,
+              theme.colorScheme.secondary,
               delay: 200,
             ),
             buildStatCard(
               'Total Izin',
               stats != null ? '${stats!.totalIzin}' : '0',
               Icons.assignment_late,
-              Colors.orangeAccent.shade400,
+              theme.colorScheme.tertiary,
               delay: 300,
             ),
             buildStatCard(
@@ -143,8 +161,10 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
                         : Icons.cancel)
                   : Icons.hourglass_empty,
               stats != null
-                  ? (stats!.sudahAbsenHariIni ? Colors.green : Colors.redAccent)
-                  : Colors.grey,
+                  ? (stats!.sudahAbsenHariIni
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.error)
+                  : theme.colorScheme.outline,
               delay: 400,
             ),
           ],

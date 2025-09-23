@@ -14,12 +14,11 @@ class AboutApp extends StatelessWidget {
         title: Text(
           "Tentang Aplikasi",
           style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onPrimaryContainer,
             fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimaryContainer,
           ),
         ),
         backgroundColor: theme.colorScheme.primaryContainer,
-        elevation: 0,
         centerTitle: true,
       ),
       body: Container(
@@ -27,7 +26,7 @@ class AboutApp extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              theme.colorScheme.primaryContainer.withOpacity(0.2),
+              theme.colorScheme.primaryContainer.withOpacity(0.15),
               theme.colorScheme.surface,
             ],
             begin: Alignment.topCenter,
@@ -35,74 +34,103 @@ class AboutApp extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
 
-              // Card Logo + Nama App dengan FadeInUp
+              // Logo + App info
               FadeInUp(
-                duration: const Duration(milliseconds: 800),
+                duration: const Duration(milliseconds: 700),
                 child: Card(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  surfaceTintColor: theme.colorScheme.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(28),
                   ),
-                  elevation: 6,
-                  color: theme.colorScheme.surface,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(24),
-                    onTap: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 24,
-                        horizontal: 16,
-                      ),
-                      child: Column(
-                        children: [
-                          AppLogo(height: 200, width: 200),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Presensi Kita",
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
+                  elevation: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 28,
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      children: [
+                        AppLogo(height: 160, width: 160),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Presensi Kita",
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Versi 1.0.0",
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Versi 1.0.0",
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 32),
 
-              // Deskripsi dengan FadeInUp
+              // Deskripsi
               FadeInUp(
-                delay: const Duration(milliseconds: 300),
-                duration: const Duration(milliseconds: 800),
+                delay: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 700),
                 child: Text(
                   "Aplikasi Presensi ini dibuat untuk mempermudah proses absensi "
-                  "dan pencatatan kehadiran.",
+                  "dan pencatatan kehadiran dengan tampilan modern berbasis Material You.",
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    height: 1.6,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
 
               const Spacer(),
 
-              // Copyright dengan FadeInUp
+              // Tombol / aksi tambahan (opsional)
+              FadeInUp(
+                delay: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 700),
+                child: FilledButton.tonal(
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () {
+                    // Aksi contoh: info dev
+                    showAboutDialog(
+                      context: context,
+                      applicationName: "Presensi Kita",
+                      applicationVersion: "1.0.0",
+                      applicationLegalese: "© 2025 - Gerry Bagaskoro Putro",
+                    );
+                  },
+                  child: const Text("Informasi Pengembang"),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Footer
               FadeInUp(
                 delay: const Duration(milliseconds: 500),
-                duration: const Duration(milliseconds: 800),
+                duration: const Duration(milliseconds: 700),
                 child: Text(
                   "© 2025 - Gerry Bagaskoro Putro",
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -110,7 +138,7 @@ class AboutApp extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
             ],
           ),
         ),
