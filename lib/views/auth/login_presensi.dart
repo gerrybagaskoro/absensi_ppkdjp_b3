@@ -154,7 +154,7 @@ class _LoginPresensiState extends State<LoginPresensi> {
                           TextFormField(
                             controller: _emailController,
                             decoration: InputDecoration(
-                              labelText: 'Surel',
+                              labelText: 'E-mail',
                               prefixIcon: Icon(
                                 Icons.email,
                                 color: scheme.primary,
@@ -162,10 +162,10 @@ class _LoginPresensiState extends State<LoginPresensi> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Surel tidak boleh kosong';
+                                return 'E-mail tidak boleh kosong';
                               }
                               if (!value.contains('@')) {
-                                return 'Format Surel tidak valid';
+                                return 'Format E-mail tidak valid';
                               }
                               return null;
                             },

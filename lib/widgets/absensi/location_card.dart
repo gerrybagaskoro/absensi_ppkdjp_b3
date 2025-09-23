@@ -284,7 +284,7 @@ class _LocationCardState extends State<LocationCard> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Jarak ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
+                  "Jarak anda ke PPKDJP: ${_formatDistance(_distanceToTarget)}",
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: canCheckIn ? Colors.green : Colors.red,

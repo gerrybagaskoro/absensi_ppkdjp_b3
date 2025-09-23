@@ -262,14 +262,14 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
                     // Email
                     TextFormField(
                       controller: _emailController,
-                      decoration: _inputStyle('Surel', Icons.email),
+                      decoration: _inputStyle('E-mail', Icons.email),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Surel wajib diisi';
+                          return 'E-mail wajib diisi';
                         }
                         if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Format surel tidak valid';
+                          return 'Format E-mail tidak valid';
                         }
                         return null;
                       },

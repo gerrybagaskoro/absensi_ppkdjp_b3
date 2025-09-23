@@ -41,7 +41,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text("Konfirmasi"),
         content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
         actions: [
@@ -82,6 +82,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
     return Scaffold(
@@ -95,52 +96,66 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 40),
 
-                      // 🔹 Avatar
-                      AvatarHero(
-                        tag: "profile-avatar",
-                        radius: 92,
-                        imageUrl: _profile?.profilePhotoUrl != null
-                            ? "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
-                            : _profile?.profilePhoto != null
-                            ? "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}?v=${DateTime.now().millisecondsSinceEpoch}"
-                            : null,
-                        showBorder: true,
-                        isUploading: false,
-                        // tidak memberikan onEdit -> tidak editable
+                      // 🔹 Avatar with gradient ring
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              scheme.primary.withOpacity(0.6),
+                              scheme.primaryContainer.withOpacity(0.6),
+                            ],
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: AvatarHero(
+                          tag: "profile-avatar",
+                          radius: 90,
+                          imageUrl: _profile?.profilePhotoUrl != null
+                              ? "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
+                              : _profile?.profilePhoto != null
+                              ? "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}?v=${DateTime.now().millisecondsSinceEpoch}"
+                              : null,
+                          showBorder: false,
+                          isUploading: false,
+                        ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                      // 🔹 Nama & email
+                      // 🔹 Name & Email
                       Text(
                         _profile?.name ?? "Tidak ada nama",
                         style: textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
+                          color: scheme.onSurface,
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         _profile?.email ?? "Tidak ada email",
                         style: textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
-                      // 🔹 Info batch & training
+                      // 🔹 Info Batch & Training with gradient
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: theme.colorScheme.outline.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            colors: [
+                              scheme.secondaryContainer.withOpacity(0.8),
+                              scheme.secondaryContainer.withOpacity(0.5),
+                            ],
                           ),
                         ),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -149,6 +164,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                                 "Batch ke-${_profile!.batchKe}",
                                 style: textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
+                                  color: scheme.onSecondaryContainer,
                                 ),
                               ),
                             if (_profile?.trainingTitle != null)
@@ -158,26 +174,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                                   "Pelatihan: ${_profile!.trainingTitle}",
                                   style: textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            if (_profile?.batch?.createdAt != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  "Dibuat pada: ${_profile!.batch!.createdAt!.toLocal().toString().substring(0, 19)}",
-                                  style: textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                            if (_profile?.batch?.updatedAt != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  "Diperbarui pada: ${_profile!.batch!.updatedAt!.toLocal().toString().substring(0, 19)}",
-                                  style: textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                                    color: scheme.onSecondaryContainer,
                                   ),
                                 ),
                               ),
@@ -185,9 +182,9 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
-                      // 🔹 Menu list
+                      // 🔹 Menu List
                       ListView(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -200,25 +197,23 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                               final updated = await context.push(
                                 const EditProfilePage(),
                               );
-                              if (updated == true) {
-                                _loadProfile();
-                              }
+                              if (updated == true) _loadProfile();
                             },
                           ),
                           _buildMenuCard(
                             icon: Icons.settings,
                             text: "Pengaturan",
-                            onTap: () => context.push(SettingsPresensi()),
+                            onTap: () => context.push(const SettingsPresensi()),
                           ),
                           _buildMenuCard(
                             icon: Icons.info,
                             text: "Tentang Aplikasi",
-                            onTap: () => context.push(AboutApp()),
+                            onTap: () => context.push(const AboutApp()),
                           ),
                           _buildMenuCard(
                             icon: Icons.logout,
                             text: "Keluar",
-                            color: theme.colorScheme.error,
+                            color: scheme.error,
                             onTap: _showLogoutDialog,
                           ),
                         ],
@@ -231,7 +226,6 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     );
   }
 
-  // 🔹 Helper untuk menu card
   Widget _buildMenuCard({
     required IconData icon,
     required String text,
@@ -239,28 +233,27 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     Color? color,
   }) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           child: Row(
             children: [
-              Icon(icon, color: color ?? theme.colorScheme.primary),
+              Icon(icon, color: color ?? scheme.primary),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   text,
                   style: TextStyle(
                     fontSize: 16,
-                    color:
-                        color ??
-                        theme.colorScheme.onSurface, // default pakai onSurface
+                    color: color ?? scheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -268,7 +261,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: theme.colorScheme.onSurfaceVariant,
+                color: scheme.onSurfaceVariant,
               ),
             ],
           ),

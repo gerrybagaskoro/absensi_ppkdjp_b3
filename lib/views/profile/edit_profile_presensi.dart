@@ -215,6 +215,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
     return Scaffold(
@@ -222,18 +223,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         title: Text(
           "Sunting Profil",
           style: textTheme.titleLarge?.copyWith(
-            color:
-                theme.colorScheme.onPrimaryContainer, // sama seperti AboutPage
+            color: scheme.onPrimaryContainer,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: theme.colorScheme.primaryContainer, // soft orange
+        backgroundColor: scheme.primaryContainer,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: theme.colorScheme.onPrimaryContainer),
-        surfaceTintColor: Colors.transparent, // supaya tidak ada efek overlay
+        iconTheme: IconThemeData(color: scheme.onPrimaryContainer),
+        surfaceTintColor: Colors.transparent,
       ),
-
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -242,16 +241,56 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Avatar dengan tombol edit lebih besar
                     Center(
-                      child: AvatarHero(
-                        tag: "profile-avatar",
-                        radius: 56,
-                        imageUrl: _currentPhotoUrl != null
-                            ? "${_currentPhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
-                            : null,
-                        showBorder: true,
-                        isUploading: _isUploading,
-                        onEdit: _pickAndUploadImage,
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  scheme.primary.withOpacity(0.6),
+                                  scheme.primaryContainer.withOpacity(0.6),
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: AvatarHero(
+                              tag: "profile-avatar",
+                              radius: 56,
+                              imageUrl: _currentPhotoUrl != null
+                                  ? "${_currentPhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
+                                  : null,
+                              showBorder: false,
+                              isUploading: _isUploading,
+                              onEdit: null,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickAndUploadImage,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: scheme.primary,
+                                  border: Border.all(
+                                    color: scheme.onPrimary,
+                                    width: 2,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 24,
+                                  color: scheme.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -262,10 +301,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: "Nama Lengkap",
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: theme.colorScheme.primary,
-                        ),
+                        prefixIcon: Icon(Icons.person, color: scheme.primary),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -281,10 +317,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       initialValue: _email ?? '',
                       readOnly: true,
                       decoration: InputDecoration(
-                        labelText: "Surel",
+                        labelText: "E-mail",
                         prefixIcon: Icon(
                           Icons.email,
-                          color: theme.colorScheme.onSurfaceVariant,
+                          color: scheme.onSurfaceVariant,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -299,8 +335,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
+                          backgroundColor: scheme.primary,
+                          foregroundColor: scheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
