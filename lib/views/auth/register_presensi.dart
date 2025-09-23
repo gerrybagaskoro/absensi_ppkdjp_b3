@@ -8,6 +8,7 @@ import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 
 class RegisterPresensi extends StatefulWidget {
   static const String id = '/register_presensi';
@@ -17,7 +18,8 @@ class RegisterPresensi extends StatefulWidget {
   State<RegisterPresensi> createState() => _RegisterPresensiState();
 }
 
-class _RegisterPresensiState extends State<RegisterPresensi> {
+class _RegisterPresensiState extends State<RegisterPresensi>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -40,11 +42,24 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
   // Gender dropdown
   String? _gender; // "L" atau "P"
 
+  // animasi loading teks
+  late AnimationController _dotsController;
+  late Animation<int> _dotsAnimation;
+
   @override
   void initState() {
     super.initState();
     _fetchTrainings();
     _fetchBatches();
+
+    _dotsController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+    _dotsAnimation = StepTween(
+      begin: 0,
+      end: 3,
+    ).animate(_dotsController); // titik animasi
   }
 
   Future<void> _fetchTrainings() async {
@@ -87,37 +102,88 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
     return "data:image/png;base64,${base64Encode(bytes)}";
   }
 
+  void _showSuccessOverlay(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset("assets/animations/success.json", repeat: false),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorOverlay(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // animasi gagal
+                Lottie.asset(
+                  "assets/animations/failed.json",
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Register action
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Password dan konfirmasi tidak sama'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      _showErrorOverlay("Password dan konfirmasi tidak sama");
       return;
     }
 
     if (_selectedTrainingId == null || _selectedBatchId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pilih Training dan Batch terlebih dahulu'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      _showErrorOverlay("Pilih Training dan Batch terlebih dahulu");
       return;
     }
 
     if (_gender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pilih jenis kelamin terlebih dahulu'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      _showErrorOverlay("Pilih jenis kelamin terlebih dahulu");
       return;
     }
 
@@ -130,7 +196,7 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
         "name": _nameController.text,
         "email": _emailController.text,
         "password": _passwordController.text,
-        "jenis_kelamin": _gender, // ✅ L / P
+        "jenis_kelamin": _gender,
         "profile_photo": base64Image ?? "",
         "batch_id": _selectedBatchId,
         "training_id": _selectedTrainingId,
@@ -144,27 +210,25 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Registrasi berhasil!"),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-        Navigator.pop(context); // kembali ke login
+        if (mounted) setState(() => _isLoading = false);
+
+        _showSuccessOverlay(data["message"] ?? "Registrasi berhasil!");
+
+        await Future.delayed(const Duration(seconds: 3));
+        if (mounted) {
+          Navigator.pop(context); // tutup dialog sukses
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPresensi()),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data["message"] ?? "Registrasi gagal"),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        if (mounted) setState(() => _isLoading = false);
+        _showErrorOverlay(data["message"] ?? "Registrasi gagal");
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
-    } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
+      _showErrorOverlay("Error: $e");
     }
   }
 
@@ -180,276 +244,310 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
+    return Stack(
+      children: [
+        Scaffold(
+          body: Center(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Text(
-                      'Daftar Presensi Kita',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: scheme.primary,
-                          ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Avatar
-                    Stack(
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 55,
-                          backgroundColor: scheme.surfaceContainerHighest,
-                          backgroundImage: _avatarFile != null
-                              ? FileImage(_avatarFile!)
-                              : null,
-                          child: _avatarFile == null
-                              ? Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: scheme.onSurfaceVariant,
-                                )
-                              : null,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: _pickImage,
-                            child: Container(
-                              decoration: BoxDecoration(
+                        Text(
+                          'Daftar Presensi Kita',
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
                                 color: scheme.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: scheme.onPrimary,
-                                  width: 2,
-                                ),
                               ),
-                              padding: const EdgeInsets.all(6),
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: 20,
-                                color: scheme.onPrimary,
-                              ),
-                            ),
-                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
+                        const SizedBox(height: 24),
 
-                    // Nama
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: _inputStyle('Nama Lengkap', Icons.person),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Nama wajib diisi'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Email
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: _inputStyle('E-mail', Icons.email),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'E-mail wajib diisi';
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Format E-mail tidak valid';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Gender dropdown
-                    DropdownButtonFormField<String>(
-                      value: _gender,
-                      items: const [
-                        DropdownMenuItem(value: "L", child: Text("Laki-laki")),
-                        DropdownMenuItem(value: "P", child: Text("Perempuan")),
-                      ],
-                      onChanged: (val) => setState(() => _gender = val),
-                      decoration: _inputStyle(
-                        "Jenis Kelamin",
-                        Icons.person_outline,
-                      ),
-                      validator: (value) =>
-                          value == null ? "Jenis kelamin wajib dipilih" : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Dropdown Training (fix overflow)
-                    DropdownButtonFormField<int>(
-                      value: _selectedTrainingId,
-                      items: _trainings.map<DropdownMenuItem<int>>((item) {
-                        return DropdownMenuItem<int>(
-                          value: item["id"],
-                          child: SizedBox(
-                            // ✅ kasih SizedBox biar Text bebas lebar
-                            width: 200, // bisa disesuaikan sesuai layout
-                            child: Text(
-                              item["title"] ?? "Training",
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                              maxLines: 1, // ✅ bisa lebih kalau judul panjang
+                        // Avatar
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 55,
+                              backgroundColor: scheme.surfaceContainerHighest,
+                              backgroundImage: _avatarFile != null
+                                  ? FileImage(_avatarFile!)
+                                  : null,
+                              child: _avatarFile == null
+                                  ? Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: scheme.onSurfaceVariant,
+                                    )
+                                  : null,
                             ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) =>
-                          setState(() => _selectedTrainingId = val),
-                      decoration: _inputStyle("Pilih Training", Icons.school),
-                      validator: (value) =>
-                          value == null ? "Training wajib dipilih" : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Dropdown Batch
-                    DropdownButtonFormField<int>(
-                      value: _selectedBatchId,
-                      items: _batches.map<DropdownMenuItem<int>>((item) {
-                        return DropdownMenuItem<int>(
-                          value: item["id"],
-                          child: Text("Batch ${item["batch_ke"]}"),
-                        );
-                      }).toList(),
-                      onChanged: (val) =>
-                          setState(() => _selectedBatchId = val),
-                      decoration: _inputStyle("Pilih Batch", Icons.group),
-                      validator: (value) =>
-                          value == null ? "Batch wajib dipilih" : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: _inputStyle('Kata sandi', Icons.lock)
-                          .copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: scheme.outline,
-                              ),
-                              onPressed: () => setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              ),
-                            ),
-                          ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Kata sandi wajib diisi';
-                        }
-                        if (value.length < 6) return 'Minimal 6 karakter';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Confirm Password
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      decoration:
-                          _inputStyle(
-                            'Konfirmasi sandi',
-                            Icons.lock_outline,
-                          ).copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: scheme.outline,
-                              ),
-                              onPressed: () => setState(
-                                () => _obscureConfirmPassword =
-                                    !_obscureConfirmPassword,
-                              ),
-                            ),
-                          ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Konfirmasi wajib diisi'
-                          : null,
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Tombol daftar + kembali
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text("Kembali"),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : FilledButton(
-                                  onPressed: _register,
-                                  child: const Text('Daftar'),
-                                ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Sudah punya akun? Login di sini
-                    Text.rich(
-                      TextSpan(
-                        text: "Sudah punya akun? ",
-                        children: [
-                          WidgetSpan(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const LoginPresensi(),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: InkWell(
+                                onTap: _pickImage,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: scheme.primary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: scheme.onPrimary,
+                                      width: 2,
+                                    ),
                                   ),
-                                );
-                              },
-                              child: Text(
-                                "Login di sini",
-                                style: TextStyle(
-                                  color: scheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
+                                  padding: const EdgeInsets.all(6),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 20,
+                                    color: scheme.onPrimary,
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Nama
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: _inputStyle('Nama Lengkap', Icons.person),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Nama wajib diisi'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: _inputStyle('E-mail', Icons.email),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'E-mail wajib diisi';
+                            }
+                            if (!RegExp(
+                              r'^[^@]+@[^@]+\.[^@]+',
+                            ).hasMatch(value)) {
+                              return 'Format E-mail tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Gender dropdown
+                        DropdownButtonFormField<String>(
+                          value: _gender,
+                          items: const [
+                            DropdownMenuItem(
+                              value: "L",
+                              child: Text("Laki-laki"),
+                            ),
+                            DropdownMenuItem(
+                              value: "P",
+                              child: Text("Perempuan"),
+                            ),
+                          ],
+                          onChanged: (val) => setState(() => _gender = val),
+                          decoration: _inputStyle(
+                            "Jenis Kelamin",
+                            Icons.person_outline,
                           ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
+                          validator: (value) => value == null
+                              ? "Jenis kelamin wajib dipilih"
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Training
+                        DropdownButtonFormField<int>(
+                          value: _selectedTrainingId,
+                          items: _trainings.map<DropdownMenuItem<int>>((item) {
+                            return DropdownMenuItem<int>(
+                              value: item["id"],
+                              child: SizedBox(
+                                width: 200,
+                                child: Text(
+                                  item["title"] ?? "Training",
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedTrainingId = val),
+                          decoration: _inputStyle(
+                            "Pilih Training",
+                            Icons.school,
+                          ),
+                          validator: (value) =>
+                              value == null ? "Training wajib dipilih" : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Batch
+                        DropdownButtonFormField<int>(
+                          value: _selectedBatchId,
+                          items: _batches.map<DropdownMenuItem<int>>((item) {
+                            return DropdownMenuItem<int>(
+                              value: item["id"],
+                              child: Text("Batch ${item["batch_ke"]}"),
+                            );
+                          }).toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedBatchId = val),
+                          decoration: _inputStyle("Pilih Batch", Icons.group),
+                          validator: (value) =>
+                              value == null ? "Batch wajib dipilih" : null,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          decoration: _inputStyle('Kata sandi', Icons.lock)
+                              .copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: scheme.outline,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
+                              ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Kata sandi wajib diisi';
+                            }
+                            if (value.length < 6) return 'Minimal 6 karakter';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Confirm Password
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirmPassword,
+                          decoration:
+                              _inputStyle(
+                                'Konfirmasi sandi',
+                                Icons.lock_outline,
+                              ).copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureConfirmPassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: scheme.outline,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscureConfirmPassword =
+                                        !_obscureConfirmPassword,
+                                  ),
+                                ),
+                              ),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Konfirmasi wajib diisi'
+                              : null,
+                        ),
+                        const SizedBox(height: 28),
+
+                        // Tombol daftar + kembali
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Kembali"),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: _register,
+                                child: const Text('Daftar'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Sudah punya akun? Login
+                        Text.rich(
+                          TextSpan(
+                            text: "Sudah punya akun? ",
+                            children: [
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const LoginPresensi(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Login di sini",
+                                    style: TextStyle(
+                                      color: scheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
+
+        // Overlay loading
+        if (_isLoading)
+          Container(
+            color: Colors.black54,
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _dotsAnimation,
+                builder: (_, __) {
+                  String dots = "." * _dotsAnimation.value;
+                  return Text(
+                    "Sedang memuat$dots",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -459,6 +557,7 @@ class _RegisterPresensiState extends State<RegisterPresensi> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _dotsController.dispose();
     super.dispose();
   }
 }

@@ -267,39 +267,58 @@ class _LoginPresensiState extends State<LoginPresensi> {
           ),
 
           // Overlay Lottie
+          // Overlay Lottie
+          // Overlay
           if (_isLoading)
             GestureDetector(
-              onTap: _dismissFailedOverlay,
+              onTap: !_loginSuccess ? _dismissFailedOverlay : null,
               child: Container(
-                color: Colors.black.withOpacity(_loginSuccess ? 0.5 : 0.7),
+                color: Colors.black.withOpacity(0.7),
                 alignment: Alignment.center,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Lottie.asset(
-                      _loginSuccess
-                          ? 'assets/animations/success.json'
-                          : 'assets/animations/failed.json',
-                      width: 200,
-                      height: 200,
-                      repeat: true,
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                    if (_loginMessage.isEmpty) ...[
+                      const CircularProgressIndicator(color: Colors.white),
+                      const SizedBox(height: 16),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 800),
+                        child: Text(
+                          'Menghubungkan ke server...',
+                          key: ValueKey(DateTime.now().second), // biar berganti
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
+                    ] else ...[
+                      Lottie.asset(
+                        _loginSuccess
+                            ? 'assets/animations/success.json'
+                            : 'assets/animations/failed.json',
+                        width: 200,
+                        height: 200,
+                        repeat: true,
                       ),
-                      child: Text(
-                        _loginMessage,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _loginMessage,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
