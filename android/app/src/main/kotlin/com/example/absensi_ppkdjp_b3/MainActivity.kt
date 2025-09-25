@@ -1,4 +1,4 @@
-package com.example.absensi_ppkdjp_b3
+package com.ppkd.presensikita
 
 import io.flutter.embedding.android.FlutterActivity
 

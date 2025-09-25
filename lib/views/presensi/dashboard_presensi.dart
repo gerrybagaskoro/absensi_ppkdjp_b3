@@ -2,6 +2,7 @@
 
 import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
+import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart'; // ⬅️ helper overlay
 import 'package:absensi_ppkdjp_b3/views/presensi/history_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/izin_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/statistic_presensi.dart';
@@ -30,9 +31,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Future<void> _loadTodayAbsen() async {
-    // beri delay 1 detik supaya animasi loading terasa
     await Future.delayed(const Duration(seconds: 1));
-
     final result = await AbsenAPI.getToday();
     setState(() {
       _absenToday = result?.data;
@@ -99,22 +98,18 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
             FadeInDown(child: const HeaderSection()),
             const SizedBox(height: 12),
-            // Location Card
             FadeInUp(
               delay: const Duration(milliseconds: 100),
               child: const LocationCard(),
             ),
             const SizedBox(height: 16),
-            // Today Status Card
             FadeInUp(
               delay: const Duration(milliseconds: 200),
               child: _buildTodayStatusCard(),
             ),
             const SizedBox(height: 24),
-            // Absensi Buttons
             FadeInUp(
               delay: const Duration(milliseconds: 300),
               child: _buildAbsensiButtons(),
@@ -162,7 +157,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -192,7 +186,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             ],
           ),
           const SizedBox(height: 20),
-          // Check Tiles
           Row(
             children: [
               Expanded(
@@ -214,7 +207,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
               ),
             ],
           ),
-          // Alasan Izin
           if (_absenToday?.alasanIzin != null)
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
@@ -306,7 +298,6 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
           String distText = distance < 1000
               ? "${distance.toStringAsFixed(0)} m"
               : "${(distance / 1000).toStringAsFixed(2)} km";
-
           return Center(
             child: Text(
               "⚠️ Anda jauh dari lokasi PPKDJP (Jarak: $distText)",
@@ -400,9 +391,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
         LocationCardState.lastAddress == null) {
-      ScaffoldMessenger.of(
+      await showLottieOverlay(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Lokasi belum tersedia")));
+        success: false,
+        message: "Lokasi belum tersedia",
+      );
       return;
     }
 
@@ -431,19 +424,25 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             checkInAddress: LocationCardState.lastAddress!,
           );
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Absen masuk berhasil")),
+        await showLottieOverlay(
+          context,
+          success: true,
+          message: response?.message ?? "Absen masuk berhasil",
         );
+        await _loadTodayAbsen();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Gagal absen masuk")),
+        await showLottieOverlay(
+          context,
+          success: false,
+          message: response?.message ?? "Gagal absen masuk",
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      await showLottieOverlay(
         context,
-      ).showSnackBar(SnackBar(content: Text("Terjadi error saat absen: $e")));
+        success: false,
+        message: "Terjadi error saat absen: $e",
+      );
     }
   }
 
@@ -451,9 +450,11 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
         LocationCardState.lastAddress == null) {
-      ScaffoldMessenger.of(
+      await showLottieOverlay(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Lokasi belum tersedia")));
+        success: false,
+        message: "Lokasi belum tersedia",
+      );
       return;
     }
 
@@ -482,19 +483,25 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             checkOutAddress: LocationCardState.lastAddress!,
           );
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Absen pulang berhasil")),
+        await showLottieOverlay(
+          context,
+          success: true,
+          message: response?.message ?? "Absen pulang berhasil",
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response?.message ?? "Gagal absen pulang")),
+        await showLottieOverlay(
+          context,
+          success: false,
+          message: response?.message ?? "Gagal absen pulang",
         );
+        await _loadTodayAbsen();
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      await showLottieOverlay(
         context,
-      ).showSnackBar(SnackBar(content: Text("Terjadi error saat absen: $e")));
+        success: false,
+        message: "Terjadi error saat absen: $e",
+      );
     }
   }
 }

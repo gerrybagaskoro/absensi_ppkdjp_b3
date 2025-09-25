@@ -3,6 +3,7 @@
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/api/absen_delete.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
+import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart'; // ✅ tambahkan
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -104,13 +105,20 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
     final success = await AbsenApiDelete.deleteHistory(item.id.toString());
     if (success) {
       setState(() => _riwayat.remove(item));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Presensi berhasil dihapus")),
+
+      // ✅ Ganti SnackBar → Lottie success
+      showLottieOverlay(
+        context,
+        success: true,
+        message: "Presensi berhasil dihapus",
       );
     } else {
-      ScaffoldMessenger.of(
+      // ✅ Ganti SnackBar → Lottie failed
+      showLottieOverlay(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Gagal menghapus presensi")));
+        success: false,
+        message: "Gagal menghapus presensi",
+      );
     }
   }
 
@@ -152,9 +160,7 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
               style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
             ),
             leading: Icon(Icons.info_outline, color: scheme.primary),
-            actions: [
-              const SizedBox.shrink(), // dummy supaya tidak error
-            ],
+            actions: const [SizedBox.shrink()],
             dividerColor: Colors.transparent,
           ),
           // Filter bar
@@ -190,11 +196,12 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
                         tooltip: "Reset filter",
                         onPressed: () {
                           setState(() => _selectedRange = null);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Filter tanggal direset"),
-                              duration: Duration(seconds: 2),
-                            ),
+
+                          // ✅ Ganti SnackBar → Lottie success
+                          showLottieOverlay(
+                            context,
+                            success: true,
+                            message: "Filter tanggal direset",
                           );
                         },
                         icon: const Icon(Icons.close),
