@@ -22,7 +22,6 @@ class DashboardPresensi extends StatefulWidget {
 class _DashboardPresensiState extends State<DashboardPresensi> {
   int _selectedIndex = 0;
   AbsenTodayData? _absenToday;
-  bool _loading = true;
 
   @override
   void initState() {
@@ -31,15 +30,12 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   Future<void> _loadTodayAbsen() async {
-    setState(() => _loading = true);
-
     // beri delay 1 detik supaya animasi loading terasa
     await Future.delayed(const Duration(seconds: 1));
 
     final result = await AbsenAPI.getToday();
     setState(() {
       _absenToday = result?.data;
-      _loading = false;
     });
   }
 

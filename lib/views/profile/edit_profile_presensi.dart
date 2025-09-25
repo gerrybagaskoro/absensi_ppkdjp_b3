@@ -112,9 +112,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Foto profil berhasil diperbarui"),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+          const SnackBar(
+            content: Text("Foto profil berhasil diperbarui"),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -126,7 +125,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error upload foto: $e"),
-            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -166,9 +164,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Nama berhasil diperbarui"),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+          const SnackBar(
+            content: Text("Nama berhasil diperbarui"),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -181,7 +178,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error update nama: $e"),
-            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -214,25 +210,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Sunting Profil",
-          style: textTheme.titleLarge?.copyWith(
-            color: scheme.onPrimaryContainer,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: scheme.primaryContainer,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: scheme.onPrimaryContainer),
-        surfaceTintColor: Colors.transparent,
-      ),
+      appBar: AppBar(title: const Text("Sunting Profil"), centerTitle: true),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -241,19 +222,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Avatar dengan tombol edit lebih besar
+                    // Avatar dengan tombol edit
                     Center(
                       child: Stack(
                         children: [
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  scheme.primary.withOpacity(0.6),
-                                  scheme.primaryContainer.withOpacity(0.6),
-                                ],
-                              ),
+                              color: scheme.surfaceContainerHighest,
                             ),
                             padding: const EdgeInsets.all(4),
                             child: AvatarHero(
@@ -301,9 +277,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: "Nama Lengkap",
-                        prefixIcon: Icon(Icons.person, color: scheme.primary),
+                        prefixIcon: const Icon(Icons.person),
+                        filled: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                       validator: (v) => v == null || v.trim().isEmpty
@@ -312,35 +290,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Email readonly
-                    TextFormField(
-                      initialValue: _email ?? '',
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: "E-mail",
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
                     // Tombol simpan nama
                     SizedBox(
                       width: double.infinity,
                       height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: scheme.primary,
-                          foregroundColor: scheme.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                      child: FilledButton(
                         onPressed: _submitName,
                         child: const Text("Simpan Nama"),
                       ),

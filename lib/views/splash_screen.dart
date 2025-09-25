@@ -101,13 +101,35 @@ class _SplashScreenState extends State<SplashScreen>
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(
-          "© 2025 Gerry Bagaskoro Putro",
-          style: TextStyle(
-            color: colorScheme.onPrimary.withOpacity(0.8),
-            fontSize: 12,
-          ),
-          textAlign: TextAlign.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                  color: colorScheme.onPrimary.withOpacity(0.8),
+                  fontSize: 12,
+                ),
+                children: [
+                  const TextSpan(text: "Developed by "),
+                  TextSpan(
+                    text: "Gerry Bagaskoro Putro",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(text: " & "),
+                  TextSpan(
+                    text: "PPKD Jakarta Pusat",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onPrimary, // biar lebih kontras
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

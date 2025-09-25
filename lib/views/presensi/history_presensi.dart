@@ -145,6 +145,18 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
       ),
       body: Column(
         children: [
+          MaterialBanner(
+            backgroundColor: scheme.surfaceContainerLowest,
+            content: Text(
+              "Tekan lama untuk menghapus absensi",
+              style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
+            ),
+            leading: Icon(Icons.info_outline, color: scheme.primary),
+            actions: [
+              const SizedBox.shrink(), // dummy supaya tidak error
+            ],
+            dividerColor: Colors.transparent,
+          ),
           // Filter bar
           Padding(
             padding: const EdgeInsets.all(12),
@@ -192,6 +204,7 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
               ),
             ),
           ),
+
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
