@@ -36,28 +36,23 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
- signingConfigs {
-     if (keystoreProperties.isNotEmpty()) {
-            create("release") {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-            }
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
         }
-   
-  }
-  buildTypes {
-    release {
-            // attach config release jika ada; jika tidak, Gradle tetap jalan (debug signing)
-            if (signingConfigs.names.contains("release")) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-            // aktifkan sesuai kebutuhan:
-            // isMinifyEnabled = true
-            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
-  }
+    }
 }
 
 dependencies {

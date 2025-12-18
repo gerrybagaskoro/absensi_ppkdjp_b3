@@ -1171,6 +1171,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send OTP'**
   String get sendOtpButton;
+
+  /// No description provided for @reminderOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder off'**
+  String get reminderOff;
+
+  /// No description provided for @testNotificationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification'**
+  String get testNotificationButton;
 }
 
 class _AppLocalizationsDelegate

@@ -16,6 +16,7 @@ class SettingsPresensi extends StatefulWidget {
 
 class _SettingsPresensiState extends State<SettingsPresensi> {
   TimeOfDay? _scheduledTime;
+  bool _isReminderEnabled = false;
 
   @override
   void initState() {
@@ -24,20 +25,24 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
   }
 
   Future<void> _loadScheduledTime() async {
-    final time = await NotificationService().getScheduledTime();
+    final service = NotificationService();
+    final time = await service.getScheduledTime();
+    final enabled = await service.isReminderEnabled();
     setState(() {
       _scheduledTime = time;
+      _isReminderEnabled = enabled;
     });
   }
 
   Future<void> _pickTime() async {
+    if (!_isReminderEnabled) return;
+
     final picked = await showTimePicker(
       context: context,
       initialTime: _scheduledTime ?? const TimeOfDay(hour: 6, minute: 0),
     );
 
     if (picked != null) {
-      // Call service and get debug message
       final msg = await NotificationService().scheduleDailyNotification(
         time: picked,
       );
@@ -47,10 +52,42 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
       });
 
       if (mounted) {
-        // Show detailed feedback to user
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), duration: const Duration(seconds: 4)),
         );
+      }
+    }
+  }
+
+  Future<void> _toggleReminder(bool value) async {
+    final service = NotificationService();
+
+    // Optimistic UI Update: change state immediately
+    setState(() {
+      _isReminderEnabled = value;
+    });
+
+    try {
+      if (value) {
+        await service.requestPermissions();
+      }
+      await service.setReminderEnabled(value);
+      final msg = await service.scheduleDailyNotification();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+        );
+      }
+    } catch (e) {
+      // Revert if failed
+      setState(() {
+        _isReminderEnabled = !value;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Gagal: $e")));
       }
     }
   }
@@ -178,22 +215,48 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.alarm, color: scheme.primary),
+                  leading: Icon(
+                    Icons.alarm,
+                    color: _isReminderEnabled ? scheme.primary : Colors.grey,
+                  ),
                   title: Text(AppLocalizations.of(context)!.dailyReminder),
                   subtitle: Text(
-                    _scheduledTime != null
-                        ? AppLocalizations.of(
-                            context,
-                          )!.dailyReminderTime(_scheduledTime!.format(context))
-                        : AppLocalizations.of(context)!.loading,
+                    _isReminderEnabled
+                        ? (_scheduledTime != null
+                              ? AppLocalizations.of(context)!.dailyReminderTime(
+                                  _scheduledTime!.format(context),
+                                )
+                              : AppLocalizations.of(context)!.loading)
+                        : AppLocalizations.of(context)!.reminderOff,
                   ),
-                  onTap: _pickTime,
-                  trailing: Icon(
-                    Icons.edit,
-                    size: 16,
-                    color: scheme.onSurfaceVariant,
+                  onTap: _isReminderEnabled ? _pickTime : null,
+                  trailing: Switch(
+                    value: _isReminderEnabled,
+                    onChanged: _toggleReminder,
+                    activeThumbColor: scheme.primary,
                   ),
                 ),
+                if (_isReminderEnabled)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          NotificationService().showTestNotification(),
+                      icon: const Icon(Icons.notifications_active, size: 18),
+                      label: Text(
+                        AppLocalizations.of(context)!.testNotificationButton,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

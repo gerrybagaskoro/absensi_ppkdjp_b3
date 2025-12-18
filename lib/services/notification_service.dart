@@ -20,6 +20,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const String _timeKey = 'daily_reminder_time';
+  static const String _enabledKey = 'daily_reminder_enabled';
   // V3: New channel ID to ensure fresh settings (Importance.max, Alarm Category)
   static const String _channelId = 'daily_reminder_v3';
 
@@ -88,36 +89,51 @@ class NotificationService {
   // Returns a diagnostic message to display to the user
   Future<String> scheduleDailyNotification({TimeOfDay? time}) async {
     final prefs = await SharedPreferences.getInstance();
+    final isEnabled = prefs.getBool(_enabledKey) ?? false;
 
-    // 1. Handle Permission for Exact Alarms (Android 12+)
+    // 1. If disabled, just cancel and return
+    if (!isEnabled && time == null) {
+      await flutterLocalNotificationsPlugin.cancel(0);
+      return "Pengingat dinonaktifkan";
+    }
+
+    // 2. Handle Permission for Exact Alarms (Android 12+)
     if (Platform.isAndroid) {
       final androidImplementation = flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
           >();
-      // requestExactAlarmsPermission returns Future<bool>
       await androidImplementation?.requestExactAlarmsPermission();
     }
 
-    // 2. Persist Time
+    // 3. Persist Time
     if (time != null) {
       final timeString = '${time.hour}:${time.minute}';
       await prefs.setString(_timeKey, timeString);
+      // Automatically enable if time is picked? Usually yes, or at least ensure it's on if we want it to work.
+      await prefs.setBool(_enabledKey, true);
     }
 
-    // 3. Load Time (default 07:00)
+    // Double check if enabled again after potential time pick
+    final finalEnabled = prefs.getBool(_enabledKey) ?? false;
+    if (!finalEnabled) {
+      await flutterLocalNotificationsPlugin.cancel(0);
+      return "Pengingat dinonaktifkan";
+    }
+
+    // 4. Load Time (default 07:00)
     final savedTimeStr = prefs.getString(_timeKey) ?? "7:0";
     final parts = savedTimeStr.split(':');
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
 
-    // 4. Cancel Old
+    // 5. Cancel Old
     await flutterLocalNotificationsPlugin.cancel(0);
 
-    // 5. Calculate Next Data
+    // 6. Calculate Next Data
     final scheduledDate = _nextInstanceOfTime(hour, minute);
 
-    // 6. Schedule
+    // 7. Schedule
     try {
       await flutterLocalNotificationsPlugin.zonedSchedule(
         0, // ID
@@ -131,7 +147,6 @@ class NotificationService {
             channelDescription: 'Reminder to clock in every morning',
             importance: Importance.max,
             priority: Priority.high,
-            // Critical for reliable delivery
             category: AndroidNotificationCategory.alarm,
             fullScreenIntent: true,
             ticker: 'Waktunya Absen!',
@@ -150,13 +165,55 @@ class NotificationService {
       );
 
       final logMsg =
-          "Jadwal: ${scheduledDate.year}-${scheduledDate.month}-${scheduledDate.day} ${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')} ${scheduledDate.location.name}";
-      debugPrint(logMsg);
-      return logMsg;
+          "Jadwal: ${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}";
+      debugPrint("Scheduled for: $logMsg");
+      return "Berhasil diatur untuk jam $logMsg";
     } catch (e) {
       debugPrint("Error scheduling: $e");
       return "Gagal mengatur notifikasi: $e";
     }
+  }
+
+  Future<void> showTestNotification() async {
+    // 1. Request permissions first
+    await requestPermissions();
+
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+          _channelId,
+          'Test Notifications',
+          channelDescription: 'Used to verify notification functionality',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'Tes Notifikasi',
+          category: AndroidNotificationCategory.status,
+        );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      999,
+      'Tes Notifikasi Berhasil! ✅',
+      'Ini adalah contoh notifikasi dari Presensi Kita.',
+      platformChannelSpecifics,
+    );
+  }
+
+  Future<bool> isReminderEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_enabledKey) ?? false;
+  }
+
+  Future<void> setReminderEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_enabledKey, enabled);
   }
 
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {

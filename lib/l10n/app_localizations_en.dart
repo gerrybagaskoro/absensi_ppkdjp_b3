@@ -567,4 +567,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendOtpButton => 'Send OTP';
+
+  @override
+  String get reminderOff => 'Reminder off';
+
+  @override
+  String get testNotificationButton => 'Test Notification';
 }

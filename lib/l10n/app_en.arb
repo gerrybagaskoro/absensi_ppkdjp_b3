@@ -198,5 +198,7 @@
     "resetPasswordSuccess": "Password updated successfully",
     "resetPasswordFailed": "Failed to reset password: {error}",
     "resetPasswordButton": "Reset Password",
-    "sendOtpButton": "Send OTP"
+    "sendOtpButton": "Send OTP",
+    "reminderOff": "Reminder off",
+    "testNotificationButton": "Test Notification"
 }

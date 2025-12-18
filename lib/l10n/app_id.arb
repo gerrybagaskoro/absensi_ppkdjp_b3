@@ -197,5 +197,7 @@
     "resetPasswordSuccess": "Password berhasil diperbarui",
     "resetPasswordFailed": "Gagal reset password: {error}",
     "resetPasswordButton": "Reset Password",
-    "sendOtpButton": "Kirim OTP"
+    "sendOtpButton": "Kirim OTP",
+    "reminderOff": "Pengingat mati",
+    "testNotificationButton": "Tes Notifikasi"
 }

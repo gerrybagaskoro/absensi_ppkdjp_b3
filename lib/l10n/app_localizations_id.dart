@@ -567,4 +567,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get sendOtpButton => 'Kirim OTP';
+
+  @override
+  String get reminderOff => 'Pengingat mati';
+
+  @override
+  String get testNotificationButton => 'Tes Notifikasi';
 }
