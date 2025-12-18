@@ -148,7 +148,6 @@ class NotificationService {
             importance: Importance.max,
             priority: Priority.high,
             category: AndroidNotificationCategory.alarm,
-            fullScreenIntent: true,
             ticker: 'Waktunya Absen!',
           ),
           iOS: DarwinNotificationDetails(
