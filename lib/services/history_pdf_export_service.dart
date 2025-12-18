@@ -1,5 +1,8 @@
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
+import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,9 +18,41 @@ class HistoryPdfExportService {
     );
 
     try {
-      // Fetch data
-      final history = await AbsenApiHistory.getHistory();
+      // 1. Fetch Data
+      final historyFuture = AbsenApiHistory.getHistory();
+      final profileFuture = ProfileService.fetchProfile();
+
+      // Load Logo
+      final logoDataFuture = rootBundle.load(
+        'assets/images/applogo_presensi_kita.png',
+      );
+
+      final results = await Future.wait([
+        historyFuture,
+        profileFuture,
+        logoDataFuture,
+      ]);
+
+      final history = results[0] as dynamic;
+      final profile = results[1] as dynamic;
+      final logoByteData = results[2] as ByteData;
+
       final data = history?.data ?? [];
+      final user = profile?.data;
+      final logoImage = pw.MemoryImage(logoByteData.buffer.asUint8List());
+
+      // Fetch Profile Image
+      pw.ImageProvider? profileImage;
+      if (user?.profilePhotoUrl != null) {
+        try {
+          final response = await http.get(Uri.parse(user!.profilePhotoUrl!));
+          if (response.statusCode == 200) {
+            profileImage = pw.MemoryImage(response.bodyBytes);
+          }
+        } catch (e) {
+          debugPrint("Error loading profile image: $e");
+        }
+      }
 
       if (data.isEmpty) {
         if (context.mounted) {
@@ -31,61 +66,150 @@ class HistoryPdfExportService {
         return;
       }
 
-      // Generate PDF
+      // 2. Generate PDF
       final pdf = pw.Document();
-      // Use standard fonts to avoid network dependency which might cause hangs/black screens
+      // Use standard fonts to avoid network dependency
       final font = pw.Font.helvetica();
       final fontBold = pw.Font.helveticaBold();
 
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(24),
+          margin: const pw.EdgeInsets.all(30),
           theme: pw.ThemeData.withFont(base: font, bold: fontBold),
           build: (pw.Context context) {
             return [
-              pw.Header(
-                level: 0,
+              // --- Header ---
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        "LAPORAN RIWAYAT",
+                        style: pw.TextStyle(
+                          fontSize: 20,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.black,
+                        ),
+                      ),
+                      pw.Text(
+                        "PRESENSI",
+                        style: pw.TextStyle(
+                          fontSize: 20,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.Container(
+                    height: 50,
+                    width: 50,
+                    child: pw.Image(logoImage),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+
+              // --- User Details Section ---
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(10),
+                decoration: const pw.BoxDecoration(
+                  color: PdfColors.blue50, // Light blue/grey background
+                ),
                 child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(
-                      "Laporan Riwayat Presensi",
-                      style: pw.TextStyle(
-                        fontSize: 24,
-                        fontWeight: pw.FontWeight.bold,
+                    // Text Details
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            "Details",
+                            style: pw.TextStyle(
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.blue900,
+                            ),
+                          ),
+                          pw.Divider(color: PdfColors.blue900, thickness: 1),
+                          pw.SizedBox(height: 5),
+                          _buildDetailRow("Nama", user?.name ?? "-"),
+                          _buildDetailRow("Email", user?.email ?? "-"),
+                          _buildDetailRow(
+                            "Batch",
+                            user?.batchKe != null
+                                ? "Batch ${user!.batchKe}"
+                                : "-",
+                          ),
+                          _buildDetailRow(
+                            "Pelatihan",
+                            user?.trainingTitle ?? "-",
+                          ),
+                          _buildDetailRow(
+                            "Tanggal Cetak",
+                            DateFormat(
+                              'dd MMMM yyyy HH:mm',
+                              'id_ID',
+                            ).format(DateTime.now()),
+                          ),
+                        ],
                       ),
                     ),
-                    pw.Text(
-                      DateFormat('dd MMM yyyy HH:mm').format(DateTime.now()),
-                      style: const pw.TextStyle(fontSize: 12),
-                    ),
+                    // Profile Image
+                    if (profileImage != null) ...[
+                      pw.SizedBox(width: 10),
+                      pw.Container(
+                        width: 70,
+                        height: 70,
+                        decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(
+                            color: PdfColors.blue900,
+                            width: 2,
+                          ),
+                          image: pw.DecorationImage(
+                            image: profileImage,
+                            fit: pw.BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
+
               pw.SizedBox(height: 20),
+
+              // --- Table ---
               pw.TableHelper.fromTextArray(
                 context: context,
-                border: pw.TableBorder.all(color: PdfColors.grey300),
+                border: pw.TableBorder.all(
+                  color: PdfColors.grey400,
+                  width: 0.5,
+                ),
                 headerStyle: pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   color: PdfColors.white,
+                  fontSize: 10,
                 ),
                 headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.blue500,
+                  color: PdfColors.blue700,
                 ),
-                cellHeight: 30,
+                cellStyle: const pw.TextStyle(fontSize: 9),
+                cellHeight: 25,
                 cellAlignments: {
                   0: pw.Alignment.centerLeft,
                   1: pw.Alignment.center,
                   2: pw.Alignment.center,
                   3: pw.Alignment.center,
-                  4: pw
-                      .Alignment
-                      .centerLeft, // Location might be long, let's align left
-                  5: pw
-                      .Alignment
-                      .centerLeft, // Reason might be long, align left
+                  4: pw.Alignment.centerLeft,
+                  5: pw.Alignment.centerLeft,
                 },
                 headers: [
                   "Tanggal",
@@ -95,8 +219,7 @@ class HistoryPdfExportService {
                   "Lokasi",
                   "Keterangan",
                 ],
-                data: data.map((item) {
-                  // Determine 'Keterangan' content
+                data: data.map<List<dynamic>>((item) {
                   String keterangan = "";
                   if (item.status?.toLowerCase() == "izin") {
                     keterangan = item.alasanIzin != null
@@ -135,27 +258,7 @@ class HistoryPdfExportService {
         filename: 'riwayat_presensi.pdf',
       );
     } catch (e) {
-      if (context.mounted) {
-        // Ensure dialog is closed if it's still open (checking if we popped already might be tricky without a key or boolean,
-        // but pop is safe if it's the top route. However, if sharing failed after pop, this might pop the screen itself.
-        // A safer way is to track if we popped.)
-        // But for now, let's assume if we are here, we might need to pop only if we didn't succeed.
-        // Actually, we popped before sharing. So if sharing fails, we don't need to pop.
-        // BUT if pdf generation fails, we haven't popped.
-
-        // Let's refine the logic: pop is strictly after PDF generation.
-        // If error moves to catch block, we verify if we have popped?
-        // Let's just try to pop if the error happened BEFORE sharing.
-        // We can check if the dialog is likely up.
-        // Or better: use a variable.
-      }
-
-      // Since we can't easily track dialog state here without extensive boilerplate,
-      // let's rely on the user seeing the snackbar.
-      // But we MUST pop if the dialog is up.
-      // Re-implementing with a `loading` flag logic isn't possible in a static method easily without State.
-      // Let's just try to pop and catch the exception if pop fails (which it shouldn't usually).
-
+      // Try to close dialog if open
       try {
         if (context.mounted)
           Navigator.canPop(context) ? Navigator.pop(context) : null;
@@ -167,5 +270,26 @@ class HistoryPdfExportService {
         ).showSnackBar(SnackBar(content: Text("Gagal mengexport PDF: $e")));
       }
     }
+  }
+
+  static pw.Widget _buildDetailRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 2),
+      child: pw.Row(
+        children: [
+          pw.SizedBox(
+            width: 80,
+            child: pw.Text(label, style: const pw.TextStyle(fontSize: 10)),
+          ),
+          pw.Text(": ", style: const pw.TextStyle(fontSize: 10)),
+          pw.Expanded(
+            child: pw.Text(
+              value,
+              style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
