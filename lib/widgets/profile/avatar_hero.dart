@@ -53,68 +53,71 @@ class AvatarHero extends StatelessWidget {
 
     return Hero(
       tag: tag,
-      child: SizedBox(
-        width: radius * 2,
-        height: radius * 2,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // avatar (with optional border)
-            widgetAvatar,
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox(
+          width: radius * 2,
+          height: radius * 2,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // avatar (with optional border)
+              widgetAvatar,
 
-            // loading overlay when uploading
-            if (isUploading)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SizedBox(
-                      width: radius * 0.6,
-                      height: radius * 0.6,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation(primary),
-                      ),
+              // loading overlay when uploading
+              if (isUploading)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.35),
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ),
-              ),
-
-            // edit button (only shown if onEdit != null)
-            if (onEdit != null)
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Material(
-                  color: Colors.transparent,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    onTap: isUploading ? null : onEdit,
-                    customBorder: const CircleBorder(),
-                    child: Container(
-                      width: radius * 0.38,
-                      height: radius * 0.38,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: primary,
-                        border: Border.all(
-                          color: theme.colorScheme.surface,
-                          width: 2,
+                    child: Center(
+                      child: SizedBox(
+                        width: radius * 0.6,
+                        height: radius * 0.6,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation(primary),
                         ),
                       ),
-                      child: Icon(
-                        Icons.edit,
-                        size: radius * 0.18,
-                        color: onPrimary,
+                    ),
+                  ),
+                ),
+
+              // edit button (only shown if onEdit != null)
+              if (onEdit != null)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.transparent,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      onTap: isUploading ? null : onEdit,
+                      customBorder: const CircleBorder(),
+                      child: Container(
+                        width: radius * 0.38,
+                        height: radius * 0.38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primary,
+                          border: Border.all(
+                            color: theme.colorScheme.surface,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.edit,
+                          size: radius * 0.18,
+                          color: onPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

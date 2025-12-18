@@ -10,7 +10,16 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final String? initialPhotoUrl;
+  final String? initialName;
+  final String? initialEmail;
+
+  const EditProfilePage({
+    super.key,
+    this.initialPhotoUrl,
+    this.initialName,
+    this.initialEmail,
+  });
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -29,24 +38,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    // Pre-fill with passed data for smooth Hero animation
+    _currentPhotoUrl = widget.initialPhotoUrl;
+    _nameController.text = widget.initialName ?? '';
+    _email = widget.initialEmail;
+
+    // Fetch fresh data in background
     _loadProfile();
   }
 
   Future<void> _loadProfile() async {
-    setState(() => _isLoading = true);
+    // Don't show loading spinner if we already have data
+    if (widget.initialName == null) {
+      setState(() => _isLoading = true);
+    }
 
     final profile = await ProfileService.fetchProfile();
     if (profile?.data != null) {
-      _nameController.text = profile!.data!.name ?? '';
-      _email = profile.data!.email ?? '';
-      _currentPhotoUrl =
-          profile.data!.profilePhotoUrl ??
-          (profile.data!.profilePhoto != null
-              ? "https://appabsensi.mobileprojp.com/storage/${profile.data!.profilePhoto}"
-              : null);
+      if (mounted) {
+        setState(() {
+          _nameController.text = profile!.data!.name ?? '';
+          _email = profile.data!.email ?? '';
+          _currentPhotoUrl =
+              profile.data!.profilePhotoUrl ??
+              (profile.data!.profilePhoto != null
+                  ? "https://appabsensi.mobileprojp.com/storage/${profile.data!.profilePhoto}"
+                  : null);
+          _isLoading = false;
+        });
+      }
+    } else {
+      if (mounted) setState(() => _isLoading = false);
     }
-
-    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _pickAndUploadImage() async {

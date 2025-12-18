@@ -19,6 +19,7 @@ class ProfilePresensi extends StatefulWidget {
 class _ProfilePresensiState extends State<ProfilePresensi> {
   Data? _profile;
   bool _isLoading = true;
+  String? _displayPhotoUrl; // Stable URL for Hero
 
   @override
   void initState() {
@@ -30,8 +31,21 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
     setState(() => _isLoading = true);
     final profile = await ProfileService.fetchProfile();
     if (!mounted) return;
+
+    String? photoUrl;
+    if (profile?.data != null) {
+      if (profile!.data!.profilePhotoUrl != null) {
+        photoUrl =
+            "${profile.data!.profilePhotoUrl}?v=${DateTime.now().millisecondsSinceEpoch}";
+      } else if (profile.data!.profilePhoto != null) {
+        photoUrl =
+            "https://appabsensi.mobileprojp.com/storage/${profile.data!.profilePhoto}?v=${DateTime.now().millisecondsSinceEpoch}";
+      }
+    }
+
     setState(() {
       _profile = profile?.data;
+      _displayPhotoUrl = photoUrl;
       _isLoading = false;
     });
   }
@@ -113,11 +127,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         child: AvatarHero(
                           tag: "profile-avatar",
                           radius: 90,
-                          imageUrl: _profile?.profilePhotoUrl != null
-                              ? "${_profile!.profilePhotoUrl!}?v=${DateTime.now().millisecondsSinceEpoch}"
-                              : _profile?.profilePhoto != null
-                              ? "https://appabsensi.mobileprojp.com/storage/${_profile!.profilePhoto}?v=${DateTime.now().millisecondsSinceEpoch}"
-                              : null,
+                          imageUrl: _displayPhotoUrl,
                           showBorder: false,
                           isUploading: false,
                         ),
@@ -195,7 +205,11 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                             text: "Sunting Profil",
                             onTap: () async {
                               final updated = await context.push(
-                                const EditProfilePage(),
+                                EditProfilePage(
+                                  initialPhotoUrl: _displayPhotoUrl,
+                                  initialName: _profile?.name,
+                                  initialEmail: _profile?.email,
+                                ),
                               );
                               if (updated == true) _loadProfile();
                             },
