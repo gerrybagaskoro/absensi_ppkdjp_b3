@@ -2,6 +2,7 @@
 
 import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
+import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart'; // ⬅️ helper overlay
 import 'package:absensi_ppkdjp_b3/views/presensi/history_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/presensi/izin_presensi.dart';
@@ -11,6 +12,7 @@ import 'package:absensi_ppkdjp_b3/widgets/absensi/header_section.dart';
 import 'package:absensi_ppkdjp_b3/widgets/absensi/location_card.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DashboardPresensi extends StatefulWidget {
   static const String id = '/dashboard_presensi';
@@ -28,6 +30,21 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   void initState() {
     super.initState();
     _loadTodayAbsen();
+    _setupPermissions();
+  }
+
+  Future<void> _setupPermissions() async {
+    // 1. Notification (Android 13+ & iOS)
+    await NotificationService().requestPermissions();
+
+    // 2. Schedule Notification if not already set or refreshing it
+    await NotificationService().scheduleDailyNotification();
+
+    // 3. Location (chained immediately after)
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
   }
 
   Future<void> _loadTodayAbsen() async {

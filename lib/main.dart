@@ -1,3 +1,4 @@
+import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_theme.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/forgot_account_presensi.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init(); // Initialize Notifications
   await initializeDateFormatting('id_ID', null);
 
   runApp(

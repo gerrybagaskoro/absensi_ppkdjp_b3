@@ -1,11 +1,58 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/services/history_pdf_export_service.dart';
+import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SettingsPresensi extends StatelessWidget {
+class SettingsPresensi extends StatefulWidget {
   const SettingsPresensi({super.key});
+
+  @override
+  State<SettingsPresensi> createState() => _SettingsPresensiState();
+}
+
+class _SettingsPresensiState extends State<SettingsPresensi> {
+  TimeOfDay? _scheduledTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadScheduledTime();
+  }
+
+  Future<void> _loadScheduledTime() async {
+    final time = await NotificationService().getScheduledTime();
+    setState(() {
+      _scheduledTime = time;
+    });
+  }
+
+  Future<void> _pickTime() async {
+    final now = TimeOfDay.now();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _scheduledTime ?? const TimeOfDay(hour: 6, minute: 0),
+    );
+
+    if (picked != null) {
+      // Call service and get debug message
+      final msg = await NotificationService().scheduleDailyNotification(
+        time: picked,
+      );
+
+      setState(() {
+        _scheduledTime = picked;
+      });
+
+      if (mounted) {
+        // Show detailed feedback to user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), duration: const Duration(seconds: 4)),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +107,57 @@ class SettingsPresensi extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+
+          // 🔹 Notifikasi Section
+          Text(
+            "Notifikasi",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: scheme.primary,
+            ),
+          ),
           const SizedBox(height: 8),
 
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 1,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.alarm, color: scheme.primary),
+                  title: const Text("Atur Pengingat Harian"),
+                  subtitle: Text(
+                    _scheduledTime != null
+                        ? "Setiap hari jam ${_scheduledTime!.format(context)}"
+                        : "Memuat...",
+                  ),
+                  onTap: _pickTime,
+                  trailing: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
           // 🔹 Ekspor Data
+          Text(
+            "Data",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: scheme.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
           Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -80,7 +175,7 @@ class SettingsPresensi extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 30),
 
           // 🔹 Tombol simpan
           SizedBox(

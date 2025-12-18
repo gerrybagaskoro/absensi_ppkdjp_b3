@@ -2,7 +2,6 @@ import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/get_profile_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
-import 'package:absensi_ppkdjp_b3/services/history_pdf_export_service.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/about_app.dart';
 import 'package:absensi_ppkdjp_b3/views/profile/edit_profile_presensi.dart';
@@ -206,12 +205,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                             text: "Pengaturan",
                             onTap: () => context.push(const SettingsPresensi()),
                           ),
-                          _buildMenuCard(
-                            icon: Icons.picture_as_pdf,
-                            text: "Ekspor Riwayat Absensi",
-                            onTap: () =>
-                                HistoryPdfExportService.exportHistory(context),
-                          ),
+
                           _buildMenuCard(
                             icon: Icons.info,
                             text: "Tentang Aplikasi",
