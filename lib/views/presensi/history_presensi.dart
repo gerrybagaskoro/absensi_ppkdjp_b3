@@ -15,7 +15,8 @@ class HistoryPresensi extends StatefulWidget {
   State<HistoryPresensi> createState() => _HistoryPresensiState();
 }
 
-class _HistoryPresensiState extends State<HistoryPresensi> {
+class _HistoryPresensiState extends State<HistoryPresensi>
+    with TickerProviderStateMixin {
   List<Datum> _riwayat = [];
   DateTimeRange? _selectedRange;
   bool _isLoading = true;
@@ -24,6 +25,43 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
   void initState() {
     super.initState();
     _loadHistory();
+    _startBannerTimer();
+  }
+
+  late AnimationController _timerController; // For the progress bar
+  late AnimationController _sizeController; // For the collapse animation
+  late Animation<double> _sizeAnimation;
+
+  void _startBannerTimer() {
+    _timerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    );
+
+    _sizeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+      value: 1.0, // Start fully visible
+    );
+
+    _sizeAnimation = CurvedAnimation(
+      parent: _sizeController,
+      curve: Curves.easeInOut,
+    );
+
+    // Start timer: value goes 1.0 -> 0.0
+    _timerController.reverse(from: 1.0).then((_) {
+      if (mounted) {
+        _sizeController.reverse(); // Collapse after timer ends
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timerController.dispose();
+    _sizeController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadHistory() async {
@@ -153,15 +191,45 @@ class _HistoryPresensiState extends State<HistoryPresensi> {
       ),
       body: Column(
         children: [
-          MaterialBanner(
-            backgroundColor: scheme.surfaceContainerLowest,
-            content: Text(
-              "Tekan lama untuk menghapus absensi",
-              style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
+          // Ephemeral Banner with Countdown
+          SizeTransition(
+            sizeFactor: _sizeAnimation,
+            axisAlignment: -1.0,
+            child: Container(
+              color: scheme.surfaceContainerLowest,
+              child: Column(
+                children: [
+                  MaterialBanner(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    content: Text(
+                      "Tekan lama untuk menghapus absensi",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    leading: Icon(Icons.info_outline, color: scheme.primary),
+                    actions: const [SizedBox.shrink()],
+                    dividerColor: Colors.transparent,
+                  ),
+                  // Countdown Progress Bar
+                  AnimatedBuilder(
+                    animation: _timerController,
+                    builder: (context, child) {
+                      return LinearProgressIndicator(
+                        value: _timerController.value,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          scheme.primary.withOpacity(0.3),
+                        ),
+                        minHeight: 2,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-            leading: Icon(Icons.info_outline, color: scheme.primary),
-            actions: const [SizedBox.shrink()],
-            dividerColor: Colors.transparent,
           ),
           // Filter bar
           Padding(

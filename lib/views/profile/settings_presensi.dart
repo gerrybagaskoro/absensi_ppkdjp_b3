@@ -1,4 +1,5 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/services/history_pdf_export_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,27 @@ class SettingsPresensi extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 8),
+
+          // 🔹 Ekspor Data
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 1,
+            child: ListTile(
+              leading: Icon(Icons.picture_as_pdf, color: scheme.primary),
+              title: const Text("Ekspor Riwayat Presensi"),
+              subtitle: const Text("Unduh riwayat absensi dalam format PDF"),
+              onTap: () => HistoryPdfExportService.exportHistory(context),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
 
           // 🔹 Tombol simpan
           SizedBox(
