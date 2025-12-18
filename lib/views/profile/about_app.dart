@@ -1,3 +1,4 @@
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ class AboutApp extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Tentang Aplikasi",
+          AppLocalizations.of(context)!.aboutApp,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onPrimaryContainer,
@@ -60,7 +61,7 @@ class AboutApp extends StatelessWidget {
                         AppLogo(height: 160, width: 160),
                         const SizedBox(height: 20),
                         Text(
-                          "Presensi Kita",
+                          AppLocalizations.of(context)!.appName,
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
@@ -68,7 +69,7 @@ class AboutApp extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Versi 1.0.0",
+                          AppLocalizations.of(context)!.appVersion("1.0.0"),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -86,8 +87,7 @@ class AboutApp extends StatelessWidget {
                 delay: const Duration(milliseconds: 200),
                 duration: const Duration(milliseconds: 700),
                 child: Text(
-                  "Aplikasi Presensi ini dibuat untuk mempermudah proses absensi "
-                  "dan pencatatan kehadiran dengan tampilan modern berbasis Material You.",
+                  AppLocalizations.of(context)!.appDescription,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     height: 1.6,
@@ -116,12 +116,12 @@ class AboutApp extends StatelessWidget {
                     // Aksi contoh: info dev
                     showAboutDialog(
                       context: context,
-                      applicationName: "Presensi Kita",
+                      applicationName: AppLocalizations.of(context)!.appName,
                       applicationVersion: "1.0.0",
                       applicationLegalese: "© 2025 - Gerry Bagaskoro Putro",
                     );
                   },
-                  child: const Text("Informasi Pengembang"),
+                  child: Text(AppLocalizations.of(context)!.developerInfo),
                 ),
               ),
 

@@ -2,8 +2,9 @@
 
 import 'package:absensi_ppkdjp_b3/api/absen_api_history.dart';
 import 'package:absensi_ppkdjp_b3/api/absen_delete.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/history_absensi.dart';
-import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart'; // ✅ tambahkan
+import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -73,21 +74,45 @@ class _HistoryPresensiState extends State<HistoryPresensi>
     });
   }
 
-  /// Mapping status ke warna Material You
-  (Color bg, Color fg) _getStatusStyle(String? status, BuildContext context) {
+  /// Mapping status ke warna & label localized
+  (Color bg, Color fg, String label) _getStatusStyle(
+    String? status,
+    BuildContext context,
+  ) {
     final scheme = Theme.of(context).colorScheme;
-    switch (status?.toLowerCase()) {
-      case "hadir":
-      case "masuk":
-        return (scheme.primaryContainer, scheme.onPrimaryContainer);
-      case "telat":
-        return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
-      case "izin":
-        return (scheme.secondaryContainer, scheme.onSecondaryContainer);
-      case "alpha":
-        return (scheme.errorContainer, scheme.onErrorContainer);
-      default:
-        return (scheme.surfaceVariant, scheme.onSurfaceVariant);
+    final l10n = AppLocalizations.of(context)!;
+    final s = status?.toLowerCase() ?? "";
+
+    if (s.contains("hadir") || s.contains("masuk")) {
+      return (
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
+        l10n.statusPresent,
+      );
+    } else if (s.contains("telat")) {
+      return (
+        scheme.tertiaryContainer,
+        scheme.onTertiaryContainer,
+        l10n.statusLate,
+      );
+    } else if (s.contains("izin")) {
+      return (
+        scheme.secondaryContainer,
+        scheme.onSecondaryContainer,
+        l10n.statusPermission,
+      );
+    } else if (s.contains("alpha")) {
+      return (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        l10n.statusAbsent,
+      );
+    } else {
+      return (
+        scheme.surfaceContainerHigh,
+        scheme.onSurfaceVariant,
+        status ?? "-",
+      );
     }
   }
 
@@ -100,7 +125,7 @@ class _HistoryPresensiState extends State<HistoryPresensi>
       initialDateRange:
           _selectedRange ??
           DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now),
-      locale: const Locale("id", "ID"),
+      locale: Localizations.localeOf(context),
     );
 
     if (picked != null) {
@@ -108,11 +133,15 @@ class _HistoryPresensiState extends State<HistoryPresensi>
     }
   }
 
-  Map<String, List<Datum>> _groupByMonth(List<Datum> data) {
+  Map<String, List<Datum>> _groupByMonth(
+    List<Datum> data,
+    BuildContext context,
+  ) {
     final grouped = <String, List<Datum>>{};
+    final locale = Localizations.localeOf(context).toString();
     for (var item in data) {
       if (item.attendanceDate == null) continue;
-      final key = DateFormat("MMMM yyyy", "id_ID").format(item.attendanceDate!);
+      final key = DateFormat("MMMM yyyy", locale).format(item.attendanceDate!);
       grouped.putIfAbsent(key, () => []);
       grouped[key]!.add(item);
     }
@@ -123,16 +152,16 @@ class _HistoryPresensiState extends State<HistoryPresensi>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Hapus Presensi"),
-        content: const Text("Apakah Anda yakin ingin menghapus presensi ini?"),
+        title: Text(AppLocalizations.of(context)!.deleteAttendance),
+        content: Text(AppLocalizations.of(context)!.deleteAttendanceConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Batal"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton.tonal(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Hapus"),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -148,14 +177,14 @@ class _HistoryPresensiState extends State<HistoryPresensi>
       showLottieOverlay(
         context,
         success: true,
-        message: "Presensi berhasil dihapus",
+        message: AppLocalizations.of(context)!.deleteSuccess,
       );
     } else {
       // ✅ Ganti SnackBar → Lottie failed
       showLottieOverlay(
         context,
         success: false,
-        message: "Gagal menghapus presensi",
+        message: AppLocalizations.of(context)!.deleteFailed,
       );
     }
   }
@@ -175,17 +204,18 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                     tgl.isBefore(_selectedRange!.end));
           }).toList();
 
-    final grouped = _groupByMonth(filteredRiwayat);
+    final localeStr = Localizations.localeOf(context).toString();
+    final grouped = _groupByMonth(filteredRiwayat, context);
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) {
-        final dateA = DateFormat("MMMM yyyy", "id_ID").parse(a);
-        final dateB = DateFormat("MMMM yyyy", "id_ID").parse(b);
+        final dateA = DateFormat("MMMM yyyy", localeStr).parse(a);
+        final dateB = DateFormat("MMMM yyyy", localeStr).parse(b);
         return dateB.compareTo(dateA); // terbaru duluan
       });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Riwayat Presensi"),
+        title: Text(AppLocalizations.of(context)!.historyTitle),
         centerTitle: true,
         surfaceTintColor: scheme.primary,
       ),
@@ -203,7 +233,7 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     content: Text(
-                      "Tekan lama untuk menghapus absensi",
+                      AppLocalizations.of(context)!.holdToDelete,
                       style: TextStyle(
                         fontSize: 14,
                         color: scheme.onSurfaceVariant,
@@ -245,8 +275,8 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                     Expanded(
                       child: Text(
                         _selectedRange == null
-                            ? "Semua Tanggal"
-                            : "${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', 'id_ID').format(_selectedRange!.end)}",
+                            ? AppLocalizations.of(context)!.allDates
+                            : "${DateFormat('dd MMM yyyy', localeStr).format(_selectedRange!.start)} - ${DateFormat('dd MMM yyyy', localeStr).format(_selectedRange!.end)}",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: scheme.onSurfaceVariant,
@@ -257,11 +287,11 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                     IconButton(
                       onPressed: _pickDateRange,
                       icon: const Icon(Icons.date_range),
-                      tooltip: "Pilih rentang tanggal",
+                      tooltip: AppLocalizations.of(context)!.pickDateRange,
                     ),
                     if (_selectedRange != null)
                       IconButton(
-                        tooltip: "Reset filter",
+                        tooltip: AppLocalizations.of(context)!.resetFilter,
                         onPressed: () {
                           setState(() => _selectedRange = null);
 
@@ -269,7 +299,7 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                           showLottieOverlay(
                             context,
                             success: true,
-                            message: "Filter tanggal direset",
+                            message: AppLocalizations.of(context)!.filterReset,
                           );
                         },
                         icon: const Icon(Icons.close),
@@ -291,7 +321,7 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                         Icon(Icons.event_busy, size: 64, color: scheme.outline),
                         const SizedBox(height: 12),
                         Text(
-                          "Belum ada data presensi",
+                          AppLocalizations.of(context)!.noHistory,
                           style: TextStyle(
                             fontSize: 16,
                             color: scheme.onSurfaceVariant,
@@ -337,10 +367,8 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                         content: Column(
                           children: [
                             ...items.map((item) {
-                              final (bgColor, fgColor) = _getStatusStyle(
-                                item.status,
-                                context,
-                              );
+                              final (bgColor, fgColor, statusLabel) =
+                                  _getStatusStyle(item.status, context);
 
                               return Card(
                                 elevation: 1,
@@ -356,7 +384,7 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                                   title: Text(
                                     DateFormat(
                                       'EEEE, dd MMM yyyy',
-                                      'id_ID',
+                                      localeStr,
                                     ).format(
                                       item.attendanceDate ?? DateTime.now(),
                                     ),
@@ -372,17 +400,17 @@ class _HistoryPresensiState extends State<HistoryPresensi>
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Masuk: ${item.checkInTime ?? "-"}",
+                                          "${AppLocalizations.of(context)!.entryTime}${item.checkInTime ?? "-"}",
                                         ),
                                         Text(
-                                          "Pulang: ${item.checkOutTime ?? "-"}",
+                                          "${AppLocalizations.of(context)!.exitTime}${item.checkOutTime ?? "-"}",
                                         ),
                                       ],
                                     ),
                                   ),
                                   trailing: Chip(
                                     label: Text(
-                                      item.status ?? "-",
+                                      statusLabel,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: fgColor,

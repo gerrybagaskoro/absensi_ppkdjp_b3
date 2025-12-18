@@ -1,5 +1,6 @@
 import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/get_profile_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
@@ -56,12 +57,12 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Konfirmasi"),
-        content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
+        title: Text(AppLocalizations.of(context)!.confirm),
+        content: Text(AppLocalizations.of(context)!.logoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -72,7 +73,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
               Navigator.pop(context);
               await _logout();
             },
-            child: const Text("Ya, Keluar"),
+            child: Text(AppLocalizations.of(context)!.yesLogout),
           ),
         ],
       ),
@@ -85,7 +86,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text("Anda telah keluar."),
+        content: Text(AppLocalizations.of(context)!.logoutSuccess),
         backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
@@ -137,7 +138,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
 
                       // 🔹 Name & Email
                       Text(
-                        _profile?.name ?? "Tidak ada nama",
+                        _profile?.name ?? AppLocalizations.of(context)!.noName,
                         style: textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: scheme.onSurface,
@@ -145,7 +146,8 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _profile?.email ?? "Tidak ada email",
+                        _profile?.email ??
+                            AppLocalizations.of(context)!.noEmail,
                         style: textTheme.bodyMedium?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -171,7 +173,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                           children: [
                             if (_profile?.batchKe != null)
                               Text(
-                                "Batch ke-${_profile!.batchKe}",
+                                "${AppLocalizations.of(context)!.batch} ${_profile!.batchKe}",
                                 style: textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: scheme.onSecondaryContainer,
@@ -181,7 +183,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
-                                  "Pelatihan: ${_profile!.trainingTitle}",
+                                  "${AppLocalizations.of(context)!.training}${_profile!.trainingTitle}",
                                   style: textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: scheme.onSecondaryContainer,
@@ -202,7 +204,7 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                         children: [
                           _buildMenuCard(
                             icon: Icons.edit,
-                            text: "Sunting Profil",
+                            text: AppLocalizations.of(context)!.editProfile,
                             onTap: () async {
                               final updated = await context.push(
                                 EditProfilePage(
@@ -216,18 +218,18 @@ class _ProfilePresensiState extends State<ProfilePresensi> {
                           ),
                           _buildMenuCard(
                             icon: Icons.settings,
-                            text: "Pengaturan",
+                            text: AppLocalizations.of(context)!.settings,
                             onTap: () => context.push(const SettingsPresensi()),
                           ),
 
                           _buildMenuCard(
                             icon: Icons.info,
-                            text: "Tentang Aplikasi",
+                            text: AppLocalizations.of(context)!.aboutApp,
                             onTap: () => context.push(const AboutApp()),
                           ),
                           _buildMenuCard(
                             icon: Icons.logout,
-                            text: "Keluar",
+                            text: AppLocalizations.of(context)!.logout,
                             color: scheme.error,
                             onTap: _showLogoutDialog,
                           ),

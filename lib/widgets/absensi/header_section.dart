@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -47,13 +48,14 @@ class _HeaderSectionState extends State<HeaderSection> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final locale = Localizations.localeOf(context).toString();
     final formattedDate = DateFormat(
       'EEEE, dd MMMM yyyy',
-      'id_ID',
+      locale,
     ).format(_currentDateTime);
     final formattedTime = DateFormat(
       'HH:mm:ss',
-      'id_ID',
+      locale,
     ).format(_currentDateTime);
 
     return Column(
@@ -62,14 +64,14 @@ class _HeaderSectionState extends State<HeaderSection> {
         Row(
           children: [
             Text(
-              "Selamat Datang, ",
+              AppLocalizations.of(context)!.welcomeGreet,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             Expanded(
               child: Text(
-                _userName ?? "Memuat...",
+                _userName ?? AppLocalizations.of(context)!.loadingMessage,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onSurface,

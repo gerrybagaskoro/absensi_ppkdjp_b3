@@ -1,5 +1,7 @@
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_theme.dart';
+import 'package:absensi_ppkdjp_b3/utils/locale_provider.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/forgot_account_presensi.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
@@ -18,8 +20,11 @@ void main() async {
   await initializeDateFormatting('id_ID', null);
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -31,15 +36,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Absensi PPKD',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode, // <-- pakai ThemeProvider
-      supportedLocales: const [Locale('en', 'US'), Locale('id', 'ID')],
+      themeMode: themeProvider.themeMode,
+      locale: localeProvider.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

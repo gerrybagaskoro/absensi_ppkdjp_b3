@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -173,17 +174,17 @@ class _RegisterPresensiState extends State<RegisterPresensi>
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      _showErrorOverlay("Password dan konfirmasi tidak sama");
+      _showErrorOverlay(AppLocalizations.of(context)!.passwordMismatch);
       return;
     }
 
     if (_selectedTrainingId == null || _selectedBatchId == null) {
-      _showErrorOverlay("Pilih Training dan Batch terlebih dahulu");
+      _showErrorOverlay(AppLocalizations.of(context)!.chooseTrainingBatch);
       return;
     }
 
     if (_gender == null) {
-      _showErrorOverlay("Pilih jenis kelamin terlebih dahulu");
+      _showErrorOverlay(AppLocalizations.of(context)!.chooseGender);
       return;
     }
 
@@ -212,7 +213,9 @@ class _RegisterPresensiState extends State<RegisterPresensi>
       if (response.statusCode == 200) {
         if (mounted) setState(() => _isLoading = false);
 
-        _showSuccessOverlay(data["message"] ?? "Registrasi berhasil!");
+        _showSuccessOverlay(
+          data["message"] ?? AppLocalizations.of(context)!.registerSuccess,
+        );
 
         await Future.delayed(const Duration(seconds: 3));
         if (mounted) {
@@ -224,7 +227,9 @@ class _RegisterPresensiState extends State<RegisterPresensi>
         }
       } else {
         if (mounted) setState(() => _isLoading = false);
-        _showErrorOverlay(data["message"] ?? "Registrasi gagal");
+        _showErrorOverlay(
+          data["message"] ?? AppLocalizations.of(context)!.registerFailed,
+        );
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
@@ -262,7 +267,7 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                     child: Column(
                       children: [
                         Text(
-                          'Daftar Presensi Kita',
+                          AppLocalizations.of(context)!.registerTitle,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -318,9 +323,12 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                         // Nama
                         TextFormField(
                           controller: _nameController,
-                          decoration: _inputStyle('Nama Lengkap', Icons.person),
+                          decoration: _inputStyle(
+                            AppLocalizations.of(context)!.fullName,
+                            Icons.person,
+                          ),
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Nama wajib diisi'
+                              ? AppLocalizations.of(context)!.nameRequired
                               : null,
                         ),
                         const SizedBox(height: 16),
@@ -328,16 +336,21 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                         // Email
                         TextFormField(
                           controller: _emailController,
-                          decoration: _inputStyle('E-mail', Icons.email),
+                          decoration: _inputStyle(
+                            AppLocalizations.of(context)!.emailLabel,
+                            Icons.email,
+                          ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'E-mail wajib diisi';
+                              return AppLocalizations.of(
+                                context,
+                              )!.emailRequired;
                             }
                             if (!RegExp(
                               r'^[^@]+@[^@]+\.[^@]+',
                             ).hasMatch(value)) {
-                              return 'Format E-mail tidak valid';
+                              return AppLocalizations.of(context)!.emailInvalid;
                             }
                             return null;
                           },
@@ -346,36 +359,43 @@ class _RegisterPresensiState extends State<RegisterPresensi>
 
                         // Gender dropdown
                         DropdownButtonFormField<String>(
-                          value: _gender,
-                          items: const [
+                          initialValue: _gender,
+                          items: [
                             DropdownMenuItem(
                               value: "L",
-                              child: Text("Laki-laki"),
+                              child: Text(
+                                AppLocalizations.of(context)!.genderMale,
+                              ),
                             ),
                             DropdownMenuItem(
                               value: "P",
-                              child: Text("Perempuan"),
+                              child: Text(
+                                AppLocalizations.of(context)!.genderFemale,
+                              ),
                             ),
                           ],
                           onChanged: (val) => setState(() => _gender = val),
                           decoration: _inputStyle(
-                            "Jenis Kelamin",
+                            AppLocalizations.of(context)!.genderLabel,
                             Icons.person_outline,
                           ),
                           validator: (value) => value == null
-                              ? "Jenis kelamin wajib dipilih"
+                              ? AppLocalizations.of(context)!.genderRequired
                               : null,
                         ),
                         const SizedBox(height: 16),
 
                         // Training
                         DropdownButtonFormField<int>(
-                          value: _selectedTrainingId,
+                          initialValue: _selectedTrainingId,
                           items: _trainings.map<DropdownMenuItem<int>>((item) {
                             return DropdownMenuItem<int>(
                               value: item["id"],
-                              child: SizedBox(
-                                width: 200,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.5,
+                                ),
                                 child: Text(
                                   item["title"] ?? "Training",
                                   softWrap: true,
@@ -387,28 +407,35 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                           onChanged: (val) =>
                               setState(() => _selectedTrainingId = val),
                           decoration: _inputStyle(
-                            "Pilih Training",
+                            AppLocalizations.of(context)!.trainingLabel,
                             Icons.school,
                           ),
-                          validator: (value) =>
-                              value == null ? "Training wajib dipilih" : null,
+                          validator: (value) => value == null
+                              ? AppLocalizations.of(context)!.trainingRequired
+                              : null,
                         ),
                         const SizedBox(height: 16),
 
                         // Batch
                         DropdownButtonFormField<int>(
-                          value: _selectedBatchId,
+                          initialValue: _selectedBatchId,
                           items: _batches.map<DropdownMenuItem<int>>((item) {
                             return DropdownMenuItem<int>(
                               value: item["id"],
-                              child: Text("Batch ${item["batch_ke"]}"),
+                              child: Text(
+                                "${AppLocalizations.of(context)!.batch} ${item["batch_ke"]}",
+                              ),
                             );
                           }).toList(),
                           onChanged: (val) =>
                               setState(() => _selectedBatchId = val),
-                          decoration: _inputStyle("Pilih Batch", Icons.group),
-                          validator: (value) =>
-                              value == null ? "Batch wajib dipilih" : null,
+                          decoration: _inputStyle(
+                            AppLocalizations.of(context)!.batchLabel,
+                            Icons.group,
+                          ),
+                          validator: (value) => value == null
+                              ? AppLocalizations.of(context)!.batchRequired
+                              : null,
                         ),
                         const SizedBox(height: 16),
 
@@ -416,8 +443,11 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          decoration: _inputStyle('Kata sandi', Icons.lock)
-                              .copyWith(
+                          decoration:
+                              _inputStyle(
+                                AppLocalizations.of(context)!.passwordLabel,
+                                Icons.lock,
+                              ).copyWith(
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
@@ -432,9 +462,15 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                               ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Kata sandi wajib diisi';
+                              return AppLocalizations.of(
+                                context,
+                              )!.passwordRequired;
                             }
-                            if (value.length < 6) return 'Minimal 6 karakter';
+                            if (value.length < 6) {
+                              return AppLocalizations.of(
+                                context,
+                              )!.passwordMinLength;
+                            }
                             return null;
                           },
                         ),
@@ -446,7 +482,9 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                           obscureText: _obscureConfirmPassword,
                           decoration:
                               _inputStyle(
-                                'Konfirmasi sandi',
+                                AppLocalizations.of(
+                                  context,
+                                )!.confirmPasswordLabel,
                                 Icons.lock_outline,
                               ).copyWith(
                                 suffixIcon: IconButton(
@@ -463,7 +501,9 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                                 ),
                               ),
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Konfirmasi wajib diisi'
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.confirmPasswordRequired
                               : null,
                         ),
                         const SizedBox(height: 28),
@@ -474,14 +514,16 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text("Kembali"),
+                                child: Text(AppLocalizations.of(context)!.back),
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: FilledButton(
                                 onPressed: _register,
-                                child: const Text('Daftar'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.register,
+                                ),
                               ),
                             ),
                           ],
@@ -491,7 +533,7 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                         // Sudah punya akun? Login
                         Text.rich(
                           TextSpan(
-                            text: "Sudah punya akun? ",
+                            text: AppLocalizations.of(context)!.haveAccount,
                             children: [
                               WidgetSpan(
                                 child: GestureDetector(
@@ -504,7 +546,7 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                                     );
                                   },
                                   child: Text(
-                                    "Login di sini",
+                                    AppLocalizations.of(context)!.loginHere,
                                     style: TextStyle(
                                       color: scheme.primary,
                                       fontWeight: FontWeight.bold,
@@ -536,7 +578,7 @@ class _RegisterPresensiState extends State<RegisterPresensi>
                 builder: (_, __) {
                   String dots = "." * _dotsAnimation.value;
                   return Text(
-                    "Sedang memuat$dots",
+                    "${AppLocalizations.of(context)!.loading}$dots",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,

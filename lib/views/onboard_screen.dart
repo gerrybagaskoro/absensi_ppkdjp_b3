@@ -1,10 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
+import 'package:absensi_ppkdjp_b3/utils/locale_provider.dart';
 import 'package:absensi_ppkdjp_b3/views/auth/login_presensi.dart';
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:provider/provider.dart';
 
 class OnboardingScreen extends StatelessWidget {
   static const String id = '/onboard_presensi';
@@ -18,6 +21,8 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final bodyStyle = TextStyle(
       fontSize: 16,
@@ -33,55 +38,85 @@ class OnboardingScreen extends StatelessWidget {
       ),
     );
 
-    return IntroductionScreen(
-      pages: [
-        PageViewModel(
-          title: "Selamat Datang",
-          body:
-              "Aplikasi presensi digital yang memudahkan absensi sehari-hari.",
-          image: Icon(Icons.access_time, size: 150, color: colorScheme.primary),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Cepat & Mudah",
-          body: "Login sekali, presensi bisa dilakukan lebih praktis.",
-          image: Icon(Icons.touch_app, size: 150, color: colorScheme.primary),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Data Aman",
-          body: "Semua presensi tersimpan dengan aman dan terintegrasi.",
-          image: Icon(
-            Icons.verified_user,
-            size: 150,
-            color: colorScheme.primary,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          PopupMenuButton<Locale>(
+            icon: Icon(Icons.g_translate, color: colorScheme.primary),
+            onSelected: (locale) => localeProvider.setLocale(locale),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: null, child: Text(l10n.themeSystem)),
+              PopupMenuItem(
+                value: const Locale('id'),
+                child: Text(l10n.languageId),
+              ),
+              PopupMenuItem(
+                value: const Locale('en'),
+                child: Text(l10n.languageEn),
+              ),
+            ],
           ),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Mulai Sekarang",
-          body: "Siap untuk presensi digital? Yuk kita mulai!",
-          image: Icon(
-            Icons.rocket_launch,
-            size: 150,
-            color: colorScheme.primary,
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: IntroductionScreen(
+        pages: [
+          PageViewModel(
+            title: l10n.onboardingTitle1,
+            body: l10n.onboardingDesc1,
+            image: Icon(
+              Icons.access_time,
+              size: 150,
+              color: colorScheme.primary,
+            ),
+            decoration: pageDecoration,
           ),
-          decoration: pageDecoration,
+          PageViewModel(
+            title: l10n.onboardingTitle2,
+            body: l10n.onboardingDesc2,
+            image: Icon(Icons.touch_app, size: 150, color: colorScheme.primary),
+            decoration: pageDecoration,
+          ),
+          PageViewModel(
+            title: l10n.onboardingTitle3,
+            body: l10n.onboardingDesc3,
+            image: Icon(
+              Icons.verified_user,
+              size: 150,
+              color: colorScheme.primary,
+            ),
+            decoration: pageDecoration,
+          ),
+          PageViewModel(
+            title: l10n.getStarted,
+            body: l10n.onboardingDesc4,
+            image: Icon(
+              Icons.rocket_launch,
+              size: 150,
+              color: colorScheme.primary,
+            ),
+            decoration: pageDecoration,
+          ),
+        ],
+        onDone: () => _onIntroEnd(context),
+        showSkipButton: true,
+        skip: Text(l10n.skip),
+        next: const Icon(Icons.arrow_forward),
+        done: Text(
+          l10n.getStarted,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-      ],
-      onDone: () => _onIntroEnd(context),
-      showSkipButton: true,
-      skip: const Text("Lewati"),
-      next: const Icon(Icons.arrow_forward),
-      done: const Text("Mulai", style: TextStyle(fontWeight: FontWeight.bold)),
-      dotsDecorator: DotsDecorator(
-        size: const Size.square(8.0),
-        activeSize: const Size(20.0, 8.0),
-        activeShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+        dotsDecorator: DotsDecorator(
+          size: const Size.square(8.0),
+          activeSize: const Size(20.0, 8.0),
+          activeShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          activeColor: colorScheme.primary,
+          color: colorScheme.outlineVariant,
         ),
-        activeColor: colorScheme.primary,
-        color: colorScheme.outlineVariant,
       ),
     );
   }

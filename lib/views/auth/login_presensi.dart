@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/user_model.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/utils/app_logo.dart';
@@ -49,6 +50,8 @@ class _LoginPresensiState extends State<LoginPresensi>
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isLoading = true;
       _loginSuccess = null;
@@ -82,7 +85,7 @@ class _LoginPresensiState extends State<LoginPresensi>
 
           setState(() {
             _loginSuccess = true;
-            _loginMessage = 'Login berhasil!';
+            _loginMessage = l10n.loginSuccess;
           });
 
           await Future.delayed(const Duration(seconds: 3));
@@ -94,12 +97,12 @@ class _LoginPresensiState extends State<LoginPresensi>
         } else {
           setState(() {
             _loginSuccess = false;
-            _loginMessage = 'Data login tidak valid dari server';
+            _loginMessage = l10n.loginInvalidData;
           });
         }
       } else {
         final errorResponse = jsonDecode(response.body);
-        final String message = errorResponse['message'] ?? 'Login gagal';
+        final String message = errorResponse['message'] ?? l10n.loginFailed;
 
         setState(() {
           _loginSuccess = false;
@@ -109,7 +112,7 @@ class _LoginPresensiState extends State<LoginPresensi>
     } catch (e) {
       setState(() {
         _loginSuccess = false;
-        _loginMessage = 'Terjadi kesalahan: $e';
+        _loginMessage = l10n.loginError(e.toString());
       });
     }
   }
@@ -126,6 +129,7 @@ class _LoginPresensiState extends State<LoginPresensi>
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Stack(
@@ -154,7 +158,7 @@ class _LoginPresensiState extends State<LoginPresensi>
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Masuk untuk Presensi',
+                            l10n.loginTitleHeader,
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -165,7 +169,7 @@ class _LoginPresensiState extends State<LoginPresensi>
                           TextFormField(
                             controller: _emailController,
                             decoration: InputDecoration(
-                              labelText: 'E-mail',
+                              labelText: l10n.emailLabel,
                               prefixIcon: Icon(
                                 Icons.email,
                                 color: scheme.primary,
@@ -173,10 +177,10 @@ class _LoginPresensiState extends State<LoginPresensi>
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'E-mail tidak boleh kosong';
+                                return l10n.emailEmpty;
                               }
                               if (!value.contains('@')) {
-                                return 'Format E-mail tidak valid';
+                                return l10n.emailInvalid;
                               }
                               return null;
                             },
@@ -186,7 +190,7 @@ class _LoginPresensiState extends State<LoginPresensi>
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                              labelText: 'Kata sandi',
+                              labelText: l10n.passwordLabel,
                               prefixIcon: Icon(
                                 Icons.lock,
                                 color: scheme.primary,
@@ -205,10 +209,10 @@ class _LoginPresensiState extends State<LoginPresensi>
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Kata sandi tidak boleh kosong';
+                                return l10n.passwordEmpty;
                               }
                               if (value.length < 6) {
-                                return 'Minimal 6 karakter';
+                                return l10n.passwordMinLength;
                               }
                               return null;
                             },
@@ -219,17 +223,17 @@ class _LoginPresensiState extends State<LoginPresensi>
                             height: 50,
                             child: FilledButton(
                               onPressed: _isLoading ? null : _login,
-                              child: const Text('Masuk'),
+                              child: Text(l10n.loginButton),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Text.rich(
                             TextSpan(
-                              text: 'Belum punya akun? ',
+                              text: l10n.noAccount,
                               style: TextStyle(color: scheme.onSurfaceVariant),
                               children: [
                                 TextSpan(
-                                  text: 'Daftar di sini',
+                                  text: l10n.registerAction,
                                   style: TextStyle(
                                     color: scheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -245,11 +249,11 @@ class _LoginPresensiState extends State<LoginPresensi>
                           const SizedBox(height: 8),
                           Text.rich(
                             TextSpan(
-                              text: 'Lupa kata sandi? ',
+                              text: l10n.forgotPasswordPrompt,
                               style: TextStyle(color: scheme.onSurfaceVariant),
                               children: [
                                 TextSpan(
-                                  text: 'Reset di sini',
+                                  text: l10n.resetAction,
                                   style: TextStyle(
                                     color: scheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -289,7 +293,7 @@ class _LoginPresensiState extends State<LoginPresensi>
                         builder: (_, __) {
                           String dots = "." * _dotsAnimation.value;
                           return Text(
-                            "Sedang memuat$dots",
+                            "${l10n.loading}$dots",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,

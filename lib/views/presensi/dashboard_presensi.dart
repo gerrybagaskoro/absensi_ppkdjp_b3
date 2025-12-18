@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:absensi_ppkdjp_b3/api/absen_api.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/model/auth/absen_today.dart';
 import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
 import 'package:absensi_ppkdjp_b3/utils/lottie_overlay.dart'; // ⬅️ helper overlay
@@ -62,9 +63,10 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final List<Widget> pages = [
-      _buildDashboardPage(),
+      _buildDashboardPage(l10n),
       const HistoryPresensi(),
       const StatisticPresensi(),
       const IzinPresensi(),
@@ -74,7 +76,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Presensi Kita',
+          l10n.appName,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -92,21 +94,33 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
         selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
         unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "Riwayat"),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.pie_chart),
-            label: "Statistik",
+            icon: const Icon(Icons.home),
+            label: l10n.dashboard,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.note), label: "Izin"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.history),
+            label: l10n.history,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.pie_chart),
+            label: l10n.statistic,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.note),
+            label: l10n.permission,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person),
+            label: l10n.profile,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDashboardPage() {
+  Widget _buildDashboardPage(AppLocalizations l10n) {
     return RefreshIndicator(
       onRefresh: _loadTodayAbsen,
       child: SingleChildScrollView(
@@ -124,12 +138,12 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             const SizedBox(height: 16),
             FadeInUp(
               delay: const Duration(milliseconds: 200),
-              child: _buildTodayStatusCard(),
+              child: _buildTodayStatusCard(l10n),
             ),
             const SizedBox(height: 24),
             FadeInUp(
               delay: const Duration(milliseconds: 300),
-              child: _buildAbsensiButtons(),
+              child: _buildAbsensiButtons(l10n),
             ),
           ],
         ),
@@ -137,25 +151,31 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  Widget _buildTodayStatusCard() {
+  Widget _buildTodayStatusCard(AppLocalizations l10n) {
     final theme = Theme.of(context);
-    final status = _absenToday?.status?.toLowerCase() ?? "belum absen";
+    final status = _absenToday?.status?.toLowerCase() ?? "not_present";
     Color statusColor;
-    switch (status) {
-      case "hadir":
-      case "masuk":
-        statusColor = Colors.green;
-        break;
-      case "telat":
-      case "izin":
-        statusColor = Colors.orange;
-        break;
-      case "alpha":
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.grey;
+    String statusText;
+
+    if (status.contains("hadir") || status.contains("masuk")) {
+      statusColor = Colors.green;
+      statusText = l10n.statusPresent;
+    } else if (status.contains("telat")) {
+      statusColor = Colors.orange;
+      statusText = l10n.statusLate;
+    } else if (status.contains("izin")) {
+      statusColor = Colors.orange;
+      statusText = l10n.statusPermission;
+    } else if (status.contains("alpha")) {
+      statusColor = Colors.red;
+      statusText = l10n.statusAbsent;
+    } else {
+      statusColor = Colors.grey;
+      statusText = l10n.statusNotYet;
     }
+
+    // Override if API status is unknown but not null? No, just stick to mapped or raw capitalized if needed.
+    // Ideally we map API string to L10n.
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -178,7 +198,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Status Absen Hari Ini',
+                l10n.todayStatus,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -193,7 +213,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  _absenToday?.status ?? "Belum Absen",
+                  statusText,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: statusColor,
@@ -207,7 +227,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             children: [
               Expanded(
                 child: _buildCheckTile(
-                  label: "Masuk",
+                  label: l10n.checkIn,
                   time: _absenToday?.checkInTime,
                   color: Colors.green,
                   icon: Icons.login,
@@ -216,7 +236,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildCheckTile(
-                  label: "Pulang",
+                  label: l10n.checkOut,
                   time: _absenToday?.checkOutTime,
                   color: Colors.red,
                   icon: Icons.logout,
@@ -228,7 +248,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
               child: Text(
-                "Alasan Izin: ${_absenToday!.alasanIzin}",
+                "${l10n.reasonPermission}${_absenToday!.alasanIzin}",
                 style: theme.textTheme.bodyMedium,
               ),
             ),
@@ -292,7 +312,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
     );
   }
 
-  Widget _buildAbsensiButtons() {
+  Widget _buildAbsensiButtons(AppLocalizations l10n) {
     final theme = Theme.of(context);
     return ValueListenableBuilder<double>(
       valueListenable: LocationCardStateNotifier.distanceNotifier,
@@ -302,7 +322,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         if (status == "izin") {
           return Center(
             child: Text(
-              "📌 Anda sedang izin hari ini",
+              l10n.permissionToday,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.orange,
@@ -317,7 +337,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
               : "${(distance / 1000).toStringAsFixed(2)} km";
           return Center(
             child: Text(
-              "⚠️ Anda jauh dari lokasi PPKDJP (Jarak: $distText)",
+              "${l10n.farLocation} ($distText)",
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.red,
@@ -329,22 +349,22 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
 
         if (_absenToday == null || _absenToday?.checkInTime == null) {
           return _buildAbsenButton(
-            'Absen Masuk',
+            l10n.clockIn,
             Icons.login,
             theme.primaryColor,
-            _handleCheckIn,
+            () => _handleCheckIn(l10n),
           );
         } else if (_absenToday?.checkOutTime == null) {
           return _buildAbsenButton(
-            'Absen Pulang',
+            l10n.clockOut,
             Icons.logout,
             Colors.green[700]!,
-            _handleCheckOut,
+            () => _handleCheckOut(l10n),
           );
         } else {
           return Center(
             child: Text(
-              "✅ Anda sudah absen masuk & pulang hari ini",
+              l10n.alreadyPresent,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -404,14 +424,14 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
   }
 
   /// === HANDLER CHECKIN & CHECKOUT ===
-  Future<void> _handleCheckIn() async {
+  Future<void> _handleCheckIn(AppLocalizations l10n) async {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
         LocationCardState.lastAddress == null) {
       await showLottieOverlay(
         context,
         success: false,
-        message: "Lokasi belum tersedia",
+        message: l10n.locationNotAvailable,
       );
       return;
     }
@@ -444,33 +464,33 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         await showLottieOverlay(
           context,
           success: true,
-          message: response?.message ?? "Absen masuk berhasil",
+          message: l10n.checkInSuccess,
         );
         await _loadTodayAbsen();
       } else {
         await showLottieOverlay(
           context,
           success: false,
-          message: response?.message ?? "Gagal absen masuk",
+          message: response?.message ?? l10n.checkInFailed,
         );
       }
     } catch (e) {
       await showLottieOverlay(
         context,
         success: false,
-        message: "Terjadi error saat absen: $e",
+        message: l10n.checkInError(e.toString()),
       );
     }
   }
 
-  Future<void> _handleCheckOut() async {
+  Future<void> _handleCheckOut(AppLocalizations l10n) async {
     if (LocationCardState.lastLat == null ||
         LocationCardState.lastLng == null ||
         LocationCardState.lastAddress == null) {
       await showLottieOverlay(
         context,
         success: false,
-        message: "Lokasi belum tersedia",
+        message: l10n.locationNotAvailable,
       );
       return;
     }
@@ -503,13 +523,13 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
         await showLottieOverlay(
           context,
           success: true,
-          message: response?.message ?? "Absen pulang berhasil",
+          message: l10n.checkOutSuccess,
         );
       } else {
         await showLottieOverlay(
           context,
           success: false,
-          message: response?.message ?? "Gagal absen pulang",
+          message: response?.message ?? l10n.checkOutFailed,
         );
         await _loadTodayAbsen();
       }
@@ -517,7 +537,7 @@ class _DashboardPresensiState extends State<DashboardPresensi> {
       await showLottieOverlay(
         context,
         success: false,
-        message: "Terjadi error saat absen: $e",
+        message: l10n.checkInError(e.toString()), // Using same error key format
       );
     }
   }

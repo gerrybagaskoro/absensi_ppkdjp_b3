@@ -1,4 +1,5 @@
 import 'package:absensi_ppkdjp_b3/api/statistic_presensi.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/model/presensi/statistic_presensi.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
@@ -116,7 +117,7 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Statistik Presensi'),
+        title: Text(AppLocalizations.of(context)!.statisticTitle),
         centerTitle: true,
         surfaceTintColor: theme.colorScheme.primary,
         elevation: 1,
@@ -132,29 +133,33 @@ class _StatisticPresensiState extends State<StatisticPresensi> {
           ),
           children: [
             buildStatCard(
-              'Total Absen',
+              AppLocalizations.of(context)!.totalAbsent,
               stats != null ? '${stats!.totalAbsen}' : '0',
               Icons.event_available,
               theme.colorScheme.primary,
               delay: 100,
             ),
             buildStatCard(
-              'Total Masuk',
+              AppLocalizations.of(context)!.totalPresent,
               stats != null ? '${stats!.totalMasuk}' : '0',
               Icons.login,
               theme.colorScheme.secondary,
               delay: 200,
             ),
             buildStatCard(
-              'Total Izin',
+              AppLocalizations.of(context)!.totalPermission,
               stats != null ? '${stats!.totalIzin}' : '0',
               Icons.assignment_late,
               theme.colorScheme.tertiary,
               delay: 300,
             ),
             buildStatCard(
-              'Absen Hari Ini',
-              stats != null ? (stats!.sudahAbsenHariIni ? 'Ya' : 'Belum') : '-',
+              AppLocalizations.of(context)!.attendanceToday,
+              stats != null
+                  ? (stats!.sudahAbsenHariIni
+                        ? AppLocalizations.of(context)!.yes
+                        : AppLocalizations.of(context)!.notYet)
+                  : '-',
               stats != null
                   ? (stats!.sudahAbsenHariIni
                         ? Icons.check_circle

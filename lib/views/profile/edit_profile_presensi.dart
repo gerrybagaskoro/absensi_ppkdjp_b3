@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:absensi_ppkdjp_b3/api/endpoint.dart';
 import 'package:absensi_ppkdjp_b3/api/profile_service.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/preference/shared_preference.dart';
 import 'package:absensi_ppkdjp_b3/widgets/profile/avatar_hero.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isUploading = false;
 
   String? _currentPhotoUrl;
-  String? _email;
 
   @override
   void initState() {
@@ -41,7 +41,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // Pre-fill with passed data for smooth Hero animation
     _currentPhotoUrl = widget.initialPhotoUrl;
     _nameController.text = widget.initialName ?? '';
-    _email = widget.initialEmail;
 
     // Fetch fresh data in background
     _loadProfile();
@@ -58,7 +57,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (mounted) {
         setState(() {
           _nameController.text = profile!.data!.name ?? '';
-          _email = profile.data!.email ?? '';
           _currentPhotoUrl =
               profile.data!.profilePhotoUrl ??
               (profile.data!.profilePhoto != null
@@ -135,19 +133,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Foto profil berhasil diperbarui"),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.photoUpdated),
             behavior: SnackBarBehavior.floating,
           ),
         );
       } else {
-        throw Exception("Gagal upload foto: ${response.body}");
+        throw Exception(
+          AppLocalizations.of(context)!.uploadFailed(response.body),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error upload foto: $e"),
+            content: Text(
+              AppLocalizations.of(context)!.uploadFailed(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -187,20 +189,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Nama berhasil diperbarui"),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.updateNameSuccess),
             behavior: SnackBarBehavior.floating,
           ),
         );
         Navigator.pop(context, true);
       } else {
-        throw Exception("Gagal update nama: ${response.body}");
+        throw Exception(
+          AppLocalizations.of(context)!.updateNameFailed(response.body),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error update nama: $e"),
+            content: Text(
+              AppLocalizations.of(context)!.updateNameFailed(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -236,7 +242,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Sunting Profil"), centerTitle: true),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.editProfileTitle),
+        centerTitle: true,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -299,7 +308,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        labelText: "Nama Lengkap",
+                        labelText: AppLocalizations.of(context)!.fullName,
                         prefixIcon: const Icon(Icons.person),
                         filled: true,
                         border: OutlineInputBorder(
@@ -308,7 +317,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                       ),
                       validator: (v) => v == null || v.trim().isEmpty
-                          ? "Nama tidak boleh kosong"
+                          ? AppLocalizations.of(context)!.nameRequired
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -319,7 +328,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       height: 48,
                       child: FilledButton(
                         onPressed: _submitName,
-                        child: const Text("Simpan Nama"),
+                        child: Text(AppLocalizations.of(context)!.saveName),
                       ),
                     ),
                   ],

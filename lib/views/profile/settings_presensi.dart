@@ -1,6 +1,8 @@
 import 'package:absensi_ppkdjp_b3/extension/navigation.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:absensi_ppkdjp_b3/services/history_pdf_export_service.dart';
 import 'package:absensi_ppkdjp_b3/services/notification_service.dart';
+import 'package:absensi_ppkdjp_b3/utils/locale_provider.dart';
 import 'package:absensi_ppkdjp_b3/utils/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,6 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
   }
 
   Future<void> _pickTime() async {
-    final now = TimeOfDay.now();
     final picked = await showTimePicker(
       context: context,
       initialTime: _scheduledTime ?? const TimeOfDay(hour: 6, minute: 0),
@@ -57,12 +58,13 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Pengaturan",
+          AppLocalizations.of(context)!.settings,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: scheme.onPrimaryContainer,
             fontWeight: FontWeight.bold,
@@ -85,24 +87,72 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
             elevation: 1,
             child: ListTile(
               leading: Icon(Icons.color_lens, color: scheme.primary),
-              title: const Text("Tema Aplikasi"),
-              subtitle: Text(_getThemeText(themeProvider.themeMode)),
+              title: Text(AppLocalizations.of(context)!.theme),
+              subtitle: Text(
+                _getThemeText(
+                  themeProvider.themeMode,
+                  AppLocalizations.of(context)!,
+                ),
+              ),
               trailing: DropdownButton<ThemeMode>(
                 value: themeProvider.themeMode,
                 underline: const SizedBox(),
                 onChanged: (mode) {
                   if (mode != null) themeProvider.setThemeMode(mode);
                 },
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: ThemeMode.system,
-                    child: Text("Mengikuti Sistem"),
+                    child: Text(AppLocalizations.of(context)!.themeSystem),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.light,
-                    child: Text("Terang"),
+                    child: Text(AppLocalizations.of(context)!.themeLight),
                   ),
-                  DropdownMenuItem(value: ThemeMode.dark, child: Text("Gelap")),
+                  DropdownMenuItem(
+                    value: ThemeMode.dark,
+                    child: Text(AppLocalizations.of(context)!.themeDark),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 🔹 Bahasa / Language
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 1,
+            child: ListTile(
+              leading: Icon(Icons.g_translate, color: scheme.primary),
+              title: Text(AppLocalizations.of(context)!.languageSettingsTitle),
+              subtitle: Text(
+                _getLanguageText(
+                  localeProvider.locale,
+                  AppLocalizations.of(context)!,
+                ),
+              ),
+              trailing: DropdownButton<Locale>(
+                value: localeProvider.locale, // null is System
+                underline: const SizedBox(),
+                onChanged: (locale) {
+                  localeProvider.setLocale(locale);
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text(AppLocalizations.of(context)!.themeSystem),
+                  ),
+                  DropdownMenuItem(
+                    value: Locale('id'),
+                    child: Text(AppLocalizations.of(context)!.languageId),
+                  ),
+                  DropdownMenuItem(
+                    value: Locale('en'),
+                    child: Text(AppLocalizations.of(context)!.languageEn),
+                  ),
                 ],
               ),
             ),
@@ -111,7 +161,7 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
 
           // 🔹 Notifikasi Section
           Text(
-            "Notifikasi",
+            AppLocalizations.of(context)!.notification,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -129,11 +179,13 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
               children: [
                 ListTile(
                   leading: Icon(Icons.alarm, color: scheme.primary),
-                  title: const Text("Atur Pengingat Harian"),
+                  title: Text(AppLocalizations.of(context)!.dailyReminder),
                   subtitle: Text(
                     _scheduledTime != null
-                        ? "Setiap hari jam ${_scheduledTime!.format(context)}"
-                        : "Memuat...",
+                        ? AppLocalizations.of(
+                            context,
+                          )!.dailyReminderTime(_scheduledTime!.format(context))
+                        : AppLocalizations.of(context)!.loading,
                   ),
                   onTap: _pickTime,
                   trailing: Icon(
@@ -150,7 +202,7 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
 
           // 🔹 Ekspor Data
           Text(
-            "Data",
+            AppLocalizations.of(context)!.dataTitle,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -165,8 +217,10 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
             elevation: 1,
             child: ListTile(
               leading: Icon(Icons.picture_as_pdf, color: scheme.primary),
-              title: const Text("Ekspor Riwayat Presensi"),
-              subtitle: const Text("Unduh riwayat absensi dalam format PDF"),
+              title: Text(AppLocalizations.of(context)!.exportHistory),
+              subtitle: Text(
+                AppLocalizations.of(context)!.exportHistorySubtitle,
+              ),
               onTap: () => HistoryPdfExportService.exportHistory(context),
               trailing: Icon(
                 Icons.arrow_forward_ios,
@@ -191,14 +245,14 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
               ),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Pengaturan berhasil disimpan!"),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.successSave),
                   ),
                 );
                 context.pop();
               },
               child: Text(
-                "Simpan",
+                AppLocalizations.of(context)!.save,
                 style: TextStyle(
                   color: scheme.onPrimary,
                   fontSize: 16,
@@ -212,14 +266,21 @@ class _SettingsPresensiState extends State<SettingsPresensi> {
     );
   }
 
-  String _getThemeText(ThemeMode mode) {
+  String _getLanguageText(Locale? locale, AppLocalizations l10n) {
+    if (locale == null) return l10n.themeSystem;
+    if (locale.languageCode == 'id') return l10n.languageId;
+    if (locale.languageCode == 'en') return l10n.languageEn;
+    return l10n.themeSystem;
+  }
+
+  String _getThemeText(ThemeMode mode, AppLocalizations l10n) {
     switch (mode) {
       case ThemeMode.light:
-        return "Terang";
+        return l10n.themeLight;
       case ThemeMode.dark:
-        return "Gelap";
+        return l10n.themeDark;
       case ThemeMode.system:
-        return "Mengikuti Sistem";
+        return l10n.themeSystem;
     }
   }
 }

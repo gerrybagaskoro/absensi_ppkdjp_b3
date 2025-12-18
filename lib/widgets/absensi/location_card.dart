@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -117,7 +118,7 @@ class _LocationCardState extends State<LocationCard> {
   Future<void> _updateLocation(Position position) async {
     final newPos = LatLng(position.latitude, position.longitude);
 
-    String address = "Alamat tidak ditemukan";
+    String address = AppLocalizations.of(context)!.addressNotFound;
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
         newPos.latitude,
@@ -210,7 +211,7 @@ class _LocationCardState extends State<LocationCard> {
                 Icon(Icons.location_on, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  "Lokasi Presensi",
+                  AppLocalizations.of(context)!.attendanceLocation,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.primary,
@@ -274,7 +275,8 @@ class _LocationCardState extends State<LocationCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _currentAddress ?? 'Sedang mengambil lokasi...',
+                  _currentAddress ??
+                      AppLocalizations.of(context)!.fetchingLocation,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -286,7 +288,9 @@ class _LocationCardState extends State<LocationCard> {
                   duration: const Duration(milliseconds: 500),
                   builder: (context, value, child) {
                     return Text(
-                      "Jarak anda ke PPKDJP: ${_formatDistance(value)}",
+                      AppLocalizations.of(
+                        context,
+                      )!.distanceTo(_formatDistance(value)),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: canCheckIn ? Colors.green : Colors.red,

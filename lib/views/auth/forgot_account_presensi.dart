@@ -2,6 +2,7 @@
 
 import 'package:absensi_ppkdjp_b3/api/auth_services/forgot_password.dart';
 import 'package:absensi_ppkdjp_b3/api/auth_services/reset_password.dart';
+import 'package:absensi_ppkdjp_b3/l10n/app_localizations.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
@@ -31,13 +32,19 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
     try {
       final res = await ForgotPasswordAPI.sendOtp(_emailController.text.trim());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res?.message ?? "OTP berhasil dikirim")),
+        SnackBar(
+          content: Text(
+            res?.message ?? AppLocalizations.of(context)!.otpSuccess,
+          ),
+        ),
       );
       setState(() => _showResetFields = true);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gagal kirim OTP: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.otpFailed(e.toString())),
+        ),
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -55,13 +62,21 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res?.message ?? "Password berhasil diperbarui")),
+        SnackBar(
+          content: Text(
+            res?.message ?? AppLocalizations.of(context)!.resetPasswordSuccess,
+          ),
+        ),
       );
       Navigator.pop(context); // kembali ke login
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gagal reset password: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.resetPasswordFailed(e.toString()),
+          ),
+        ),
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -131,7 +146,7 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "Reset Kata Sandi",
+                            AppLocalizations.of(context)!.forgotPasswordTitle,
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -142,11 +157,11 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                           TextFormField(
                             controller: _emailController,
                             decoration: _inputDecoration(
-                              label: "Email",
+                              label: AppLocalizations.of(context)!.emailLabel,
                               icon: Icons.email,
                             ),
                             validator: (v) => v == null || v.isEmpty
-                                ? "Email tidak boleh kosong"
+                                ? AppLocalizations.of(context)!.emailEmpty
                                 : null,
                           ),
                           const SizedBox(height: 16),
@@ -155,11 +170,11 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                             TextFormField(
                               controller: _otpController,
                               decoration: _inputDecoration(
-                                label: "Kode OTP",
+                                label: AppLocalizations.of(context)!.otpLabel,
                                 icon: Icons.confirmation_number,
                               ),
                               validator: (v) => v == null || v.isEmpty
-                                  ? "OTP tidak boleh kosong"
+                                  ? AppLocalizations.of(context)!.otpEmpty
                                   : null,
                             ),
                             const SizedBox(height: 16),
@@ -167,7 +182,9 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                               controller: _passwordController,
                               obscureText: _obscurePassword,
                               decoration: _inputDecoration(
-                                label: "Password Baru",
+                                label: AppLocalizations.of(
+                                  context,
+                                )!.newPasswordLabel,
                                 icon: Icons.lock,
                                 suffix: IconButton(
                                   icon: Icon(
@@ -182,7 +199,9 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                                 ),
                               ),
                               validator: (v) => v == null || v.length < 6
-                                  ? "Minimal 6 karakter"
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.passwordMinLength
                                   : null,
                             ),
                             const SizedBox(height: 24),
@@ -221,8 +240,8 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                                         ),
                                       ),
                                     ),
-                                    child: const Text(
-                                      "Kembali",
+                                    child: Text(
+                                      AppLocalizations.of(context)!.back,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
@@ -283,8 +302,12 @@ class _ForgotResetPasswordScreenState extends State<ForgotResetPasswordScreen> {
                                           )
                                         : Text(
                                             _showResetFields
-                                                ? "Reset Password"
-                                                : "Kirim OTP",
+                                                ? AppLocalizations.of(
+                                                    context,
+                                                  )!.resetPasswordButton
+                                                : AppLocalizations.of(
+                                                    context,
+                                                  )!.sendOtpButton,
                                             style: const TextStyle(
                                               fontSize: 15,
                                               fontWeight: FontWeight.bold,
